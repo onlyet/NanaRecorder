@@ -53,11 +53,6 @@ int OpenVideoCapture()
 	//这里可以加参数打开，例如可以指定采集帧率
 	AVDictionary *options = NULL;
 	av_dict_set(&options, "framerate", "15", NULL);
-	//av_dict_set(&options,"offset_x","20",0);
-	//The distance from the top edge of the screen or desktop
-	//av_dict_set(&options,"offset_y","40",0);
-	//Video frame size. The default is to capture the full screen
-	//av_dict_set(&options,"video_size","320x240",0);
 	if (avformat_open_input(&pFormatCtx_Video, "desktop", ifmt, &options) != 0)
 	{
 		printf("Couldn't open input stream.（无法打开视频输入流）\n");
@@ -89,7 +84,7 @@ int OpenVideoCapture()
 
 
 	img_convert_ctx = sws_getContext(pCodecCtx_Video->width, pCodecCtx_Video->height, pCodecCtx_Video->pix_fmt,
-		pCodecCtx_Video->width, pCodecCtx_Video->height, PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+		pCodecCtx_Video->width, pCodecCtx_Video->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 
 	frame_size = avpicture_get_size(pCodecCtx_Video->pix_fmt, pCodecCtx_Video->width, pCodecCtx_Video->height);
 	//申请30帧缓存
@@ -178,7 +173,7 @@ int OpenOutPut()
 		}
 
 		if (pFormatCtx_Out->oformat->flags & AVFMT_GLOBALHEADER)
-			pVideoStream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+			pVideoStream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
 		if ((avcodec_open2(pVideoStream->codec, pVideoStream->codec->codec, NULL)) < 0)
 		{
