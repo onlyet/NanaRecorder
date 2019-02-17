@@ -26,6 +26,9 @@ public:
 	int OpenOutput();
 
 private:
+	void MuxThreadProc();
+
+private:
 
 	QString m_filePath;
 	int m_width;
@@ -39,11 +42,14 @@ private:
 	AVFormatContext *m_oFmtCtx;
 	AVCodecContext	*m_vCodecCtx;
 	AVCodecContext  *m_aCodecCtx;
-	AVCodecContext  *m_vEncCodecCtx;
-	AVCodecContext  *m_aEncCodecCtx;
+	AVCodecContext  *m_vEncodeCtx;
+	AVCodecContext  *m_aEncodeCtx;
 	AVCodec			*m_vCodec;
 	AVCodec			*m_aCodec;
 	SwsContext		*m_swsCtx;
 	AVFifoBuffer	*m_vBuf;
 	AVFifoBuffer	*m_aBuf;
+
+	QMutex			m_vMtx;
+	QMutex			m_aMtx;
 };
