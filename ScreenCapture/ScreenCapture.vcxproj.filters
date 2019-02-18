@@ -38,9 +38,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ScreenRecordImpl.h">
+    <QtMoc Include="ScreenRecordImpl.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <None Include="ScreenRecordImpl.cpp">
