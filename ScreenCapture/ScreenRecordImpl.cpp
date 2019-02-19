@@ -22,14 +22,17 @@ extern "C"
 #endif
 
 #include "ScreenRecordImpl.h"
-//#include <iostream>
 #include <QDebug>
+#include <QAudioDeviceInfo>
 #include <thread>
+
+#include <dshow.h>
 
 using namespace std;
 
-ScreenRecordImpl::ScreenRecordImpl() :
-	m_fps(25)
+ScreenRecordImpl::ScreenRecordImpl(QObject * parent) :
+	QObject(parent)
+	, m_fps(25)
 	, m_vIndex(-1), m_aIndex(-1)
 	, m_vFmtCtx(nullptr), m_aFmtCtx(nullptr), m_oFmtCtx(nullptr)
 	, m_vDecodeCtx(nullptr), m_aDecodeCtx(nullptr)
@@ -124,11 +127,25 @@ int ScreenRecordImpl::OpenAudio()
 {
 	int ret = -1;
 	AVCodec *decoder = nullptr;
+
+	qDebug() << GetSpeakerDeviceName();
+	const char *speaker = GetSpeakerDeviceName().toStdString().c_str();
+	//AVDictionary* options = NULL;
+	//av_dict_set(&options, "list_devices", "true", 0);
+	//AVInputFormat *iformat = av_find_input_format("dshow");
+	//printf("Device Info=============");
+	//avformat_open_input(&m_aFmtCtx, "audio=dummy", iformat, &options);
+	//printf("========================");
+	qDebug() << GetMicrophoneDeviceName();
+
+
 	//查找输入方式
 	AVInputFormat *ifmt = av_find_input_format("dshow");
 	//以Direct Show的方式打开设备，并将 输入方式 关联到格式上下文
-	char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (Realtek High Definition Au");
-
+	char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (Conexant SmartAudio HD)");
+	//char * deviceName = dup_wchar_to_utf8(L"DirectSound: 扬声器(Conexant SmartAudio HD)");
+	//char * deviceName = dup_wchar_to_utf8(L"audio=扬声器 (Conexant SmartAudio HD)");
+	//char * deviceName = dup_wchar_to_utf8(L"audio=DirectSound_ 扬声器 (Conexant SmartAudio HD)");
 	if (avformat_open_input(&m_aFmtCtx, deviceName, ifmt, nullptr) < 0)
 	{
 		printf("Couldn't open input stream.（无法打开音频输入流）\n");
@@ -187,6 +204,8 @@ int ScreenRecordImpl::OpenOutput()
 			printf("can not new stream for output!\n");
 			return -1;
 		}
+		//AVFormatContext第一个创建的流索引是0，第二个创建的流索引是1
+		m_vOutIndex = vStream->index;
 		vStream->time_base.num = 1;
 		vStream->time_base.den = m_fps;
 
@@ -205,9 +224,25 @@ int ScreenRecordImpl::OpenOutput()
 		m_vEncodeCtx->pix_fmt = AV_PIX_FMT_YUV420P;
 		m_vEncodeCtx->codec_id = AV_CODEC_ID_H264;
 
+		m_vEncodeCtx->bit_rate = 800 * 1000;
+		m_vEncodeCtx->rc_max_rate = 800 * 1000;
+		//codec_ctx->rc_min_rate = 200 * 1000;
+		m_vEncodeCtx->rc_buffer_size = 500 * 1000;
+		//设置图像组层的大小, gop_size越大，文件越小 
+		m_vEncodeCtx->gop_size = 30;
+		m_vEncodeCtx->max_b_frames = 3;
+		 //设置h264中相关的参数,不设置avcodec_open2会失败
+		m_vEncodeCtx->qmin = 10;	//2
+		m_vEncodeCtx->qmax = 31;	//31
+		m_vEncodeCtx->max_qdiff = 4;
+		m_vEncodeCtx->me_range = 16;	//0	
+		m_vEncodeCtx->max_qdiff = 4;	//3	
+		m_vEncodeCtx->qcompress = 0.6;	//0.5
+
 		//查找视频编码器
-		m_vEncodeCtx->codec = avcodec_find_encoder(m_vEncodeCtx->codec_id);
-		if (!m_vEncodeCtx->codec)
+		AVCodec *encoder;
+		encoder = avcodec_find_encoder(m_vEncodeCtx->codec_id);
+		if (!encoder)
 		{
 			qDebug() << "Can not find the encoder, id: " << m_vEncodeCtx->codec_id;
 			return -1;
@@ -216,9 +251,10 @@ int ScreenRecordImpl::OpenOutput()
 		//正确设置sps/pps
 		m_vEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		//打开视频编码器
-		if ((avcodec_open2(m_vEncodeCtx, m_vEncodeCtx->codec, NULL)) < 0)
+		ret = avcodec_open2(m_vEncodeCtx, encoder, nullptr);
+		if (ret < 0)
 		{
-			printf("can not open the encoder\n");
+			qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
 			return -1;
 		}
 		//将codecCtx中的参数传给输出流
@@ -238,34 +274,42 @@ int ScreenRecordImpl::OpenOutput()
 			printf("can not new audio stream for output!\n");
 			return -1;
 		}
-		m_aEncodeCtx = avcodec_alloc_context3(NULL);
+		aStream->time_base = AVRational{ 1, m_aFmtCtx->streams[m_aIndex]->codecpar->sample_rate };
+		m_aOutIndex = aStream->index;
+
+		//AVCodec *encoder = avcodec_find_encoder(m_oFmtCtx->oformat->audio_codec);
+		AVCodec *encoder = avcodec_find_encoder(AV_CODEC_ID_MP3);
+		if (!encoder)
+		{
+			qDebug() << "Can not find audio encoder, id: " << m_oFmtCtx->oformat->audio_codec;
+			return -1;
+		}
+		m_aEncodeCtx = avcodec_alloc_context3(encoder);
 		if (nullptr == m_vEncodeCtx)
 		{
 			qDebug() << "audio avcodec_alloc_context3 failed";
 			return -1;
 		}
-		m_aEncodeCtx->codec = avcodec_find_encoder(m_oFmtCtx->oformat->audio_codec);
-		if (!m_aEncodeCtx->codec)
-		{
-			qDebug() << "Can not find audio encoder, id: " << m_oFmtCtx->oformat->audio_codec;
-			return -1;
-		}
-
-		ret = avcodec_parameters_to_context(m_aEncodeCtx, m_aFmtCtx->streams[m_aIndex]->codecpar);
-		if (ret < 0)
-		{
-			qDebug() << "Output audio avcodec_parameters_to_context,error code:" << ret;
-			return -1;
-		}
-		aStream->time_base = AVRational{ 1, m_aFmtCtx->streams[m_aIndex]->codecpar->sample_rate };
-
+		//ret = avcodec_parameters_to_context(m_aEncodeCtx, m_aFmtCtx->streams[m_aIndex]->codecpar);
+		//if (ret < 0)
+		//{
+		//	qDebug() << "Output audio avcodec_parameters_to_context,error code:" << ret;
+		//	return -1;
+		//}
+		m_aEncodeCtx->sample_rate = 44100;
+		m_aEncodeCtx->channel_layout = AV_CH_LAYOUT_STEREO;
+		m_aEncodeCtx->channels = 2;
+		m_aEncodeCtx->codec_type = AVMEDIA_TYPE_AUDIO;
+		m_aEncodeCtx->sample_fmt = AV_SAMPLE_FMT_S16P;
+		m_aEncodeCtx->codec_id = AV_CODEC_ID_MP3;
 		m_aEncodeCtx->codec_tag = 0;
 		m_aEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
 		//打开音频编码器
-		if (avcodec_open2(m_aEncodeCtx, m_aEncodeCtx->codec, 0) < 0)
+		ret = avcodec_open2(m_aEncodeCtx, encoder, 0);
+		if (ret < 0)
 		{
-			qDebug() << "Can not open the audio encoder, id: " << m_aFmtCtx->streams[m_aIndex]->codecpar->codec_id;
+			qDebug() << "Can not open the audio encoder, id: " << encoder->id << "error code: " << ret;
 			return -1;
 		}
 		//将codecCtx中的参数传给音频输出流
@@ -295,6 +339,112 @@ int ScreenRecordImpl::OpenOutput()
 	return 0;
 }
 
+QString ScreenRecordImpl::GetSpeakerDeviceName()
+{
+	char sName[256] = { 0 };
+	QString speaker = "";
+	bool bRet = false;
+	::CoInitialize(NULL);
+
+	ICreateDevEnum* pCreateDevEnum;//enumrate all speaker devices
+	HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_ICreateDevEnum,
+		(void**)&pCreateDevEnum);
+
+	IEnumMoniker* pEm;
+	hr = pCreateDevEnum->CreateClassEnumerator(CLSID_AudioRendererCategory, &pEm, 0);
+	if (hr != NOERROR)
+	{
+		::CoUninitialize();
+		return "";
+	}
+
+	pEm->Reset();
+	ULONG cFetched;
+	IMoniker *pM;
+	while (hr = pEm->Next(1, &pM, &cFetched), hr == S_OK)
+	{
+
+		IPropertyBag* pBag = NULL;
+		hr = pM->BindToStorage(0, 0, IID_IPropertyBag, (void**)&pBag);
+		if (SUCCEEDED(hr))
+		{
+			VARIANT var;
+			var.vt = VT_BSTR;
+			hr = pBag->Read(L"FriendlyName", &var, NULL);//还有其他属性，像描述信息等等
+			if (hr == NOERROR)
+			{
+				//获取设备名称
+				WideCharToMultiByte(CP_ACP, 0, var.bstrVal, -1, sName, 256, "", NULL);
+				speaker = QString::fromLocal8Bit(sName);
+				SysFreeString(var.bstrVal);
+			}
+			pBag->Release();
+		}
+		pM->Release();
+		bRet = true;
+	}
+	pCreateDevEnum = NULL;
+	pEm = NULL;
+	::CoUninitialize();
+	return speaker;
+}
+
+QString ScreenRecordImpl::GetMicrophoneDeviceName()
+{
+	char sName[256] = { 0 };
+	QString capture = "";
+	bool bRet = false;
+	::CoInitialize(NULL);
+
+	ICreateDevEnum* pCreateDevEnum;//enumrate all audio capture devices
+	HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_ICreateDevEnum,
+		(void**)&pCreateDevEnum);
+
+	IEnumMoniker* pEm;
+	hr = pCreateDevEnum->CreateClassEnumerator(CLSID_AudioInputDeviceCategory, &pEm, 0);
+	if (hr != NOERROR)
+	{
+		::CoUninitialize();
+		return "";
+	}
+
+	pEm->Reset();
+	ULONG cFetched;
+	IMoniker *pM;
+	while (hr = pEm->Next(1, &pM, &cFetched), hr == S_OK)
+	{
+
+		IPropertyBag* pBag = NULL;
+		hr = pM->BindToStorage(0, 0, IID_IPropertyBag, (void**)&pBag);
+		if (SUCCEEDED(hr))
+		{
+			VARIANT var;
+			var.vt = VT_BSTR;
+			hr = pBag->Read(L"FriendlyName", &var, NULL);//还有其他属性，像描述信息等等
+			if (hr == NOERROR)
+			{
+				//获取设备名称
+				WideCharToMultiByte(CP_ACP, 0, var.bstrVal, -1, sName, 256, "", NULL);
+				capture = QString::fromLocal8Bit(sName);
+				SysFreeString(var.bstrVal);
+			}
+			pBag->Release();
+		}
+		pM->Release();
+		bRet = true;
+	}
+	pCreateDevEnum = NULL;
+	pEm = NULL;
+	::CoUninitialize();
+	return capture;
+}
+
 void ScreenRecordImpl::MuxThreadProc()
 {
 	int ret = -1;
@@ -302,6 +452,7 @@ void ScreenRecordImpl::MuxThreadProc()
 
 	av_register_all();
 	avdevice_register_all();
+	avcodec_register_all();
 	if (OpenVideo() < 0)
 		return;
 	if (OpenAudio() < 0)
@@ -319,13 +470,15 @@ void ScreenRecordImpl::MuxThreadProc()
 	av_image_fill_arrays(m_vOutFrame->data, m_vOutFrame->linesize, m_vOutFrameBuf, m_vEncodeCtx->pix_fmt, m_width, m_height, 1);
 
 	m_aOutFrame = av_frame_alloc();
-	m_aOutFrame->nb_samples = m_aEncodeCtx->frame_size;
-	m_aOutFrame->format = m_aEncodeCtx->sample_fmt;
-
 	AVStream *aOutStream = m_oFmtCtx->streams[m_aIndex];
 	int aOutFrameSize = av_samples_get_buffer_size(nullptr, aOutStream->codecpar->channels,
 		aOutStream->codecpar->frame_size, (AVSampleFormat)aOutStream->codecpar->format, 1);
 	m_aOutFrameBuf = (uint8_t *)av_malloc(aOutFrameSize);
+
+	m_aOutFrame->nb_samples = m_aEncodeCtx->frame_size;
+	m_aOutFrame->format = m_aEncodeCtx->sample_fmt;
+
+	//让音频帧指向buf，调用之前要设置nb_samples
 	avcodec_fill_audio_frame(m_aOutFrame, aOutStream->codecpar->channels,
 		(AVSampleFormat)aOutStream->codecpar->format, (const uint8_t*)m_aOutFrameBuf, aOutFrameSize, 1);
 

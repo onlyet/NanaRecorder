@@ -26,7 +26,7 @@ class ScreenRecordImpl : public QObject
 {
 	Q_OBJECT
 public:
-	ScreenRecordImpl();
+	ScreenRecordImpl(QObject * parent = Q_NULLPTR);
 
 	int OpenVideo();
 	int OpenAudio();
@@ -37,6 +37,10 @@ signals:
 
 	private slots :
 		void Start();
+
+private:
+	QString GetSpeakerDeviceName();
+	QString GetMicrophoneDeviceName();
 
 private:
 	//从fifobuf读取音视频帧，写入输出流，复用，生成文件
@@ -55,6 +59,8 @@ private:
 
 	int m_vIndex;		//输入视频流索引
 	int m_aIndex;		//输入音频流索引
+	int m_vOutIndex;	//输出视频流索引
+	int m_aOutIndex;	//输出音频流索引
 	AVFormatContext		*m_vFmtCtx;
 	AVFormatContext		*m_aFmtCtx;
 	AVFormatContext		*m_oFmtCtx;

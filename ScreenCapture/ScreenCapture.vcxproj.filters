@@ -39,9 +39,15 @@
     <ClCompile Include="ScreenRecordImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ScreenRecordTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ScreenRecordImpl.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ScreenRecordTest.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

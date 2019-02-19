@@ -1,12 +1,12 @@
 #include <QApplication>
 #include "ScreenRecordImpl.h"
-//#include "ScreenRecordImpl.cpp"
+#include "ScreenRecordTest.h"
 
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 
-	ScreenRecordImpl sr;
+	ScreenRecord sr;
 
 	return a.exec();
 }
