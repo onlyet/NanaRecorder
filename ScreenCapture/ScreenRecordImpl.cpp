@@ -1,30 +1,30 @@
-#include "ScreenRecordImpl.h"
-
-//#include <Windows.h>
-#include <thread>
-#include <QDebug>
 
 #ifdef	__cplusplus
 extern "C"
 {
 #endif
+
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
 #include "libavdevice/avdevice.h"
 #include "libavutil/audio_fifo.h"
-
 #include "libavutil/imgutils.h"
+//#pragma comment(lib, "avcodec.lib")
+//#pragma comment(lib, "avformat.lib")
+//#pragma comment(lib, "avutil.lib")
+//#pragma comment(lib, "avdevice.lib")
+//#pragma comment(lib, "avfilter.lib")
+//#pragma comment(lib, "swscale.lib")
 
-#pragma comment(lib, "avcodec.lib")
-#pragma comment(lib, "avformat.lib")
-#pragma comment(lib, "avutil.lib")
-#pragma comment(lib, "avdevice.lib")
-#pragma comment(lib, "avfilter.lib")
-#pragma comment(lib, "swscale.lib")
 #ifdef __cplusplus
 };
 #endif
+
+#include "ScreenRecordImpl.h"
+//#include <iostream>
+#include <QDebug>
+#include <thread>
 
 using namespace std;
 

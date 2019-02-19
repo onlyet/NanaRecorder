@@ -1,21 +1,16 @@
 #pragma once
 
+
+#include <Windows.h>
 #include <atomic>
 #include <QObject>
 #include <QString>
 #include <QMutex>
 
-#include <Windows.h>
-
 #ifdef	__cplusplus
 extern "C"
 {
 #endif
-
-#ifdef __cplusplus
-};
-#endif
-
 struct AVFormatContext;
 struct AVCodecContext;
 struct AVCodec;
@@ -23,6 +18,9 @@ struct AVFifoBuffer;
 struct AVAudioFifo;
 struct AVFrame;
 struct SwsContext;
+#ifdef __cplusplus
+};
+#endif
 
 class ScreenRecordImpl : public QObject
 {
@@ -34,8 +32,11 @@ public:
 	int OpenAudio();
 	int OpenOutput();
 
-	private slots:
-	void Start();
+signals:
+
+
+	private slots :
+		void Start();
 
 private:
 	//从fifobuf读取音视频帧，写入输出流，复用，生成文件

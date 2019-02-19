@@ -30,10 +30,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ScreenCatureDemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenCatureDemo.cpp">
+    <ClCompile Include="ScreenRecordImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,10 +44,5 @@
     <QtMoc Include="ScreenRecordImpl.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ScreenRecordImpl.cpp">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
 </Project>
