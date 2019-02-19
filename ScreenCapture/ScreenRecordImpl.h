@@ -32,11 +32,10 @@ public:
 	int OpenAudio();
 	int OpenOutput();
 
-signals:
-
-
+	//signals:
 	private slots :
-		void Start();
+	void Start();
+	void Finish();
 
 private:
 	QString GetSpeakerDeviceName();
@@ -69,8 +68,9 @@ private:
 	AVCodecContext		*m_vEncodeCtx;
 	AVCodecContext		*m_aEncodeCtx;
 	SwsContext			*m_swsCtx;
-	AVFifoBuffer		*m_vBuf;
-	AVAudioFifo			*m_aBuf;
+	AVFifoBuffer		*m_vFifoBuf;
+	AVAudioFifo			*m_aFifoBuf;
+	//int					m_vInFrameSize;	//视频输入帧大小
 
 	AVFrame				*m_vOutFrame;
 	AVFrame				*m_aOutFrame;

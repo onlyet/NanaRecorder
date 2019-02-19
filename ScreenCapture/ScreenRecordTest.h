@@ -9,6 +9,8 @@ public:
 
 	void Start();
 	void Stop();
+
+	private slots:
 	void Finish();
 
 signals:
