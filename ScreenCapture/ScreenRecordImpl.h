@@ -73,13 +73,13 @@ private:
 	//int					m_vInFrameSize;	//视频输入帧大小
 
 	AVFrame				*m_vOutFrame;
-	AVFrame				*m_aOutFrame;
+	//AVFrame				*m_aOutFrame;
 	uint8_t				*m_vOutFrameBuf;
-	uint8_t				*m_aOutFrameBuf;
+	//uint8_t				*m_aOutFrameBuf;
 	int					m_vOutFrameSize;
-	int					m_aOutFrameSize;
+	int					m_aOutFrameSize;	//一个音频帧包含的样本数
 	std::atomic_bool	m_stop;
-	int					m_videoFrameSize;
+	//int					m_videoFrameSize;
 
 	CRITICAL_SECTION	m_vSection, m_aSection;
 	int					m_vFrameIndex, m_aFrameIndex;	//当前帧位置

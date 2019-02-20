@@ -7,11 +7,12 @@ ScreenRecord::ScreenRecord(QObject *parent) :
 {
 	ScreenRecordImpl *sr = new ScreenRecordImpl(this);
 	connect(this, SIGNAL(StartRecord()), sr, SLOT(Start()));
-	connect(this, SIGNAL(FinishRecord()), sr, SLOT(Start()));
+	connect(this, SIGNAL(FinishRecord()), sr, SLOT(Finish()));
 	Start();
-	QTimer *t = new QTimer(this);
-	connect(t, SIGNAL(timeout()), this, SLOT(Finish()));
-	t->start(1000);
+	//QTimer *t = new QTimer(this);
+	//connect(t, SIGNAL(timeout()), this, SLOT(Finish()));
+	//t->start(1000);
+	QTimer::singleShot(5000, this, SLOT(Finish()));
 }
 
 void ScreenRecord::Start()
