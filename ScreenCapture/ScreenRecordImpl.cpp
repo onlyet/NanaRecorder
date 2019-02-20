@@ -55,6 +55,7 @@ void ScreenRecordImpl::Start()
 		m_fps = 30;
 		std::thread muxThread(&ScreenRecordImpl::MuxThreadProc, this);
 		muxThread.detach();
+		//muxThread.join();
 	}
 }
 
@@ -158,8 +159,8 @@ int ScreenRecordImpl::OpenAudio()
 	//查找输入方式
 	AVInputFormat *ifmt = av_find_input_format("dshow");
 	//以Direct Show的方式打开设备，并将 输入方式 关联到格式上下文
-	char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (Conexant SmartAudio HD)"); 
-	//char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (High Definition Audio 设备)");
+	//char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (Conexant SmartAudio HD)"); 
+	char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (High Definition Audio 设备)");
 	//char * deviceName = dup_wchar_to_utf8(L"DirectSound: 扬声器(Conexant SmartAudio HD)");
 	//char * deviceName = dup_wchar_to_utf8(L"audio=扬声器 (Conexant SmartAudio HD)");
 	//char * deviceName = "audio=virtual-audio-capturer";
@@ -520,6 +521,8 @@ void ScreenRecordImpl::MuxThreadProc()
 	//启动音视频数据采集线程
 	std::thread screenRecord(&ScreenRecordImpl::ScreenRecordThreadProc, this);
 	std::thread soundRecord(&ScreenRecordImpl::SoundRecordThreadProc, this);
+	screenRecord.detach();
+	soundRecord.detach();
 
 	int a_frame_size = m_oFmtCtx->streams[m_aOutIndex]->codecpar->frame_size;
 
@@ -536,8 +539,10 @@ void ScreenRecordImpl::MuxThreadProc()
 				break;
 		}
 
-		if (av_compare_ts(vCurPts, m_oFmtCtx->streams[m_vOutIndex]->time_base,
-			aCurPts, m_oFmtCtx->streams[m_aOutIndex]->time_base) <= 0)
+		//if (av_compare_ts(vCurPts, m_oFmtCtx->streams[m_vOutIndex]->time_base,
+		//	aCurPts, m_oFmtCtx->streams[m_aOutIndex]->time_base) <= 0)
+		if (av_compare_ts(vCurPts, m_vEncodeCtx->time_base,
+			aCurPts, m_aEncodeCtx->time_base) <= 0)
 		{
 			//read data from fifo
 			if (done && av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
@@ -554,7 +559,8 @@ void ScreenRecordImpl::MuxThreadProc()
 				//av_image_fill_arrays(m_vOutFrame->data, m_vOutFrame->linesize, m_vOutFrameBuf, m_vEncodeCtx->pix_fmt, m_width, m_height, 1);
 
 				//设置视频帧参数
-				m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
+				//m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
+				m_vOutFrame->pts = vFrameIndex;
 				++vFrameIndex;
 				m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
 				m_vOutFrame->width = m_vEncodeCtx->width;
@@ -574,6 +580,8 @@ void ScreenRecordImpl::MuxThreadProc()
 					av_packet_unref(&pkt);
 					continue;
 				}
+				//av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+
 				pkt.stream_index = m_vOutIndex;
 				pkt.pts = av_rescale_q_rnd(pkt.pts, m_vFmtCtx->streams[m_vIndex]->time_base,
 					m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
@@ -668,22 +676,46 @@ void ScreenRecordImpl::MuxThreadProc()
 	av_free(m_vOutFrameBuf);
 	//av_free(m_aOutFrameBuf);
 
-	av_fifo_free(m_vFifoBuf);
-	av_audio_fifo_free(m_aFifoBuf);
-
 	avio_close(m_oFmtCtx->pb);
 	avformat_free_context(m_oFmtCtx);
 
-	if (m_vFmtCtx != nullptr)
+	if (m_vDecodeCtx)
+	{
+		avcodec_free_context(&m_vDecodeCtx);
+		m_vDecodeCtx = nullptr;
+	}
+	if (m_aDecodeCtx)
+	{
+		avcodec_free_context(&m_aDecodeCtx);
+		m_aDecodeCtx = nullptr;
+	}
+	if (m_vEncodeCtx)
+	{
+		avcodec_free_context(&m_vEncodeCtx);
+		m_vEncodeCtx = nullptr;
+	}
+	if (m_aEncodeCtx)
+	{
+		avcodec_free_context(&m_aEncodeCtx);
+		m_aEncodeCtx = nullptr;
+	}
+	av_fifo_freep(&m_vFifoBuf);
+	if (m_aFifoBuf)
+	{
+		av_audio_fifo_free(m_aFifoBuf);
+		m_aFifoBuf = nullptr;
+	}
+	if (m_vFmtCtx)
 	{
 		avformat_close_input(&m_vFmtCtx);
 		m_vFmtCtx = nullptr;
 	}
-	if (m_aFmtCtx != nullptr)
+	if (m_aFmtCtx)
 	{
 		avformat_close_input(&m_aFmtCtx);
 		m_aFmtCtx = nullptr;
 	}
+	qDebug() << "parent thread exit";
 }
 
 void ScreenRecordImpl::ScreenRecordThreadProc()
@@ -737,6 +769,7 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 	av_free(newFrameBuf);
 	av_frame_free(&oldFrame);
 	av_frame_free(&newFrame);
+	qDebug() << "screen record thread exit";
 }
 
 void ScreenRecordImpl::SoundRecordThreadProc()
@@ -783,5 +816,7 @@ void ScreenRecordImpl::SoundRecordThreadProc()
 			LeaveCriticalSection(&m_aSection);
 		}
 	}
+	av_free(frameBuf);
 	av_frame_free(&frame);
+	qDebug() << "sound record thread exit";
 }
