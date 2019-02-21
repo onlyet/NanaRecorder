@@ -18,6 +18,7 @@ struct AVFifoBuffer;
 struct AVAudioFifo;
 struct AVFrame;
 struct SwsContext;
+struct SwrContext;
 #ifdef __cplusplus
 };
 #endif
@@ -40,6 +41,7 @@ public:
 private:
 	QString GetSpeakerDeviceName();
 	QString GetMicrophoneDeviceName();
+	AVFrame* AllocAudioFrame(AVCodecContext* c, int nbSamples);
 
 private:
 	//从fifobuf读取音视频帧，写入输出流，复用，生成文件
@@ -68,6 +70,7 @@ private:
 	AVCodecContext		*m_vEncodeCtx;
 	AVCodecContext		*m_aEncodeCtx;
 	SwsContext			*m_swsCtx;
+	SwrContext			*m_swrCtx;
 	AVFifoBuffer		*m_vFifoBuf;
 	AVAudioFifo			*m_aFifoBuf;
 	//int					m_vInFrameSize;	//视频输入帧大小
