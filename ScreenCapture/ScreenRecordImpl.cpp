@@ -27,6 +27,7 @@ extern "C"
 #include <QDebug>
 #include <QAudioDeviceInfo>
 #include <thread>
+#include <fstream>
 
 #include <dshow.h>
 
@@ -54,6 +55,8 @@ void ScreenRecordImpl::Start()
 		m_filePath = "test.mp4";
 		m_width = 1920;
 		m_height = 1080;
+		//m_width = 1440;
+		//m_height = 900;
 		m_fps = 30;
 		std::thread muxThread(&ScreenRecordImpl::MuxThreadProc, this);
 		muxThread.detach();
@@ -115,9 +118,6 @@ int ScreenRecordImpl::OpenVideo()
 
 	m_swsCtx = sws_getContext(m_vDecodeCtx->width, m_vDecodeCtx->height, m_vDecodeCtx->pix_fmt,
 		m_width, m_height, AV_PIX_FMT_YUV420P, SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
-
-	//m_vInFrameSize = av_image_get_buffer_size(m_vDecodeCtx->pix_fmt, m_vDecodeCtx->width, m_vDecodeCtx->height, 1);
-	//m_vFifoBuf = av_fifo_alloc(30 * m_vInFrameSize);
 	return 0;
 }
 
@@ -594,8 +594,8 @@ void ScreenRecordImpl::MuxThreadProc()
 		if (m_vFifoBuf && m_aFifoBuf)
 		{
 			//缓存数据写完就结束循环
-			if (done && av_fifo_size(m_vFifoBuf) <= m_vOutFrameSize &&
-				av_audio_fifo_size(m_aFifoBuf) <= a_frame_size)
+			if (done && av_fifo_size(m_vFifoBuf) <= m_vOutFrameSize /*&&
+				av_audio_fifo_size(m_aFifoBuf) <= a_frame_size*/)
 				break;
 		}
 
@@ -651,16 +651,17 @@ void ScreenRecordImpl::MuxThreadProc()
 				//pkt.dts = av_rescale_q_rnd(pkt.dts, m_vFmtCtx->streams[m_vIndex]->time_base,
 				//	m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
 				//pkt.duration = ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
-				pkt.dts = pkt.pts;
-				pkt.duration = 1;
-				vCurPts = pkt.pts;
+				av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+				//pkt.dts = pkt.pts;
+				//pkt.duration = 1;
+				//vCurPts = pkt.pts;
 
 				ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
 				if (ret == 0)
 					qDebug() << "Write video packet id: "  << vid++;
 				if (ret != 0)
 				{
-					qDebug() << "av_interleaved_write_frame failed, ret:" << ret;
+					qDebug() << "video av_interleaved_write_frame failed, ret:" << ret;
 				}
 				av_free_packet(&pkt);
 			}
@@ -701,23 +702,22 @@ void ScreenRecordImpl::MuxThreadProc()
 				//	//如果输入和输出的音频格式不一样 需要重采样，这里是一样的就没做
 				//}
 
-				AVPacket pkt;
-				//av_new_packet(&pkt, m_aOutFrameSize);
-				ret = av_new_packet(&pkt, 100 * 1000);
+				AVPacket pkt = { 0 };
+				av_init_packet(&pkt);
+				//ret = av_new_packet(&pkt, 100 * 1000);
 				ret = avcodec_send_frame(m_aEncodeCtx, aFrame);
 				if (ret != 0)
 				{
 					qDebug() << "audio avcodec_send_frame failed, ret: " << ret;
-					//av_frame_unref(aRawFrame);
 					av_frame_free(&aFrame);
 					av_packet_unref(&pkt);
 					continue;
 				}
+
 				ret = avcodec_receive_packet(m_aEncodeCtx, &pkt);
 				if (ret != 0)
 				{
 					qDebug() << "audio avcodec_receive_packet failed";
-					//av_frame_unref(aRawFrame);
 					av_frame_free(&aFrame);
 					av_packet_unref(&pkt);
 					continue;
@@ -736,7 +736,6 @@ void ScreenRecordImpl::MuxThreadProc()
 				{
 					qDebug() << "audio av_interleaved_write_frame failed, ret: " << ret;
 				}
-				//av_frame_unref(aRawFrame);
 				av_frame_free(&aFrame);
 				av_free_packet(&pkt);
 			}
@@ -760,7 +759,7 @@ void ScreenRecordImpl::MuxThreadProc()
 	}
 	if (m_aDecodeCtx)
 	{
-		avcodec_free_context(&m_aDecodeCtx);
+		//avcodec_free_context(&m_aDecodeCtx);
 		m_aDecodeCtx = nullptr;
 	}
 	if (m_vEncodeCtx)
@@ -795,12 +794,23 @@ void ScreenRecordImpl::MuxThreadProc()
 void ScreenRecordImpl::ScreenRecordThreadProc()
 {
 	int ret = -1;
-	AVPacket pkg;
+	AVPacket pkg = { 0 };
+	av_init_packet(&pkg);
 	int y_size = m_width * m_height;
 	AVFrame	*oldFrame = av_frame_alloc();
 	AVFrame *newFrame = av_frame_alloc();
 
+	ofstream os;
+	os.open("test.yuv", ios::out | ios::binary);
+	FILE *fp;
+	fopen_s(&fp, "tt.yuv", "wb");
+	FILE *fp2;
+	fopen_s(&fp2, "tt.bgra", "wb");
+
 	int oldFrameBufSize = av_image_get_buffer_size(m_vDecodeCtx->pix_fmt, m_vDecodeCtx->width, m_vDecodeCtx->height, 1);
+	/*uint8_t *oldFrameBuf = (uint8_t*)av_malloc(oldFrameBufSize);
+	av_image_fill_arrays(oldFrame->data, oldFrame->linesize, oldFrameBuf,
+		m_vDecodeCtx->pix_fmt, m_vDecodeCtx->width, m_vDecodeCtx->height, 1);*/
 
 	int newFrameBufSize = av_image_get_buffer_size(m_vEncodeCtx->pix_fmt, m_vEncodeCtx->width, m_vEncodeCtx->height, 1);
 	uint8_t *newFrameBuf = (uint8_t*)av_malloc(newFrameBufSize);
@@ -809,9 +819,12 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 
 	while (!m_stop)
 	{
-		av_new_packet(&pkg, oldFrameBufSize);
+		//av_new_packet(&pkg, oldFrameBufSize);
 		if (av_read_frame(m_vFmtCtx, &pkg) < 0)
+		{
+			qDebug() << "video av_read_frame < 0";
 			continue;
+		}
 		if (pkg.stream_index == m_vIndex)
 		{
 			ret = avcodec_send_packet(m_vDecodeCtx, &pkg);
@@ -826,8 +839,12 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 				av_packet_unref(&pkg);
 				continue;
 			}
+			fwrite(oldFrame->data[0], 1, oldFrameBufSize, fp2);
+
+			/*	sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
+					m_vDecodeCtx->height, newFrame->data, newFrame->linesize);*/
 			sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
-				m_vDecodeCtx->height, newFrame->data, newFrame->linesize);
+				m_vEncodeCtx->height, newFrame->data, newFrame->linesize);
 
 			if (av_fifo_space(m_vFifoBuf) >= m_vOutFrameSize)
 			{
@@ -836,6 +853,12 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 				av_fifo_generic_write(m_vFifoBuf, newFrame->data[1], y_size / 4, NULL);
 				av_fifo_generic_write(m_vFifoBuf, newFrame->data[2], y_size / 4, NULL);
 				LeaveCriticalSection(&m_vSection);
+			/*	os << newFrame->data[0];
+				os << newFrame->data[1];
+				os << newFrame->data[2];*/
+				fwrite(newFrame->data[0], 1, y_size, fp);
+				fwrite(newFrame->data[1], 1, y_size / 4, fp);
+				fwrite(newFrame->data[2], 1, y_size / 4, fp);
 			}
 			else
 				qDebug() << "video fifo buf overflow";
@@ -844,6 +867,30 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 			qDebug() << "not a video packet from video input";
 		av_packet_unref(&pkg);
 	}
+
+	//flush
+	ret = avcodec_send_packet(m_vDecodeCtx, nullptr);
+	qDebug() << "flush video failed, ret: " << ret;
+	while (ret >= 0)
+	{
+		ret = avcodec_receive_frame(m_vDecodeCtx, oldFrame);
+		if (ret < 0)
+		{
+			av_packet_unref(&pkg);
+			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+			{
+				qDebug() << "flush video finished";
+				break;
+			}
+			qDebug() << "flush video avcodec_receive_frame error, ret: " << ret;
+			return;
+		}
+		fwrite(oldFrame->data[0], 1, oldFrameBufSize, fp2);
+	}
+
+	os.close();
+	fclose(fp);
+	fclose(fp2);
 	av_free(newFrameBuf);
 	av_frame_free(&oldFrame);
 	av_frame_free(&newFrame);
@@ -858,8 +905,11 @@ void ScreenRecordImpl::SoundRecordThreadProc()
 	int nbSamples = m_oFmtCtx->streams[m_aOutIndex]->codecpar->frame_size;
 	int dstNbSamples, maxDstNbSamples;
 	//int dstNbSamples = -1;
-	AVFrame *rawFrame = AllocAudioFrame(m_aDecodeCtx, nbSamples);
+	//AVFrame *rawFrame = AllocAudioFrame(m_aDecodeCtx, nbSamples);
 	AVFrame *newFrame = AllocAudioFrame(m_aEncodeCtx, nbSamples);
+	AVFrame *rawFrame = av_frame_alloc();
+	//AVFrame *newFrame = av_frame_alloc();
+
 
 	maxDstNbSamples = dstNbSamples = av_rescale_rnd(nbSamples, 
 		m_aEncodeCtx->sample_rate, m_aDecodeCtx->sample_rate, AV_ROUND_UP);
@@ -868,7 +918,15 @@ void ScreenRecordImpl::SoundRecordThreadProc()
 	while (!m_stop)
 	{
 		if (av_read_frame(m_aFmtCtx, &pkg) < 0)
+		{
+			qDebug() << "audio av_read_frame < 0";
 			continue;
+		}
+		if (pkg.stream_index != m_aIndex)
+		{
+			av_packet_unref(&pkg);
+			continue;
+		}
 		ret = avcodec_send_packet(m_aDecodeCtx, &pkg);
 		if (ret != 0)
 		{
@@ -894,23 +952,23 @@ void ScreenRecordImpl::SoundRecordThreadProc()
 			//maxDstNbSamples = dst_nb_samples;
 		}
 
-		dstNbSamples = av_rescale_rnd(swr_get_delay(m_swrCtx, m_aDecodeCtx->sample_rate) + rawFrame->nb_samples,
-			m_aEncodeCtx->sample_rate, m_aEncodeCtx->sample_rate, AV_ROUND_UP);
-		av_assert0(dstNbSamples == rawFrame->nb_samples);
-		ret = av_frame_make_writable(rawFrame);
-		if (ret != 0)
-		{
-			qDebug() << "av_frame_make_writable failed";
-			return;
-		}
+		//dstNbSamples = av_rescale_rnd(swr_get_delay(m_swrCtx, m_aDecodeCtx->sample_rate) + rawFrame->nb_samples,
+		//	m_aEncodeCtx->sample_rate, m_aEncodeCtx->sample_rate, AV_ROUND_UP);
+		//av_assert0(dstNbSamples == rawFrame->nb_samples);
+		//ret = av_frame_make_writable(rawFrame);
+		//if (ret != 0)
+		//{
+		//	qDebug() << "av_frame_make_writable failed";
+		//	return;
+		//}
 
-		newFrame->nb_samples = swr_convert(m_swrCtx, newFrame->data, dstNbSamples,
+		/*newFrame->nb_samples = */swr_convert(m_swrCtx, newFrame->data, dstNbSamples,
 			(const uint8_t **)rawFrame->data, rawFrame->nb_samples);
-		if (newFrame->nb_samples < 0)
-		{
-			qDebug() << "swr_convert error";
-			return;
-		}
+		//if (newFrame->nb_samples < 0)
+		//{
+		//	qDebug() << "swr_convert error";
+		//	return;
+		//}
 
 		if (nullptr == m_aFifoBuf)
 			m_aFifoBuf = av_audio_fifo_alloc(m_aEncodeCtx->sample_fmt, m_aEncodeCtx->channels, 30 * newFrame->nb_samples);
@@ -925,7 +983,6 @@ void ScreenRecordImpl::SoundRecordThreadProc()
 			qDebug() << "audio fifo buf overflow";
 	}
 	av_frame_free(&rawFrame);
-	newFrame->nb_samples = 1024;
 	av_frame_free(&newFrame);
 	qDebug() << "sound record thread exit";
 }
