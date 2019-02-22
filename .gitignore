@@ -215,3 +215,5 @@ ModelManifest.xml
 *.VC.db
 
 *.mp4
+*.yuv
+*.bgra
