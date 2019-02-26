@@ -673,7 +673,7 @@ void ScreenRecordImpl::MuxThreadProc()
 				continue;//ªπŒ¥≥ı ºªØfifo
 
 			if (done && av_audio_fifo_size(m_aFifoBuf) < a_frame_size)
-				vCurPts = 0x7fffffffffffffff;
+				aCurPts = 0x7fffffffffffffff;
 
 			if (av_audio_fifo_size(m_aFifoBuf) >=
 				(a_frame_size > 0 ? a_frame_size : 1024))
