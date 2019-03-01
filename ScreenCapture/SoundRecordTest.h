@@ -7,14 +7,4 @@ class ScreenRecord : public QObject
 public:
 	ScreenRecord(QObject *parent = Q_NULLPTR);
 
-	void Start();
-	void Stop();
-
-	private slots:
-	void Finish();
-
-signals:
-	void StartRecord();
-	void StopRecord();
-	void FinishRecord();
 };
