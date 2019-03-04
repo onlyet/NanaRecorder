@@ -37,7 +37,7 @@ private:
 	};
 public:
 	ScreenRecordImpl(QObject * parent = Q_NULLPTR);
-	void Init();
+	void Init(const QVariantMap& map);
 
 	private slots :
 	void Start();
@@ -63,12 +63,14 @@ private:
 	void FlushVideoEncoder();
 	void FlushAudioDecoder();
 	void FlushAudioEncoder();
+	void Release();
 
 private:
 	QString				m_filePath;
 	int					m_width;
 	int					m_height;
 	int					m_fps;
+	int					m_bitRate;
 
 	int m_vIndex;		//输入视频流索引
 	int m_aIndex;		//输入音频流索引
@@ -89,12 +91,6 @@ private:
 	AVFrame				*m_vOutFrame;
 	uint8_t				*m_vOutFrameBuf;
 	int					m_vOutFrameSize;
-	std::atomic_bool	m_stop;
-
-	CRITICAL_SECTION	m_vSection, m_aSection;
-	int					m_vFrameIndex, m_aFrameIndex;	//当前帧位置
-
-	bool				m_started;
 
 	int					m_nbSamples;
 	RecordState			m_state;

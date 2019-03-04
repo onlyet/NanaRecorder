@@ -3,7 +3,6 @@
 extern "C"
 {
 #endif
-
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
@@ -12,13 +11,6 @@ extern "C"
 #include "libavutil/imgutils.h"
 #include "libswresample/swresample.h"
 #include <libavutil\avassert.h>
-//#pragma comment(lib, "avcodec.lib")
-//#pragma comment(lib, "avformat.lib")
-//#pragma comment(lib, "avutil.lib")
-//#pragma comment(lib, "avdevice.lib")
-//#pragma comment(lib, "avfilter.lib")
-//#pragma comment(lib, "swscale.lib")
-
 #ifdef __cplusplus
 };
 #endif
@@ -38,49 +30,56 @@ int g_vEncodeFrameCnt = 0;	//编码帧数
 
 ScreenRecordImpl::ScreenRecordImpl(QObject * parent) :
 	QObject(parent)
-	, m_fps(25)
+	, m_fps(30)
 	, m_vIndex(-1), m_aIndex(-1)
 	, m_vFmtCtx(nullptr), m_aFmtCtx(nullptr), m_oFmtCtx(nullptr)
 	, m_vDecodeCtx(nullptr), m_aDecodeCtx(nullptr)
 	, m_vFifoBuf(nullptr), m_aFifoBuf(nullptr)
 	, m_swsCtx(nullptr)
-	, m_stop(false)
-	, m_vFrameIndex(0), m_aFrameIndex(0)
-	, m_started(false)
 	, m_state(RecordState::NotStarted)
 {
 }
 
-void ScreenRecordImpl::Init()
+void ScreenRecordImpl::Init(const QVariantMap& map)
 {
+	m_filePath = map["filePath"].toString();
+	m_width = map["width"].toInt();
+	m_height = map["height"].toInt();
+	m_fps = map["fps"].toInt();
+	m_bitRate = map["bit_rate"].toInt();
 }
 
 void ScreenRecordImpl::Start()
 {
-	if (!m_started)
+	if (m_state == RecordState::NotStarted)
 	{
-		m_started = true;
-		m_filePath = "test.mp4";
-		m_width = 1920;
-		m_height = 1080;
-		//m_width = 1440;
-		//m_height = 900;
-		m_fps = 30;
+		qDebug() << "start record";
+		m_state = RecordState::Started;
 		std::thread muxThread(&ScreenRecordImpl::MuxThreadProc, this);
 		muxThread.detach();
-		//muxThread.join();
+	}
+	else if (m_state == RecordState::Paused)
+	{
+		qDebug() << "continue record";
+		m_state = RecordState::Started;
+		m_cvNotPause.notify_one();
 	}
 }
 
 void ScreenRecordImpl::Pause()
 {
+	qDebug() << "pause record";
+	m_state = RecordState::Paused;
 }
 
 void ScreenRecordImpl::Stop()
 {
-	m_stop = true;
+	qDebug() << "stop record";
+	RecordState state = m_state;
+	m_state = RecordState::Stopped;
+	if (state == RecordState::Paused)
+		m_cvNotPause.notify_one();
 }
-
 
 int ScreenRecordImpl::OpenVideo()
 {
@@ -595,6 +594,116 @@ void ScreenRecordImpl::FlushVideoDecoder()
 	qDebug() << "collect frame count: " << g_vCollectFrameCnt;
 }
 
+void ScreenRecordImpl::FlushVideoEncoder()
+{
+	int ret = -1;
+	AVPacket pkt = { 0 };
+	av_init_packet(&pkt);
+	ret = avcodec_send_frame(m_vEncodeCtx, nullptr);
+	qDebug() << "avcodec_send_frame ret:" << ret;
+	while (ret >= 0)
+	{
+		ret = avcodec_receive_packet(m_vEncodeCtx, &pkt);
+		if (ret < 0)
+		{
+			av_packet_unref(&pkt);
+			if (ret == AVERROR(EAGAIN))
+			{
+				qDebug() << "flush EAGAIN avcodec_receive_packet";
+				ret = 1;
+				continue;
+			}
+			else if (ret == AVERROR_EOF)
+			{
+				qDebug() << "flush video encoder finished";
+				break;
+			}
+			qDebug() << "video avcodec_receive_packet failed, ret: " << ret;
+			return;
+		}
+		qDebug() << "flush succeed";
+		pkt.stream_index = m_vOutIndex;
+		av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+
+		ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
+		if (ret == 0)
+			qDebug() << "flush Write video packet id: " << ++g_vEncodeFrameCnt;
+		else
+			qDebug() << "video av_interleaved_write_frame failed, ret:" << ret;
+		av_free_packet(&pkt);
+	}
+}
+
+void ScreenRecordImpl::FlushAudioDecoder()
+{
+
+}
+
+void ScreenRecordImpl::FlushAudioEncoder()
+{
+
+}
+
+void ScreenRecordImpl::Release()
+{
+	if (m_vOutFrame)
+	{
+		av_frame_free(&m_vOutFrame);
+		m_vOutFrame = nullptr;
+	}
+	if (m_vOutFrameBuf)
+	{
+		av_free(m_vOutFrameBuf);
+		m_vOutFrameBuf = nullptr;
+	}
+	if (m_oFmtCtx)
+	{
+		avio_close(m_oFmtCtx->pb);
+		avformat_free_context(m_oFmtCtx);
+		m_oFmtCtx = nullptr;
+	}
+	if (m_vDecodeCtx)
+	{
+		avcodec_free_context(&m_vDecodeCtx);
+		m_vDecodeCtx = nullptr;
+	}
+	if (m_aDecodeCtx)
+	{
+		avcodec_free_context(&m_aDecodeCtx);
+		m_aDecodeCtx = nullptr;
+	}
+	if (m_vEncodeCtx)
+	{
+		avcodec_free_context(&m_vEncodeCtx);
+		m_vEncodeCtx = nullptr;
+	}
+	if (m_aEncodeCtx)
+	{
+		avcodec_free_context(&m_aEncodeCtx);
+		m_aEncodeCtx = nullptr;
+	}
+	if (m_vFifoBuf)
+	{
+		av_fifo_freep(&m_vFifoBuf);
+		m_vFifoBuf = nullptr;
+	}
+	if (m_aFifoBuf)
+	{
+		av_audio_fifo_free(m_aFifoBuf);
+		m_aFifoBuf = nullptr;
+	}
+	if (m_vFmtCtx)
+	{
+		avformat_close_input(&m_vFmtCtx);
+		m_vFmtCtx = nullptr;
+	}
+	if (m_aFmtCtx)
+	{
+		avformat_close_input(&m_aFmtCtx);
+		m_aFmtCtx = nullptr;
+	}
+}
+
 void ScreenRecordImpl::MuxThreadProc()
 {
 	int ret = -1;
@@ -622,19 +731,20 @@ void ScreenRecordImpl::MuxThreadProc()
 	screenRecord.detach();
 	soundRecord.detach();
 
-	int a_frame_size = m_oFmtCtx->streams[m_aOutIndex]->codecpar->frame_size;
-
 	int aid = 0;
 
 	while (1)
 	{
-		if (m_stop)
+		if (m_state == RecordState::Stopped && !done)
 			done = true;
 
-		if (m_vFifoBuf && m_aFifoBuf)
+		if (done)
 		{
-			if (done && av_fifo_size(m_vFifoBuf) <= m_vOutFrameSize &&
-				av_audio_fifo_size(m_aFifoBuf) <= a_frame_size)
+			unique_lock<mutex> vBufLock(m_mtxVBuf, std::defer_lock);
+			unique_lock<mutex> aBufLock(m_mtxABuf, std::defer_lock);
+			std::lock(vBufLock, aBufLock);
+			if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize &&
+				av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
 				break;
 		}
 
@@ -643,187 +753,123 @@ void ScreenRecordImpl::MuxThreadProc()
 		if (av_compare_ts(vCurPts, m_vEncodeCtx->time_base,
 			aCurPts, m_aEncodeCtx->time_base) <= 0)
 		{
-			//qDebug() << "vloop: " << vloop++;
-			//read data from fifo
-			if (done && av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
-				vCurPts = 0x7fffffffffffffff;
-
-			if (av_fifo_size(m_vFifoBuf) >= m_vOutFrameSize)
+			if (done)
 			{
-				//从fifobuf读取一帧
-				EnterCriticalSection(&m_vSection);
-				av_fifo_generic_read(m_vFifoBuf, m_vOutFrameBuf, m_vOutFrameSize, NULL);
-				LeaveCriticalSection(&m_vSection);
-
-				//调用一次就可以了吧？
-				//av_image_fill_arrays(m_vOutFrame->data, m_vOutFrame->linesize, m_vOutFrameBuf, m_vEncodeCtx->pix_fmt, m_width, m_height, 1);
-
-				//设置视频帧参数
-				//m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
-				m_vOutFrame->pts = vFrameIndex;
-				++vFrameIndex;
-				m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
-				m_vOutFrame->width = m_vEncodeCtx->width;
-				m_vOutFrame->height = m_vEncodeCtx->height;
-
-				AVPacket pkt;
-				av_new_packet(&pkt, m_vOutFrameSize);
-				ret = avcodec_send_frame(m_vEncodeCtx, m_vOutFrame);
-				if (ret != 0)
-				{
-					qDebug() << "video avcodec_send_frame failed, ret: " << ret;
-					av_packet_unref(&pkt);
-					continue;
-				}
-				ret = avcodec_receive_packet(m_vEncodeCtx, &pkt);
-				if(ret != 0)
-				{
-					qDebug() << "video avcodec_receive_packet failed, ret: " << ret;
-					av_packet_unref(&pkt);
-					continue;
-				}
-				//av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
-
-				pkt.stream_index = m_vOutIndex;
-				//pkt.pts = av_rescale_q_rnd(pkt.pts, m_vFmtCtx->streams[m_vIndex]->time_base,
-				//	m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
-				//pkt.dts = av_rescale_q_rnd(pkt.dts, m_vFmtCtx->streams[m_vIndex]->time_base,
-				//	m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
-				//pkt.duration = ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
-				av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
-				//pkt.dts = pkt.pts;
-				//pkt.duration = 1;
-				//vCurPts = pkt.pts;
-
-				ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
-				if (ret == 0)
-					qDebug() << "Write video packet id: "  << ++g_vEncodeFrameCnt;
-				if (ret != 0)
-				{
-					qDebug() << "video av_interleaved_write_frame failed, ret:" << ret;
-				}
-				av_free_packet(&pkt);
+				lock_guard<mutex> lk(m_mtxVBuf);
+				if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
+					vCurPts = 0x7fffffffffffffff;
 			}
+			{
+				unique_lock<mutex> lk(m_mtxVBuf);
+				m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameSize; });
+			}
+			av_fifo_generic_read(m_vFifoBuf, m_vOutFrameBuf, m_vOutFrameSize, NULL);
+			m_cvVBufNotFull.notify_one();
+
+			//设置视频帧参数
+			//m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
+			m_vOutFrame->pts = vFrameIndex++;
+			m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
+			m_vOutFrame->width = m_vEncodeCtx->width;
+			m_vOutFrame->height = m_vEncodeCtx->height;
+
+			AVPacket pkt = { 0 };
+			av_init_packet(&pkt);
+			ret = avcodec_send_frame(m_vEncodeCtx, m_vOutFrame);
+			if (ret != 0)
+			{
+				qDebug() << "video avcodec_send_frame failed, ret: " << ret;
+				av_packet_unref(&pkt);
+				continue;
+			}
+			ret = avcodec_receive_packet(m_vEncodeCtx, &pkt);
+			if (ret != 0)
+			{
+				qDebug() << "video avcodec_receive_packet failed, ret: " << ret;
+				av_packet_unref(&pkt);
+				continue;
+			}
+			pkt.stream_index = m_vOutIndex;
+			//pkt.pts = av_rescale_q_rnd(pkt.pts, m_vFmtCtx->streams[m_vIndex]->time_base,
+			//	m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			//pkt.dts = av_rescale_q_rnd(pkt.dts, m_vFmtCtx->streams[m_vIndex]->time_base,
+			//	m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			//pkt.duration = ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
+			av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+			//pkt.dts = pkt.pts;
+			//pkt.duration = 1;
+
+			vCurPts = pkt.pts;
+
+			ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
+			if (ret == 0)
+				qDebug() << "Write video packet id: " << ++g_vEncodeFrameCnt;
+			else
+				qDebug() << "video av_interleaved_write_frame failed, ret:" << ret;
+			av_free_packet(&pkt);
 		}
 		else
 		{
-			if (nullptr == m_aFifoBuf)
-				continue;//还未初始化fifo
-
-			if (done && av_audio_fifo_size(m_aFifoBuf) < a_frame_size)
-				aCurPts = 0x7fffffffffffffff;
-
-			if (av_audio_fifo_size(m_aFifoBuf) >=
-				(a_frame_size > 0 ? a_frame_size : 1024))
+			if (done)
 			{
-				int ret = -1;
-				AVFrame *aFrame = av_frame_alloc();
-				aFrame->nb_samples = a_frame_size > 0 ? a_frame_size : 1024;
-				aFrame->channel_layout = m_aEncodeCtx->channel_layout;
-				aFrame->format = m_aEncodeCtx->sample_fmt;
-				aFrame->sample_rate = m_aEncodeCtx->sample_rate;
-				aFrame->pts = aFrameIndex * a_frame_size;
-				//分配data buf
-				ret = av_frame_get_buffer(aFrame, 0);
-
-				EnterCriticalSection(&m_aSection);
-				av_audio_fifo_read(m_aFifoBuf, (void **)aFrame->data, (a_frame_size > 0 ? a_frame_size : 1024));
-				LeaveCriticalSection(&m_aSection);
-
-				++aFrameIndex;
-
-				//if (m_oFmtCtx->streams[m_aOutIndex]->codecpar->format != m_aFmtCtx->streams[m_aIndex]->codecpar->format
-				//	|| m_oFmtCtx->streams[m_aOutIndex]->codecpar->channels != m_aFmtCtx->streams[m_aIndex]->codecpar->channels
-				//	|| m_oFmtCtx->streams[m_aOutIndex]->codecpar->sample_rate != m_aFmtCtx->streams[m_aIndex]->codecpar->sample_rate)
-				//{
-				//	qDebug() << "Need resample";
-				//	//如果输入和输出的音频格式不一样 需要重采样，这里是一样的就没做
-				//}
-
-				AVPacket pkt = { 0 };
-				av_init_packet(&pkt);
-				//ret = av_new_packet(&pkt, 100 * 1000);
-				ret = avcodec_send_frame(m_aEncodeCtx, aFrame);
-				if (ret != 0)
-				{
-					qDebug() << "audio avcodec_send_frame failed, ret: " << ret;
-					av_frame_free(&aFrame);
-					av_packet_unref(&pkt);
-					continue;
-				}
-
-				ret = avcodec_receive_packet(m_aEncodeCtx, &pkt);
-				if (ret != 0)
-				{
-					qDebug() << "audio avcodec_receive_packet failed";
-					av_frame_free(&aFrame);
-					av_packet_unref(&pkt);
-					continue;
-				}
-				pkt.stream_index = m_aOutIndex;
-				pkt.pts = aFrame->pts;
-				pkt.dts = pkt.pts;
-				pkt.duration = a_frame_size;
-				aCurPts = pkt.pts;
-
-				ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
-				if(ret == 0)
-					qDebug() << "Write audio packet id: " << aid++;
-
-				if (ret != 0)
-				{
-					qDebug() << "audio av_interleaved_write_frame failed, ret: " << ret;
-				}
-				av_frame_free(&aFrame);
-				av_free_packet(&pkt);
+				lock_guard<mutex> lk(m_mtxABuf);
+				if (av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
+					aCurPts = 0x7fffffffffffffff;
 			}
+			{
+				unique_lock<mutex> lk(m_mtxABuf);
+				m_cvABufNotEmpty.wait(lk, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_nbSamples; });
+			}
+
+			int ret = -1;
+			AVFrame *aFrame = av_frame_alloc();
+			aFrame->nb_samples = m_nbSamples;
+			aFrame->channel_layout = m_aEncodeCtx->channel_layout;
+			aFrame->format = m_aEncodeCtx->sample_fmt;
+			aFrame->sample_rate = m_aEncodeCtx->sample_rate;
+			aFrame->pts = m_nbSamples * aFrameIndex++;
+			//分配data buf
+			ret = av_frame_get_buffer(aFrame, 0);
+			av_audio_fifo_read(m_aFifoBuf, (void **)aFrame->data, m_nbSamples);
+			m_cvABufNotFull.notify_one();
+
+			AVPacket pkt = { 0 };
+			av_init_packet(&pkt);
+			ret = avcodec_send_frame(m_aEncodeCtx, aFrame);
+			if (ret != 0)
+			{
+				qDebug() << "audio avcodec_send_frame failed, ret: " << ret;
+				av_frame_free(&aFrame);
+				av_packet_unref(&pkt);
+				continue;
+			}
+			ret = avcodec_receive_packet(m_aEncodeCtx, &pkt);
+			if (ret != 0)
+			{
+				qDebug() << "audio avcodec_receive_packet failed";
+				av_frame_free(&aFrame);
+				av_packet_unref(&pkt);
+				continue;
+			}
+			pkt.stream_index = m_aOutIndex;
+		/*	pkt.pts = aFrame->pts;
+			pkt.dts = pkt.pts;
+			pkt.duration = m_nbSamples;*/
+			aCurPts = pkt.pts;
+
+			ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
+			if (ret == 0)
+				qDebug() << "Write audio packet id: " << aid++;
+			else
+				qDebug() << "audio av_interleaved_write_frame failed, ret: " << ret;
+
+			av_frame_free(&aFrame);
+			av_free_packet(&pkt);
 		}
 	}
-
+	FlushVideoEncoder();
 	av_write_trailer(m_oFmtCtx);
-
-	av_frame_free(&m_vOutFrame);
-	av_free(m_vOutFrameBuf);
-
-	avio_close(m_oFmtCtx->pb);
-	avformat_free_context(m_oFmtCtx);
-
-	if (m_vDecodeCtx)
-	{
-		avcodec_free_context(&m_vDecodeCtx);
-		m_vDecodeCtx = nullptr;
-	}
-	if (m_aDecodeCtx)
-	{
-		avcodec_free_context(&m_aDecodeCtx);
-		m_aDecodeCtx = nullptr;
-	}
-	if (m_vEncodeCtx)
-	{
-		avcodec_free_context(&m_vEncodeCtx);
-		m_vEncodeCtx = nullptr;
-	}
-	if (m_aEncodeCtx)
-	{
-		avcodec_free_context(&m_aEncodeCtx);
-		m_aEncodeCtx = nullptr;
-	}
-	av_fifo_freep(&m_vFifoBuf);
-	if (m_aFifoBuf)
-	{
-		av_audio_fifo_free(m_aFifoBuf);
-		m_aFifoBuf = nullptr;
-	}
-	if (m_vFmtCtx)
-	{
-		avformat_close_input(&m_vFmtCtx);
-		m_vFmtCtx = nullptr;
-	}
-	if (m_aFmtCtx)
-	{
-		avformat_close_input(&m_aFmtCtx);
-		m_aFmtCtx = nullptr;
-	}
+	Release();
 	qDebug() << "parent thread exit";
 }
 

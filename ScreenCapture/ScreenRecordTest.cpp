@@ -6,25 +6,16 @@ ScreenRecord::ScreenRecord(QObject *parent) :
 	QObject(parent)
 {
 	ScreenRecordImpl *sr = new ScreenRecordImpl(this);
-	connect(this, SIGNAL(StartRecord()), sr, SLOT(Start()));
-	connect(this, SIGNAL(FinishRecord()), sr, SLOT(Finish()));
-	//QTimer *t = new QTimer(this);
-	//connect(t, SIGNAL(timeout()), this, SLOT(Finish()));
-	//t->start(1000);
-	Start();
-	QTimer::singleShot(10000, this, SLOT(Finish()));
-}
+	QVariantMap args;
+	args["filePath"] = "test.mp4";
+	args["width"] = 1920;
+	args["height"] = 1080;
+	args["fps"] = 30;
+	args["bit_rate"] = 128000;
 
-void ScreenRecord::Start()
-{
-	emit StartRecord();
-}
+	sr->Init(args);
 
-void ScreenRecord::Stop()
-{
-}
-
-void ScreenRecord::Finish()
-{
-	emit FinishRecord();
+	QTimer::singleShot(1000, sr, SLOT(Start()));
+	//QTimer::singleShot(5000, sr, SLOT(Pause()));
+	QTimer::singleShot(11000, sr, SLOT(Stop()));
 }
