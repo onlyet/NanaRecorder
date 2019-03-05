@@ -221,6 +221,7 @@
     <ClCompile Include="ScreenCatureDemo.cpp" />
     <ClCompile Include="ScreenRecordImpl.cpp" />
     <ClCompile Include="ScreenRecordTest.cpp" />
+    <ClCompile Include="transcoding.c" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ScreenRecordImpl.h" />

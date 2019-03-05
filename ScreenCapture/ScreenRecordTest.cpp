@@ -8,8 +8,10 @@ ScreenRecord::ScreenRecord(QObject *parent) :
 	ScreenRecordImpl *sr = new ScreenRecordImpl(this);
 	QVariantMap args;
 	args["filePath"] = "test.mp4";
-	args["width"] = 1920;
-	args["height"] = 1080;
+	//args["width"] = 1920;
+	//args["height"] = 1080;
+	args["width"] = 1440;
+	args["height"] = 900;
 	args["fps"] = 30;
 	args["bit_rate"] = 128000;
 

@@ -1,4 +1,3 @@
-
 #ifdef	__cplusplus
 extern "C"
 {
@@ -34,8 +33,10 @@ ScreenRecordImpl::ScreenRecordImpl(QObject * parent) :
 	, m_vIndex(-1), m_aIndex(-1)
 	, m_vFmtCtx(nullptr), m_aFmtCtx(nullptr), m_oFmtCtx(nullptr)
 	, m_vDecodeCtx(nullptr), m_aDecodeCtx(nullptr)
+	, m_vEncodeCtx(nullptr), m_aEncodeCtx(nullptr)
 	, m_vFifoBuf(nullptr), m_aFifoBuf(nullptr)
 	, m_swsCtx(nullptr)
+	, m_swrCtx(nullptr)
 	, m_state(RecordState::NotStarted)
 {
 }
@@ -618,12 +619,12 @@ void ScreenRecordImpl::FlushVideoEncoder()
 				qDebug() << "flush video encoder finished";
 				break;
 			}
-			qDebug() << "video avcodec_receive_packet failed, ret: " << ret;
+			qDebug() << "flush video avcodec_receive_packet failed, ret: " << ret;
 			return;
 		}
-		qDebug() << "flush succeed";
+		//qDebug() << "flush succeed";
 		pkt.stream_index = m_vOutIndex;
-		av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+		//av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
 
 		ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
 		if (ret == 0)
@@ -710,6 +711,7 @@ void ScreenRecordImpl::MuxThreadProc()
 	bool done = false;
 	int64_t vCurPts = 0, aCurPts = 0;
 	int vFrameIndex = 0, aFrameIndex = 0;
+	//int frame_index = 0;
 
 	av_register_all();
 	avdevice_register_all();
@@ -735,9 +737,11 @@ void ScreenRecordImpl::MuxThreadProc()
 
 	while (1)
 	{
+	/*	int streamIndex = 0;
+		AVStream *inStream, *outStream;*/
+
 		if (m_state == RecordState::Stopped && !done)
 			done = true;
-
 		if (done)
 		{
 			unique_lock<mutex> vBufLock(m_mtxVBuf, std::defer_lock);
@@ -747,18 +751,21 @@ void ScreenRecordImpl::MuxThreadProc()
 				av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
 				break;
 		}
-
-		//if (av_compare_ts(vCurPts, m_oFmtCtx->streams[m_vOutIndex]->time_base,
-		//	aCurPts, m_oFmtCtx->streams[m_aOutIndex]->time_base) <= 0)
-		if (av_compare_ts(vCurPts, m_vEncodeCtx->time_base,
-			aCurPts, m_aEncodeCtx->time_base) <= 0)
+		if (av_compare_ts(vCurPts, m_oFmtCtx->streams[m_vOutIndex]->time_base,
+			aCurPts, m_oFmtCtx->streams[m_aOutIndex]->time_base) <= 0)
+	/*	if (av_compare_ts(vCurPts, m_vEncodeCtx->time_base,
+			aCurPts, m_aEncodeCtx->time_base) <= 0)*/
 		{
 			if (done)
 			{
 				lock_guard<mutex> lk(m_mtxVBuf);
 				if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
+				{
 					vCurPts = 0x7fffffffffffffff;
+					continue;
+				}
 			}
+			else 
 			{
 				unique_lock<mutex> lk(m_mtxVBuf);
 				m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameSize; });
@@ -790,6 +797,23 @@ void ScreenRecordImpl::MuxThreadProc()
 				continue;
 			}
 			pkt.stream_index = m_vOutIndex;
+			/*streamIndex = m_vOutIndex;
+			inStream = m_vFmtCtx->streams[m_vIndex];
+			outStream = m_oFmtCtx->streams[m_vOutIndex];*/
+
+			//if (pkt.pts == AV_NOPTS_VALUE)
+			//{
+			//	//Write PTS
+			//	AVRational time_base1 = inStream->time_base;
+			//	//Duration between 2 frames (us)
+			//	int64_t calc_duration = (double)AV_TIME_BASE / av_q2d(inStream->r_frame_rate);
+			//	//Parameters
+			//	pkt.pts = (double)(frame_index*calc_duration) / (double)(av_q2d(time_base1)*AV_TIME_BASE);
+			//	pkt.dts = pkt.pts;
+			//	pkt.duration = (double)calc_duration / (double)(av_q2d(time_base1)*AV_TIME_BASE);
+			//	frame_index++;
+			//}
+
 			//pkt.pts = av_rescale_q_rnd(pkt.pts, m_vFmtCtx->streams[m_vIndex]->time_base,
 			//	m_oFmtCtx->streams[m_vOutIndex]->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
 			//pkt.dts = av_rescale_q_rnd(pkt.dts, m_vFmtCtx->streams[m_vIndex]->time_base,
@@ -800,6 +824,14 @@ void ScreenRecordImpl::MuxThreadProc()
 			//pkt.duration = 1;
 
 			vCurPts = pkt.pts;
+			qDebug() << "vCurPts: " << vCurPts;
+
+			////Convert PTS/DTS
+			//pkt.pts = av_rescale_q_rnd(pkt.pts, inStream->time_base, outStream->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			//pkt.dts = av_rescale_q_rnd(pkt.dts, inStream->time_base, outStream->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			//pkt.duration = av_rescale_q(pkt.duration, inStream->time_base, outStream->time_base);
+			//pkt.pos = -1;
+			//pkt.stream_index = streamIndex;
 
 			ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
 			if (ret == 0)
@@ -814,8 +846,12 @@ void ScreenRecordImpl::MuxThreadProc()
 			{
 				lock_guard<mutex> lk(m_mtxABuf);
 				if (av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
+				{
 					aCurPts = 0x7fffffffffffffff;
+					continue;
+				}
 			}
+			else
 			{
 				unique_lock<mutex> lk(m_mtxABuf);
 				m_cvABufNotEmpty.wait(lk, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_nbSamples; });
@@ -846,16 +882,45 @@ void ScreenRecordImpl::MuxThreadProc()
 			ret = avcodec_receive_packet(m_aEncodeCtx, &pkt);
 			if (ret != 0)
 			{
-				qDebug() << "audio avcodec_receive_packet failed";
+				qDebug() << "audio avcodec_receive_packet failed, ret: " << ret;
 				av_frame_free(&aFrame);
 				av_packet_unref(&pkt);
 				continue;
 			}
 			pkt.stream_index = m_aOutIndex;
+
+		/*	streamIndex = m_aOutIndex;
+			inStream = m_vFmtCtx->streams[m_aIndex];
+			outStream = m_oFmtCtx->streams[m_aOutIndex];*/
+
+			//if (pkt.pts == AV_NOPTS_VALUE)
+			//{
+			//	//Write PTS
+			//	AVStream *inStream = m_aFmtCtx->streams[m_aIndex];
+			//	AVRational time_base1 = inStream->time_base;
+			//	//Duration between 2 frames (us)
+			//	int64_t calc_duration = (double)AV_TIME_BASE / av_q2d(inStream->r_frame_rate);
+			//	//Parameters
+			//	pkt.pts = (double)(frame_index*calc_duration) / (double)(av_q2d(time_base1)*AV_TIME_BASE);
+			//	pkt.dts = pkt.pts;
+			//	pkt.duration = (double)calc_duration / (double)(av_q2d(time_base1)*AV_TIME_BASE);
+			//	frame_index++;
+			//}
+
 		/*	pkt.pts = aFrame->pts;
 			pkt.dts = pkt.pts;
 			pkt.duration = m_nbSamples;*/
+
+			av_packet_rescale_ts(&pkt, m_aEncodeCtx->time_base, m_oFmtCtx->streams[m_aOutIndex]->time_base);
+
 			aCurPts = pkt.pts;
+			qDebug() << "aCurPts: " << aCurPts;
+
+			//pkt.pts = av_rescale_q_rnd(pkt.pts, inStream->time_base, outStream->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			//pkt.dts = av_rescale_q_rnd(pkt.dts, inStream->time_base, outStream->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+			//pkt.duration = av_rescale_q(pkt.duration, inStream->time_base, outStream->time_base);
+			//pkt.pos = -1;
+			//pkt.stream_index = streamIndex;
 
 			ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
 			if (ret == 0)

@@ -48,6 +48,9 @@
     <ClCompile Include="ScreenRecordTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="transcoding.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ScreenRecordImpl.h">
