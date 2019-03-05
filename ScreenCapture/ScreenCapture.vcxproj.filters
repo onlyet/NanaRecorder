@@ -39,13 +39,13 @@
     <ClCompile Include="ScreenRecordImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenRecordTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="muxing.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="resampling_audio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenRecordTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
