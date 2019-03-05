@@ -165,7 +165,9 @@ int ScreenRecordImpl::OpenAudio()
 	//查找输入方式
 	AVInputFormat *ifmt = av_find_input_format("dshow");
 	//以Direct Show的方式打开设备，并将 输入方式 关联到格式上下文
-	char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (Conexant SmartAudio HD)"); 
+	//char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (Conexant SmartAudio HD)"); 
+	char * deviceName = dup_wchar_to_utf8(L"audio=麦克风 (High Definition Audio 设备)"); 
+
 	if (avformat_open_input(&m_aFmtCtx, deviceName, ifmt, nullptr) < 0)
 	{
 		qDebug() << "Can not open audio input stream";
