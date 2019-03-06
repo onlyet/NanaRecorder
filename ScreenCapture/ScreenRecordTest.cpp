@@ -13,7 +13,7 @@ ScreenRecord::ScreenRecord(QObject *parent) :
 	args["width"] = 1440;
 	args["height"] = 900;
 	args["fps"] = 30;
-	args["bit_rate"] = 128000;
+	args["audioBitrate"] = 128000;
 
 	sr->Init(args);
 

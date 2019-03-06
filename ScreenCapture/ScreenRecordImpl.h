@@ -55,14 +55,16 @@ private:
 	int OpenAudio();
 	int OpenOutput();
 	QString GetSpeakerDeviceName();
+	//获取麦克风设备名称
 	QString GetMicrophoneDeviceName();
 	AVFrame* AllocAudioFrame(AVCodecContext* c, int nbSamples);
 	void InitVideoBuffer();
 	void InitAudioBuffer();
 	void FlushVideoDecoder();
-	void FlushVideoEncoder();
 	void FlushAudioDecoder();
-	void FlushAudioEncoder();
+	//void FlushVideoEncoder();
+	//void FlushAudioEncoder();
+	void FlushEncoders();
 	void Release();
 
 private:
@@ -70,7 +72,7 @@ private:
 	int					m_width;
 	int					m_height;
 	int					m_fps;
-	int					m_bitRate;
+	int					m_audioBitrate;
 
 	int m_vIndex;		//输入视频流索引
 	int m_aIndex;		//输入音频流索引
@@ -102,4 +104,6 @@ private:
 	std::condition_variable m_cvABufNotFull;
 	std::condition_variable m_cvABufNotEmpty;
 	std::mutex				m_mtxABuf;
+	int64_t					m_vCurPts;
+	int64_t					m_aCurPts;
 };
