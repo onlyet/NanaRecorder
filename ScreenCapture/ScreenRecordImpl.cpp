@@ -66,7 +66,7 @@ void ScreenRecordImpl::Start()
 	{
 		qDebug() << "continue record";
 		m_state = RecordState::Started;
-		m_cvNotPause.notify_one();
+		m_cvNotPause.notify_all();
 	}
 }
 
@@ -82,7 +82,7 @@ void ScreenRecordImpl::Stop()
 	RecordState state = m_state;
 	m_state = RecordState::Stopped;
 	if (state == RecordState::Paused)
-		m_cvNotPause.notify_one();
+		m_cvNotPause.notify_all();
 }
 
 int ScreenRecordImpl::OpenVideo()
@@ -209,7 +209,8 @@ int ScreenRecordImpl::OpenOutput()
 {
 	int ret = -1;
 	AVStream *vStream = nullptr, *aStream = nullptr;
-	const char *outFileName = "test.mp4";
+    string fileName = m_filePath.toStdString();
+    const char *outFileName = fileName.c_str();
 	ret = avformat_alloc_output_context2(&m_oFmtCtx, nullptr, nullptr, outFileName);
 	if (ret < 0)
 	{
@@ -567,21 +568,20 @@ void ScreenRecordImpl::FlushVideoDecoder()
 	while (ret >= 0)
 	{
 		ret = avcodec_receive_frame(m_vDecodeCtx, oldFrame);
-		if (ret < 0)
-		{
-			if (ret == AVERROR(EAGAIN))
-			{
-				qDebug() << "flush EAGAIN avcodec_receive_frame";
-				ret = 1;
-				continue;
-			}
-			else if (ret == AVERROR_EOF)
-			{
-				qDebug() << "flush video decoder finished";
-				break;
-			}
-			qDebug() << "flush video avcodec_receive_frame error, ret: " << ret;
-			return;
+        if (ret < 0)
+        {
+            if (ret == AVERROR_EOF)
+            {
+                qDebug() << "flush video decoder finished";
+                break;
+            }
+            else if (ret == AVERROR(EAGAIN))
+            {
+                //排水模式不会EAGAIN
+                qDebug() << "flush EAGAIN avcodec_receive_frame";
+            }
+            qDebug() << "flush video avcodec_receive_frame error, ret: " << ret;
+            return;
 		}
 		++g_vCollectFrameCnt;
 		sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
@@ -596,6 +596,8 @@ void ScreenRecordImpl::FlushVideoDecoder()
 		av_fifo_generic_write(m_vFifoBuf, newFrame->data[2], y_size / 4, NULL);
 		m_cvVBufNotEmpty.notify_one();
 	}
+    av_frame_free(&oldFrame);
+    av_frame_free(&newFrame);
 	qDebug() << "video collect frame count: " << g_vCollectFrameCnt;
 }
 
@@ -660,16 +662,15 @@ void ScreenRecordImpl::FlushAudioDecoder()
 		ret = avcodec_receive_frame(m_aDecodeCtx, rawFrame);
 		if (ret < 0)
 		{
-			if (ret == AVERROR(EAGAIN))
-			{
-				qDebug() << "flush audio EAGAIN avcodec_receive_frame";
-				ret = 1;
-				continue;
-			}
-			else if (ret == AVERROR_EOF)
+			if (ret == AVERROR_EOF)
 			{
 				qDebug() << "flush audio decoder finished";
 				break;
+			}
+			else if (ret == AVERROR(EAGAIN))
+			{
+                //排水模式不会EAGAIN
+                qDebug() << "flush audio EAGAIN avcodec_receive_frame";
 			}
 			qDebug() << "flush audio avcodec_receive_frame error, ret: " << ret;
 			return;
@@ -712,6 +713,8 @@ void ScreenRecordImpl::FlushAudioDecoder()
 		}
 		m_cvABufNotEmpty.notify_one();
 	}
+    av_frame_free(&rawFrame);
+    av_frame_free(&newFrame);
 	qDebug() << "audio collect frame count: " << g_aCollectFrameCnt;
 }
 
@@ -1111,6 +1114,9 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 			av_packet_unref(&pkt);
 			continue;
 		}
+        //AVRational tb = m_vFmtCtx->streams[m_vIndex]->time_base;
+        //int currentPos = pkt.pts * av_q2d(tb);
+
 		++g_vCollectFrameCnt;
 		sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
 			m_vEncodeCtx->height, newFrame->data, newFrame->linesize);
