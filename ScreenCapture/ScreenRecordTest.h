@@ -4,10 +4,10 @@
 
 class ScreenRecord : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	ScreenRecord(QObject *parent = Q_NULLPTR);
+    ScreenRecord(QObject *parent = Q_NULLPTR);
 
 private:
-	QVariantMap m_args;
+    QVariantMap m_args;
 };
