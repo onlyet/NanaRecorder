@@ -111,7 +111,7 @@ int ScreenRecordImpl::OpenVideo()
             decoder = avcodec_find_decoder(stream->codecpar->codec_id);
             if (decoder == nullptr)
             {
-                printf("Codec not found.（没有找到解码器）\n");
+                qDebug() << QStringLiteral("没有找到视频解码器");
                 return -1;
             }
             //从视频流中拷贝参数到codecCtx
@@ -132,7 +132,8 @@ int ScreenRecordImpl::OpenVideo()
     }
 
     m_swsCtx = sws_getContext(m_vDecodeCtx->width, m_vDecodeCtx->height, m_vDecodeCtx->pix_fmt,
-        m_width, m_height, AV_PIX_FMT_YUV420P, SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+        m_width, m_height, AV_PIX_FMT_YUV420P,
+        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
     return 0;
 }
 
@@ -186,7 +187,7 @@ int ScreenRecordImpl::OpenAudio()
                 printf("Codec not found.（没有找到解码器）\n");
                 return -1;
             }
-            //从视频流中拷贝参数到codecCtx
+            //从音频流中拷贝参数到codecCtx
             m_aDecodeCtx = avcodec_alloc_context3(decoder);
             if ((ret = avcodec_parameters_to_context(m_aDecodeCtx, stream->codecpar)) < 0)
             {
