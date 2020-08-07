@@ -964,6 +964,7 @@ void ScreenRecordImpl::MuxThreadProc()
             //设置视频帧参数
             //m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
             m_vOutFrame->pts = vFrameIndex++;
+			//m_vOutFrame->pts = av_frame_get_best_effort_timestamp(m_vOutFrame);	// 这样设置pts可以测试是否可行
             m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
             m_vOutFrame->width = m_vEncodeCtx->width;
             m_vOutFrame->height = m_vEncodeCtx->height;
