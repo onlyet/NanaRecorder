@@ -854,6 +854,7 @@ void ScreenRecordImpl::Release()
     }
     if (m_vDecodeCtx)
     {
+        // FIXME: 为什么这里会崩溃
         avcodec_free_context(&m_vDecodeCtx);
         m_vDecodeCtx = nullptr;
     }
