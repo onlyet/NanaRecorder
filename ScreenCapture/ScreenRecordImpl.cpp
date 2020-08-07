@@ -776,7 +776,7 @@ void ScreenRecordImpl::FlushEncoders()
             //将pts从编码层的timebase转成复用层的timebase
             av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
             m_vCurPts = pkt.pts;
-            qDebug() << "m_vCurPts: " << m_vCurPts;
+            //qDebug() << "m_vCurPts: " << m_vCurPts;
 
             ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
             if (ret == 0)
@@ -852,12 +852,7 @@ void ScreenRecordImpl::Release()
         avformat_free_context(m_oFmtCtx);
         m_oFmtCtx = nullptr;
     }
-    if (m_vDecodeCtx)
-    {
-        // FIXME: 为什么这里会崩溃
-        avcodec_free_context(&m_vDecodeCtx);
-        m_vDecodeCtx = nullptr;
-    }
+
     if (m_aDecodeCtx)
     {
         avcodec_free_context(&m_aDecodeCtx);
@@ -893,6 +888,13 @@ void ScreenRecordImpl::Release()
         avformat_close_input(&m_aFmtCtx);
         m_aFmtCtx = nullptr;
     }
+
+	//if (m_vDecodeCtx)
+	//{
+	//	// FIXME: 为什么这里会崩溃
+	//	avcodec_free_context(&m_vDecodeCtx);
+	//	m_vDecodeCtx = nullptr;
+	//}
 }
 
 void ScreenRecordImpl::MuxThreadProc()
@@ -991,11 +993,13 @@ void ScreenRecordImpl::MuxThreadProc()
             av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
 
             m_vCurPts = pkt.pts;
-            qDebug() << "m_vCurPts: " << m_vCurPts;
+            //qDebug() << "m_vCurPts: " << m_vCurPts;
 
             ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
-            if (ret == 0)
-                qDebug() << "Write video packet id: " << ++g_vEncodeFrameCnt;
+			if (ret == 0)
+			{
+                //qDebug() << "Write video packet id: " << ++g_vEncodeFrameCnt;
+			}
             else
                 qDebug() << "video av_interleaved_write_frame failed, ret:" << ret;
             av_free_packet(&pkt);
@@ -1054,11 +1058,13 @@ void ScreenRecordImpl::MuxThreadProc()
             av_packet_rescale_ts(&pkt, m_aEncodeCtx->time_base, m_oFmtCtx->streams[m_aOutIndex]->time_base);
 
             m_aCurPts = pkt.pts;
-            qDebug() << "aCurPts: " << m_aCurPts;
+            //qDebug() << "aCurPts: " << m_aCurPts;
 
             ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
-            if (ret == 0)
-                qDebug() << "Write audio packet id: " << ++g_aEncodeFrameCnt;
+			if (ret == 0)
+			{
+                //qDebug() << "Write audio packet id: " << ++g_aEncodeFrameCnt;
+			}
             else
                 qDebug() << "audio av_interleaved_write_frame failed, ret: " << ret;
 
@@ -1067,7 +1073,7 @@ void ScreenRecordImpl::MuxThreadProc()
         }
     }
     FlushEncoders();
-    av_write_trailer(m_oFmtCtx);
+    ret = av_write_trailer(m_oFmtCtx);
     Release();
     qDebug() << "parent thread exit";
 }
