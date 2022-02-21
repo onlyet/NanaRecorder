@@ -20,7 +20,7 @@ ScreenRecord::ScreenRecord(QObject *parent) :
     sr->Init(args);
 
     QTimer::singleShot(1000, sr, SLOT(Start()));
-    QTimer::singleShot(11000, sr, SLOT(Stop()));
+    QTimer::singleShot(31000, sr, SLOT(Stop()));
 
     //QTimer::singleShot(5000, sr, SLOT(Pause()));
     //QTimer::singleShot(10000, sr, SLOT(Pause()));
