@@ -16,7 +16,7 @@ extern "C"
 
 #include "ScreenRecordImpl.h"
 #include <QDebug>
-#include <QAudioDeviceInfo>
+//#include <QAudioDeviceInfo>
 #include <thread>
 #include <fstream>
 
@@ -1196,6 +1196,7 @@ void ScreenRecordImpl::SoundRecordThreadProc()
         }
         ++g_aCollectFrameCnt;
 
+        qDebug() << "rawFrame->nb_samples:" << rawFrame->nb_samples;
         dstNbSamples = av_rescale_rnd(swr_get_delay(m_swrCtx, m_aDecodeCtx->sample_rate) + rawFrame->nb_samples,
             m_aEncodeCtx->sample_rate, m_aDecodeCtx->sample_rate, AV_ROUND_UP);
         if (dstNbSamples > maxDstNbSamples)
@@ -1214,13 +1215,6 @@ void ScreenRecordImpl::SoundRecordThreadProc()
             maxDstNbSamples = dstNbSamples;
             m_aEncodeCtx->frame_size = dstNbSamples;
             m_nbSamples = newFrame->nb_samples;	//1024
-            /*
-             * m_nbSamples = dstNbSamples;		//22050
-             * 如果改为m_nbSamples = dstNbSamples;则av_audio_fifo_write会异常，不明白为什么？
-             * 我觉得应该改为22050，不然编码线程一次编码的帧sample太少了，
-             * 但是用1024生成的音频好像没问题？
-             * 音频是否应该根据采集的nb_samples而重新分配fifo？
-            */
         }
 
         newFrame->nb_samples = swr_convert(m_swrCtx, newFrame->data, dstNbSamples,
