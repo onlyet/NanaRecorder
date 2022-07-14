@@ -92,7 +92,8 @@ int ScreenRecordImpl::OpenVideo()
     AVDictionary *options = nullptr;
     AVCodec *decoder = nullptr;
     av_dict_set(&options, "framerate", QString::number(m_fps).toStdString().c_str(), NULL);
-
+    string resolution = QString("%1x%2").arg(m_width).arg(m_height).toStdString();
+    av_dict_set(&options, "video_size", resolution.c_str(), 0);
     if (avformat_open_input(&m_vFmtCtx, "desktop", ifmt, &options) != 0)
     {
         qDebug() << "Cant not open video input stream";
