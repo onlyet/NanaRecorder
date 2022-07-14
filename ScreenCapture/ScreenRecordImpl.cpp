@@ -609,45 +609,6 @@ void ScreenRecordImpl::FlushVideoDecoder()
     qDebug() << "video collect frame count: " << g_vCollectFrameCnt;
 }
 
-//void ScreenRecordImpl::FlushVideoEncoder()
-//{
-//	int ret = -1;
-//	AVPacket pkt = { 0 };
-//	av_init_packet(&pkt);
-//	ret = avcodec_send_frame(m_vEncodeCtx, nullptr);
-//	qDebug() << "avcodec_send_frame ret:" << ret;
-//	while (ret >= 0)
-//	{
-//		ret = avcodec_receive_packet(m_vEncodeCtx, &pkt);
-//		if (ret < 0)
-//		{
-//			av_packet_unref(&pkt);
-//			if (ret == AVERROR(EAGAIN))
-//			{
-//				qDebug() << "flush EAGAIN avcodec_receive_packet";
-//				ret = 1;
-//				continue;
-//			}
-//			else if (ret == AVERROR_EOF)
-//			{
-//				qDebug() << "flush video encoder finished";
-//				break;
-//			}
-//			qDebug() << "flush video avcodec_receive_packet failed, ret: " << ret;
-//			return;
-//		}
-//		pkt.stream_index = m_vOutIndex;
-//		av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
-//
-//		ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
-//		if (ret == 0)
-//			qDebug() << "flush Write video packet id: " << ++g_vEncodeFrameCnt;
-//		else
-//			qDebug() << "video av_interleaved_write_frame failed, ret:" << ret;
-//		av_free_packet(&pkt);
-//	}
-//}
-
 void ScreenRecordImpl::FlushAudioDecoder()
 {
     int ret = -1;
@@ -725,10 +686,6 @@ void ScreenRecordImpl::FlushAudioDecoder()
     av_frame_free(&newFrame);
     qDebug() << "audio collect frame count: " << g_aCollectFrameCnt;
 }
-
-//void ScreenRecordImpl::FlushAudioEncoder()
-//{
-//}
 
 void ScreenRecordImpl::FlushEncoders()
 {
@@ -956,12 +913,9 @@ void ScreenRecordImpl::MuxThreadProc()
             if (done)
             {
                 lock_guard<mutex> lk(m_mtxVBuf);
-                //if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
                 if (av_fifo_size(m_vFifoBuf) < m_vOutFrameItemSize)
                 {
                     qDebug() << "video wirte done";
-                    //break;
-                    //m_vCurPts = 0x7ffffffffffffffe;	//int64_t最大有符号整数
                     m_vCurPts = INT_MAX;
                     continue;
                 }
@@ -969,7 +923,6 @@ void ScreenRecordImpl::MuxThreadProc()
             else
             {
                 unique_lock<mutex> lk(m_mtxVBuf);
-                //m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameSize; });
                 m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameItemSize; });
             }
             long long timestamp;
@@ -977,12 +930,9 @@ void ScreenRecordImpl::MuxThreadProc()
             av_fifo_generic_read(m_vFifoBuf, m_vOutFrameBuf, m_vOutFrameSize, NULL);
             m_cvVBufNotFull.notify_one();
 
-            //qDebug() << ""
-
             //设置视频帧参数
-            //m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
-            m_vOutFrame->pts = vFrameIndex++;
-			//m_vOutFrame->pts = av_frame_get_best_effort_timestamp(m_vOutFrame);	// 这样设置pts可以测试是否可行
+            ////m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
+            //m_vOutFrame->pts = vFrameIndex++;
             m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
             m_vOutFrame->width = m_vEncodeCtx->width;
             m_vOutFrame->height = m_vEncodeCtx->height;
@@ -1008,6 +958,7 @@ void ScreenRecordImpl::MuxThreadProc()
 
             // pts设置为帧采集时间戳
             pkt.pts = av_rescale_q(timestamp, AVRational{ 1, 1000 }, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+            pkt.dts = pkt.pts;
 
 
             //将pts从编码层的timebase转成复用层的timebase
@@ -1127,18 +1078,6 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
             continue;
         }
 
-        static bool s_singleton = true;
-        if (s_singleton)
-        {
-            s_singleton = false;
-            m_firstTimePoint = chrono::steady_clock::now();
-            m_timestamp = 0;
-        }
-        else
-        {
-            m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
-        }
-
         if (pkt.stream_index != m_vIndex)
         {
             qDebug() << "not a video packet from video input";
@@ -1158,8 +1097,19 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
             av_packet_unref(&pkt);
             continue;
         }
-        //AVRational tb = m_vFmtCtx->streams[m_vIndex]->time_base;
-        //int currentPos = pkt.pts * av_q2d(tb);
+
+        // 拿到frame再记录时间戳
+        static bool s_singleton = true;
+        if (s_singleton)
+        {
+            s_singleton = false;
+            m_firstTimePoint = chrono::steady_clock::now();
+            m_timestamp = 0;
+        }
+        else
+        {
+            m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
+        }
 
         ++g_vCollectFrameCnt;
         sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
@@ -1167,7 +1117,6 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 
         {
             unique_lock<mutex> lk(m_mtxVBuf);
-            //m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vOutFrameSize; });
             m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vOutFrameItemSize; });
         }
 
