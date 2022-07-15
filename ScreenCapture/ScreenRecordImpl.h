@@ -108,5 +108,5 @@ private:
     int64_t                     m_aCurPts;
 
     std::chrono::steady_clock::time_point    m_firstTimePoint;
-    long long                               m_timestamp;    // 相对时间戳，采集的第一帧为0
+    int64_t                               m_timestamp;    // 相对时间戳，采集的第一帧为0
 };

@@ -881,6 +881,14 @@ void ScreenRecordImpl::MuxThreadProc()
     InitVideoBuffer();
     InitAudioBuffer();
 
+    static bool s_singleton = true;
+    if (s_singleton)
+    {
+        s_singleton = false;
+        m_firstTimePoint = chrono::steady_clock::now();
+        m_timestamp = 0;
+    }
+
     //启动音视频数据采集线程
     std::thread screenRecord(&ScreenRecordImpl::ScreenRecordThreadProc, this);
     std::thread soundRecord(&ScreenRecordImpl::SoundRecordThreadProc, this);
@@ -932,7 +940,7 @@ void ScreenRecordImpl::MuxThreadProc()
 
             //设置视频帧参数
             ////m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
-            //m_vOutFrame->pts = vFrameIndex++;
+            m_vOutFrame->pts = vFrameIndex++;
             m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
             m_vOutFrame->width = m_vEncodeCtx->width;
             m_vOutFrame->height = m_vEncodeCtx->height;
@@ -958,7 +966,7 @@ void ScreenRecordImpl::MuxThreadProc()
 
             // pts设置为帧采集时间戳
             pkt.pts = av_rescale_q(timestamp, AVRational{ 1, 1000 }, m_oFmtCtx->streams[m_vOutIndex]->time_base);
-            pkt.dts = pkt.pts;
+            //pkt.dts = pkt.pts;
 
 
             //将pts从编码层的timebase转成复用层的timebase
@@ -1027,11 +1035,14 @@ void ScreenRecordImpl::MuxThreadProc()
                 continue;
             }
             pkt.stream_index = m_aOutIndex;
+            int64_t ts = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
 
-            av_packet_rescale_ts(&pkt, m_aEncodeCtx->time_base, m_oFmtCtx->streams[m_aOutIndex]->time_base);
+            int64_t pts = ts * m_aEncodeCtx->sample_rate / 1000;
+            pkt.pts = pts;
+            pkt.dts = pts;
+            //av_packet_rescale_ts(&pkt, m_aEncodeCtx->time_base, m_oFmtCtx->streams[m_aOutIndex]->time_base);
 
             m_aCurPts = pkt.pts;
-            //qDebug() << "aCurPts: " << m_aCurPts;
 
             ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
 			if (ret == 0)
@@ -1099,17 +1110,17 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
         }
 
         // 拿到frame再记录时间戳
-        static bool s_singleton = true;
-        if (s_singleton)
-        {
-            s_singleton = false;
-            m_firstTimePoint = chrono::steady_clock::now();
-            m_timestamp = 0;
-        }
-        else
-        {
+        //static bool s_singleton = true;
+        //if (s_singleton)
+        //{
+        //    s_singleton = false;
+        //    m_firstTimePoint = chrono::steady_clock::now();
+        //    m_timestamp = 0;
+        //}
+        //else
+        //{
             m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
-        }
+        //}
 
         ++g_vCollectFrameCnt;
         sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
