@@ -4,6 +4,12 @@
 
 #include <QString>
 
+enum RecordState {
+    Stopped,
+    Started,
+    Paused,
+};
+
 struct RecordConfig {
     friend Singleton<RecordConfig>;
 
