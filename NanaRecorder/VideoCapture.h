@@ -19,6 +19,7 @@ private:
     void captureThreadProc();
 
 private:
+    int              m_vIndex;       // 输入视频流索引
     AVFormatContext* m_vFmtCtx = nullptr;
     AVCodecContext* m_vDecodeCtx = nullptr;
     SwsContext*     m_swsCtx = nullptr;

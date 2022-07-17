@@ -4,11 +4,16 @@
 
 #include <QString>
 #include <QDebug>
+//#include <QTime>
+#include <QDateTime>
 
 #include <string>
+#include <mutex>
+//#include <chrono>
 //#include <functional>
 
 using namespace std;
+using namespace std::chrono;
 
 //VideoCapture::VideoCapture(const RecordInfo& info)
 //{
@@ -23,6 +28,8 @@ int VideoCapture::startCapture()
     std::thread t(std::bind(&VideoCapture::captureThreadProc, this));
     m_captureThread.swap(t);
     //m_captureThread.swap(std::thread(std::bind(&VideoCapture::captureThreadProc, this)));
+
+    return 0;
 }
 
 int VideoCapture::stopCapture()
@@ -73,7 +80,7 @@ int VideoCapture::initCapture()
                 qDebug() << "Video avcodec_parameters_to_context failed,error code: " << ret;
                 return -1;
             }
-            //m_vIndex = i;
+            m_vIndex = i;
             break;
         }
     }
@@ -94,6 +101,7 @@ void VideoCapture::captureThreadProc()
 {
     int width = g_record.width;
     int height = g_record.height;
+    //RecordStatus status = g_record.status;
 
     int ret = -1;
     AVPacket pkt = { 0 };
@@ -107,12 +115,12 @@ void VideoCapture::captureThreadProc()
     av_image_fill_arrays(newFrame->data, newFrame->linesize, newFrameBuf,
         AV_PIX_FMT_YUV420P, width, height, 1);
 
-    while (m_state != RecordState::Stopped)
+    while (g_record.status != RecordStatus::Stopped)
     {
-        if (m_state == RecordState::Paused)
+        if (g_record.status == RecordStatus::Paused)
         {
-            unique_lock<mutex> lk(m_mtxPause);
-            m_cvNotPause.wait(lk, [this] { return m_state != RecordState::Paused; });
+            unique_lock<mutex> lk(g_record.mtxPause);
+            g_record.cvNotPause.wait(lk, [this] { return g_record.status != RecordStatus::Paused; });
         }
         if (av_read_frame(m_vFmtCtx, &pkt) < 0)
         {
@@ -141,38 +149,30 @@ void VideoCapture::captureThreadProc()
         }
 
         // 拿到frame再记录时间戳
-        //static bool s_singleton = true;
-        //if (s_singleton)
-        //{
-        //    s_singleton = false;
-        //    m_firstTimePoint = chrono::steady_clock::now();
-        //    m_timestamp = 0;
-        //}
-        //else
-        //{
-        m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
-        //}
+        //int64_t captureTime = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+        int64_t captureTime = QDateTime::currentMSecsSinceEpoch() - ;
+        //m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
 
-        ++g_vCollectFrameCnt;
+        //++g_vCollectFrameCnt;
         sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
-            m_vEncodeCtx->height, newFrame->data, newFrame->linesize);
+            height, newFrame->data, newFrame->linesize);
 
         {
-            unique_lock<mutex> lk(m_mtxVBuf);
-            m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vOutFrameItemSize; });
+            unique_lock<mutex> lk(g_record.mtxVBuf);
+            g_record.cvVBufNotFull.wait(lk, [this] { return av_fifo_space(g_record.vFifoBuf) >= g_record.vOutFrameItemSize; });
         }
 
         // 先写入时间戳
-        av_fifo_generic_write(m_vFifoBuf, &m_timestamp, sizeof(m_timestamp), NULL);
+        av_fifo_generic_write(g_record.vFifoBuf, &captureTime, sizeof(int64_t), NULL);
 
-        av_fifo_generic_write(m_vFifoBuf, newFrame->data[0], y_size, NULL);
-        av_fifo_generic_write(m_vFifoBuf, newFrame->data[1], y_size / 4, NULL);
-        av_fifo_generic_write(m_vFifoBuf, newFrame->data[2], y_size / 4, NULL);
-        m_cvVBufNotEmpty.notify_one();
+        av_fifo_generic_write(g_record.vFifoBuf, newFrame->data[0], y_size, NULL);
+        av_fifo_generic_write(g_record.vFifoBuf, newFrame->data[1], y_size / 4, NULL);
+        av_fifo_generic_write(g_record.vFifoBuf, newFrame->data[2], y_size / 4, NULL);
+        g_record.cvVBufNotEmpty.notify_one();
 
         av_packet_unref(&pkt);
     }
-    FlushVideoDecoder();
+    //FlushVideoDecoder();
 
     av_free(newFrameBuf);
     av_frame_free(&oldFrame);

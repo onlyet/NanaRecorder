@@ -99,6 +99,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Recorder.cpp" />
     <ClCompile Include="VideoCapture.cpp" />
     <QtRcc Include="NanaRecorder.qrc" />
     <QtUic Include="NanaRecorder.ui" />
@@ -110,6 +111,7 @@
     <ClInclude Include="FFmpegHeader.h" />
     <ClInclude Include="RecordConfig.h" />
     <QtMoc Include="singleton.h" />
+    <ClInclude Include="Recorder.h" />
     <ClInclude Include="VideoCapture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
