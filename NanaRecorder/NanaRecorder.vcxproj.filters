@@ -45,7 +45,7 @@
     <ClCompile Include="VideoFrameQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mux.cpp">
+    <ClCompile Include="mux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -100,7 +100,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Mux.cpp" />
+    <ClCompile Include="mux.cpp" />
     <ClCompile Include="Recorder.cpp" />
     <ClCompile Include="VideoCapture.cpp" />
     <ClCompile Include="VideoEncoder.cpp" />
