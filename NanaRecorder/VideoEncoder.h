@@ -7,6 +7,7 @@ class VideoEncoder
 {
 public:
     int initH264(int width, int height, int fps);
+    void deinit();
     int encode();
 
 private:
