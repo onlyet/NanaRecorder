@@ -65,6 +65,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
       <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -101,6 +102,8 @@
   <ItemGroup>
     <ClCompile Include="Recorder.cpp" />
     <ClCompile Include="VideoCapture.cpp" />
+    <ClCompile Include="VideoEncoder.cpp" />
+    <ClCompile Include="VideoFrameQueue.cpp" />
     <QtRcc Include="NanaRecorder.qrc" />
     <QtUic Include="NanaRecorder.ui" />
     <QtMoc Include="NanaRecorder.h" />
@@ -110,6 +113,8 @@
   <ItemGroup>
     <ClInclude Include="FFmpegHeader.h" />
     <ClInclude Include="RecordConfig.h" />
+    <ClInclude Include="VideoEncoder.h" />
+    <ClInclude Include="VideoFrameQueue.h" />
     <QtMoc Include="singleton.h" />
     <ClInclude Include="Recorder.h" />
     <ClInclude Include="VideoCapture.h" />

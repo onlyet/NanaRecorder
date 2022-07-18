@@ -34,6 +34,9 @@ int VideoCapture::startCapture()
 
 int VideoCapture::stopCapture()
 {
+    if (m_captureThread.joinable()) {
+        m_captureThread.join();
+    }
     return 0;
 }
 
@@ -90,9 +93,9 @@ int VideoCapture::initCapture()
         return -1;
     }
 
-    m_swsCtx = sws_getContext(m_vDecodeCtx->width, m_vDecodeCtx->height, m_vDecodeCtx->pix_fmt,
-        width, height, AV_PIX_FMT_YUV420P,
-        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+    //m_swsCtx = sws_getContext(m_vDecodeCtx->width, m_vDecodeCtx->height, m_vDecodeCtx->pix_fmt,
+    //    width, height, AV_PIX_FMT_YUV420P,
+    //    SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
 
     return 0;
 }
@@ -108,12 +111,12 @@ void VideoCapture::captureThreadProc()
     av_init_packet(&pkt);
     int y_size = width * height;
     AVFrame* oldFrame = av_frame_alloc();
-    AVFrame* newFrame = av_frame_alloc();
+    //AVFrame* newFrame = av_frame_alloc();
 
-    int newFrameBufSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1);
-    uint8_t* newFrameBuf = (uint8_t*)av_malloc(newFrameBufSize);
-    av_image_fill_arrays(newFrame->data, newFrame->linesize, newFrameBuf,
-        AV_PIX_FMT_YUV420P, width, height, 1);
+    //int newFrameBufSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1);
+    //uint8_t* newFrameBuf = (uint8_t*)av_malloc(newFrameBufSize);
+    //av_image_fill_arrays(newFrame->data, newFrame->linesize, newFrameBuf,
+    //    AV_PIX_FMT_YUV420P, width, height, 1);
 
     while (g_record.status != RecordStatus::Stopped)
     {
@@ -147,35 +150,18 @@ void VideoCapture::captureThreadProc()
             av_packet_unref(&pkt);
             continue;
         }
+        av_packet_unref(&pkt);
 
         // 拿到frame再记录时间戳
         //int64_t captureTime = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-        int64_t captureTime = QDateTime::currentMSecsSinceEpoch() - ;
-        //m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
+        //int64_t captureTime = QDateTime::currentMSecsSinceEpoch() - ;
+        m_frameCb(oldFrame, m_vDecodeCtx);
 
-        //++g_vCollectFrameCnt;
-        sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
-            height, newFrame->data, newFrame->linesize);
-
-        {
-            unique_lock<mutex> lk(g_record.mtxVBuf);
-            g_record.cvVBufNotFull.wait(lk, [this] { return av_fifo_space(g_record.vFifoBuf) >= g_record.vOutFrameItemSize; });
-        }
-
-        // 先写入时间戳
-        av_fifo_generic_write(g_record.vFifoBuf, &captureTime, sizeof(int64_t), NULL);
-
-        av_fifo_generic_write(g_record.vFifoBuf, newFrame->data[0], y_size, NULL);
-        av_fifo_generic_write(g_record.vFifoBuf, newFrame->data[1], y_size / 4, NULL);
-        av_fifo_generic_write(g_record.vFifoBuf, newFrame->data[2], y_size / 4, NULL);
-        g_record.cvVBufNotEmpty.notify_one();
-
-        av_packet_unref(&pkt);
     }
     //FlushVideoDecoder();
 
-    av_free(newFrameBuf);
+    //av_free(newFrameBuf);
     av_frame_free(&oldFrame);
-    av_frame_free(&newFrame);
+    //av_frame_free(&newFrame);
     qDebug() << "screen record thread exit";
 }

@@ -25,11 +25,11 @@ struct RecordConfig {
     std::condition_variable cvNotPause;   // 当点击暂停的时候，两个采集线程挂起
     std::mutex              mtxPause;
 
-    std::condition_variable     cvVBufNotFull;
-    std::condition_variable     cvVBufNotEmpty;
-    std::mutex                  mtxVBuf;
-    AVFifoBuffer*               vFifoBuf;
-    int                         vOutFrameItemSize;
+    //std::condition_variable     cvVBufNotFull;
+    //std::condition_variable     cvVBufNotEmpty;
+    //std::mutex                  mtxVBuf;
+    //AVFifoBuffer*               vFifoBuf;
+    //int                         vOutFrameItemSize;
 };
 
 #define g_record Singleton<RecordConfig>::instance()
