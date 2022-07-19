@@ -65,8 +65,8 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
 
     int ret = 0;
 
-    pts = av_rescale_q(pts, AVRational{ 1, (int)time_base }, m_vEncodeCtx->time_base);
-    frame->pts = pts;
+    //pts = av_rescale_q(pts, AVRational{ 1, (int)time_base }, m_vEncodeCtx->time_base);
+    //frame->pts = pts;
     ret = avcodec_send_frame(m_vEncodeCtx, frame);
 
     if (ret != 0) {
@@ -75,13 +75,6 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
         qDebug() << "video avcodec_send_frame failed:" << errbuf;
         return -1;
     }
-    //ret = avcodec_receive_packet(m_vEncodeCtx, &pkt);
-    //if (ret != 0)
-    //{
-    //    qDebug() << "video avcodec_receive_packet failed, ret: " << ret;
-    //    av_packet_unref(&pkt);
-    //    continue;
-    //}
 
     while (1) {
         AVPacket* packet = av_packet_alloc();
@@ -98,6 +91,7 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
             qDebug() << "avcodec_receive_packet failed:" << errbuf;
             av_packet_free(&packet);
             ret = -1;
+            break;
         }
         //printf("h264 pts:%lld\n", packet->pts);
         packets.push_back(packet);

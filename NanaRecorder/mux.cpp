@@ -56,7 +56,7 @@ int Mux::writeHeader()
     return 0;
 }
 
-int Mux::writePacket(AVPacket* packet)
+int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 {
     if (!m_isInit || !m_oFmtCtx) return -1;
 
@@ -81,9 +81,16 @@ int Mux::writePacket(AVPacket* packet)
         dst_time_base = m_aStream->time_base;
     }
     // 时间基转换
+#if 0
     packet->pts = av_rescale_q(packet->pts, src_time_base, dst_time_base);
     packet->dts = av_rescale_q(packet->dts, src_time_base, dst_time_base);
     packet->duration = av_rescale_q(packet->duration, src_time_base, dst_time_base);
+#else
+    //m_pVideoPacket->stream_index = m_nVideoStreamIndex;
+    //packet->pts = pFrame->nCaptureTime * (pStream->time_base.den / pStream->time_base.num) / 1000;
+    packet->pts = av_rescale_q(captureTime, AVRational{ 1, 1000 }, dst_time_base);
+    packet->dts = packet->pts;
+#endif
 
     int ret;
     {
@@ -117,9 +124,6 @@ int Mux::addStream(AVCodecContext* encodeCtx)
         qDebug() << "avformat_new_stream failed";
 		return -1;
 	}
-	//AVFormatContext第一个创建的流索引是0，第二个创建的流索引是1
-	//m_vOutIndex = vStream->index;
-	//vStream->time_base = AVRational{ 1, m_fps };
 
 	//将codecCtx中的参数传给输出流
 	int ret = avcodec_parameters_from_context(stream->codecpar, encodeCtx);

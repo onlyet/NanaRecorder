@@ -12,7 +12,7 @@ public:
     int init(const std::string& filename);
     void deinit();
     int writeHeader();
-    int writePacket(AVPacket* packet);
+    int writePacket(AVPacket* packet, int64_t captureTime);
     int writeTrailer();
 
     int addStream(AVCodecContext* encodeCtx);

@@ -4,8 +4,11 @@
 #include "RecordConfig.h"
 #include "VideoFrameQueue.h"
 
+#include <QDebug>
+
 #include <string>
 #include <functional>
+
 
 using namespace std;
 
@@ -82,6 +85,7 @@ void FileOutputer::outputVideoThreadProc()
     while (m_isRunning) {
         encodeVideoAndMux();
     }
+    qDebug() << "outputVideoThreadProc thread exit";
 }
 
 void FileOutputer::encodeVideoAndMux()
@@ -90,14 +94,17 @@ void FileOutputer::encodeVideoAndMux()
         return;
     }
 
-    FrameItem* item = m_videoFrameCb();
-    if (!item) return;
-    
-    m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_packets);
+    FrameItem* item;
+    while (1) {
+		item = m_videoFrameCb();
+		if (!item) return;
 
-    for_each(m_packets.cbegin(), m_packets.cend(), [this](AVPacket* packet) {
-        m_mux->writePacket(packet);
-        });
+		m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_packets);
 
-    m_packets.clear();
+		for_each(m_packets.cbegin(), m_packets.cend(), [this, item](AVPacket* packet) {
+			m_mux->writePacket(packet, item->captureTime);
+			});
+
+		m_packets.clear();
+    }
 }

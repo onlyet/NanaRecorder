@@ -94,10 +94,9 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
         m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vFrameItemSize; });
     }
 
-    qDebug() << "av_fifo_generic_write 1";
     av_fifo_generic_write(m_vFifoBuf, &captureTime, sizeof(int64_t), NULL);
     av_fifo_generic_write(m_vFifoBuf, /*&*/m_vInFrameBuf, m_vFrameSize, NULL);
-    qDebug() << "av_fifo_generic_write 2";
+    //qDebug() << "av_fifo_generic_write 2";
     m_cvVBufNotEmpty.notify_one();
 
     return 0;
@@ -109,7 +108,12 @@ FrameItem* VideoFrameQueue::readFrame()
 
     {
         unique_lock<mutex> lk(m_mtxVBuf);
-        m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
+        //m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
+        bool notTimeout = m_cvVBufNotEmpty.wait_for(lk, 1000ms, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
+        if (!notTimeout) {
+            qDebug() << "wait timeout";
+            return nullptr;
+        }
     }
     int64_t captureTime;
     av_fifo_generic_read(m_vFifoBuf, &captureTime, sizeof(int64_t), NULL);
