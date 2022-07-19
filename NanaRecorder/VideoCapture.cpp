@@ -4,8 +4,7 @@
 
 #include <QString>
 #include <QDebug>
-//#include <QTime>
-#include <QDateTime>
+//#include <QDateTime>
 
 #include <string>
 #include <mutex>
@@ -21,27 +20,37 @@ using namespace std::chrono;
 
 int VideoCapture::startCapture()
 {
+    if (m_isRunning) return -1;
+
+    m_isRunning = true;
     int ret = initCapture();
     if (0 != ret) {
         return -1;
     }
-    std::thread t(std::bind(&VideoCapture::captureThreadProc, this));
+    std::thread t(std::bind(&VideoCapture::videoCaptureThreadProc, this));
     m_captureThread.swap(t);
-    //m_captureThread.swap(std::thread(std::bind(&VideoCapture::captureThreadProc, this)));
-
+    //m_captureThread.swap(std::thread(std::bind(&VideoCapture::videoCaptureThreadProc, this)));
     return 0;
 }
 
 int VideoCapture::stopCapture()
 {
+    if (!m_isRunning) return -1;
+
+    m_isRunning = false;
     if (m_captureThread.joinable()) {
         m_captureThread.join();
     }
+    deinit();
     return 0;
 }
 
 int VideoCapture::initCapture()
 {
+    av_register_all();
+    avdevice_register_all();
+    avcodec_register_all();
+
     int fps = g_record.fps;
     int width = g_record.width;
     int height = g_record.height;
@@ -57,7 +66,9 @@ int VideoCapture::initCapture()
 
     if (avformat_open_input(&m_vFmtCtx, "desktop", ifmt, &options) != 0)
     {
-        qDebug() << "Cant not open video input stream";
+        char errbuf[1024] = { 0 };
+        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
+        qDebug() << "video avformat_open_input failed:" << errbuf;
         return -1;
     }
     if (avformat_find_stream_info(m_vFmtCtx, nullptr) < 0)
@@ -93,37 +104,44 @@ int VideoCapture::initCapture()
         return -1;
     }
 
-    //m_swsCtx = sws_getContext(m_vDecodeCtx->width, m_vDecodeCtx->height, m_vDecodeCtx->pix_fmt,
-    //    width, height, AV_PIX_FMT_YUV420P,
-    //    SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
-
     return 0;
 }
 
-void VideoCapture::captureThreadProc()
+void VideoCapture::deinit()
+{
+    if (m_vFmtCtx) {
+        avformat_close_input(&m_vFmtCtx);
+        m_vFmtCtx = nullptr;
+    }
+    if (m_vDecodeCtx) {
+        avcodec_free_context(&m_vDecodeCtx);
+        m_vDecodeCtx = nullptr;
+    }
+}
+
+// TODO: flush
+void VideoCapture::videoCaptureThreadProc()
 {
     int width = g_record.width;
     int height = g_record.height;
-    //RecordStatus status = g_record.status;
 
     int ret = -1;
     AVPacket pkt = { 0 };
     av_init_packet(&pkt);
     int y_size = width * height;
     AVFrame* oldFrame = av_frame_alloc();
-    //AVFrame* newFrame = av_frame_alloc();
 
-    //int newFrameBufSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1);
-    //uint8_t* newFrameBuf = (uint8_t*)av_malloc(newFrameBufSize);
-    //av_image_fill_arrays(newFrame->data, newFrame->linesize, newFrameBuf,
-    //    AV_PIX_FMT_YUV420P, width, height, 1);
-
-    while (g_record.status != RecordStatus::Stopped)
+    while (m_isRunning)
     {
         if (g_record.status == RecordStatus::Paused)
         {
             unique_lock<mutex> lk(g_record.mtxPause);
             g_record.cvNotPause.wait(lk, [this] { return g_record.status != RecordStatus::Paused; });
+        }
+
+        if (!m_vFmtCtx || !m_vDecodeCtx) {
+            qDebug() << "m_vFmtCtx or m_vDecodeCtx nullptr";
+            break;
         }
         if (av_read_frame(m_vFmtCtx, &pkt) < 0)
         {
@@ -152,16 +170,17 @@ void VideoCapture::captureThreadProc()
         }
         av_packet_unref(&pkt);
 
-        // 拿到frame再记录时间戳
-        //int64_t captureTime = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-        //int64_t captureTime = QDateTime::currentMSecsSinceEpoch() - ;
-        m_frameCb(oldFrame, m_vDecodeCtx);
+        VideoCaptureInfo info;
+        info.width = m_vDecodeCtx->width;
+        info.height = m_vDecodeCtx->height;
+        info.format = m_vDecodeCtx->pix_fmt;
+        m_frameCb(oldFrame, info);
 
+        //int a = 3;
+        //qDebug() << "a:" << a;
     }
     //FlushVideoDecoder();
 
-    //av_free(newFrameBuf);
     av_frame_free(&oldFrame);
-    //av_frame_free(&newFrame);
     qDebug() << "screen record thread exit";
 }

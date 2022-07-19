@@ -1,4 +1,5 @@
 #include "VideoFrameQueue.h"
+#include "RecordConfig.h"
 
 #include <QDebug>
 
@@ -12,7 +13,6 @@ int VideoFrameQueue::initBuf(int width, int height, AVPixelFormat format)
     m_height = height;
     m_format = format;
 
-    //enum AVPixelFormat fmt = static_cast<enum AVPixelFormat>(format);
     m_vFrameSize = av_image_get_buffer_size(format, width, height, 1);
 
     m_vInFrameBuf = (uint8_t*)av_malloc(m_vFrameSize);
@@ -39,29 +39,65 @@ int VideoFrameQueue::initBuf(int width, int height, AVPixelFormat format)
         return -1;
     }
 
+    m_isInit = true;
     return 0;
 }
 
-int VideoFrameQueue::writeFrame(AVFrame* oldFrame, AVCodecContext* m_vDecodeCtx, int64_t captureTime)
+void VideoFrameQueue::deinit()
 {
-    //enum AVPixelFormat fmt = static_cast<enum AVPixelFormat>(m_format);
-    if (m_vDecodeCtx->width != m_width || m_vDecodeCtx->height != m_height
-        || m_vDecodeCtx->pix_fmt != m_format) {
-        m_swsCtx = sws_getContext(m_vDecodeCtx->width, m_vDecodeCtx->height, m_vDecodeCtx->pix_fmt,
+    m_isInit = false;
+
+    if (m_vFifoBuf) {
+        av_fifo_freep(&m_vFifoBuf);
+        m_vFifoBuf = nullptr;
+    }
+    if (m_vInFrame) {
+        av_frame_free(&m_vInFrame);
+        m_vInFrame = nullptr;
+    }
+    if (m_vInFrameBuf) {
+        av_free(m_vInFrameBuf);
+        m_vInFrameBuf = nullptr;
+    }
+    if (m_vOutFrame) {
+        av_frame_free(&m_vOutFrame);
+        m_vOutFrame = nullptr;
+    }
+    if (m_vOutFrameBuf) {
+        av_free(m_vOutFrameBuf);
+        m_vOutFrameBuf = nullptr;
+    }
+    if (m_swsCtx) {
+        sws_freeContext(m_swsCtx);
+        m_swsCtx = nullptr;
+    }
+}
+
+int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info, int64_t captureTime)
+{
+    if (!m_isInit) return -1;
+    if (!oldFrame /*|| !m_vDecodeCtx*/) return -1;
+
+    if (info.width != m_videoCapInfo.width || info.height != m_videoCapInfo.height
+        || info.format != m_videoCapInfo.format) {
+        m_videoCapInfo = info;
+        m_swsCtx = sws_getContext(m_videoCapInfo.width, m_videoCapInfo.height, m_videoCapInfo.format,
             m_width, m_height, m_format,
             SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
     }
     // srcSliceH应该是输入高度，return输出高度
     sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
-        m_vDecodeCtx->height, m_vInFrame->data, m_vInFrame->linesize);
+        m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
 
     {
         unique_lock<mutex> lk(m_mtxVBuf);
         m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vFrameItemSize; });
     }
 
+    qDebug() << "av_fifo_generic_write 1";
     av_fifo_generic_write(m_vFifoBuf, &captureTime, sizeof(int64_t), NULL);
-    av_fifo_generic_write(m_vFifoBuf, &m_vInFrameBuf, m_vFrameSize, NULL);
+    av_fifo_generic_write(m_vFifoBuf, /*&*/m_vInFrameBuf, m_vFrameSize, NULL);
+    qDebug() << "av_fifo_generic_write 2";
     m_cvVBufNotEmpty.notify_one();
 
     return 0;
@@ -69,6 +105,8 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, AVCodecContext* m_vDecodeCtx,
 
 FrameItem* VideoFrameQueue::readFrame()
 {
+    if (!m_isInit) return nullptr;
+
     {
         unique_lock<mutex> lk(m_mtxVBuf);
         m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });

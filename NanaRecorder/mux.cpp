@@ -14,16 +14,28 @@ int Mux::init(const std::string& filename)
         qDebug() << "avformat_alloc_output_context2 failed";
         return -1;
     }
-
+    m_isInit = true;
     return 0;
 }
 
 void Mux::deinit()
 {
+    m_isInit = false;
+    if (m_oFmtCtx) {
+        avio_close(m_oFmtCtx->pb);
+        avformat_free_context(m_oFmtCtx);
+        m_oFmtCtx = nullptr;
+    }
+    m_vStream = nullptr; // avformat_free_context时释放
+    m_aStream = nullptr;
+    m_vEncodeCtx = nullptr;
+    m_aEncodeCtx = nullptr;
 }
 
 int Mux::writeHeader()
 {
+    if (!m_isInit || !m_oFmtCtx) return -1;
+
     //打开输出文件
     if (!(m_oFmtCtx->oformat->flags & AVFMT_NOFILE))
     {
@@ -46,6 +58,8 @@ int Mux::writeHeader()
 
 int Mux::writePacket(AVPacket* packet)
 {
+    if (!m_isInit || !m_oFmtCtx) return -1;
+
     int stream_index = packet->stream_index;
     //printf("index:%d, pts:%lld\n", stream_index, packet->pts);
 
@@ -71,7 +85,12 @@ int Mux::writePacket(AVPacket* packet)
     packet->dts = av_rescale_q(packet->dts, src_time_base, dst_time_base);
     packet->duration = av_rescale_q(packet->duration, src_time_base, dst_time_base);
 
-    int ret = av_interleaved_write_frame(m_oFmtCtx, packet);
+    int ret;
+    {
+        lock_guard<mutex> lock(m_WriteFrameMtx);
+         ret = av_interleaved_write_frame(m_oFmtCtx, packet);
+    }
+
     //av_free_packet(&packet);
     av_packet_free(&packet);
     if (ret != 0) {
@@ -83,12 +102,15 @@ int Mux::writePacket(AVPacket* packet)
 
 int Mux::writeTrailer()
 {
+    if (!m_isInit || !m_oFmtCtx) return -1;
     int ret = av_write_trailer(m_oFmtCtx);
     return 0;
 }
 
 int Mux::addStream(AVCodecContext* encodeCtx)
 {
+    if (!m_isInit || !m_oFmtCtx) return -1;
+
     AVStream* stream = avformat_new_stream(m_oFmtCtx, nullptr);
 	if (!stream)
 	{

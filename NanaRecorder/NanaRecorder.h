@@ -3,6 +3,8 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_NanaRecorder.h"
 
+class Recorder;
+
 class NanaRecorder : public QMainWindow
 {
     Q_OBJECT
@@ -10,6 +12,11 @@ class NanaRecorder : public QMainWindow
 public:
     NanaRecorder(QWidget *parent = Q_NULLPTR);
 
+private slots:
+    void startBtnClicked();
+    void stopBtnClicked();
+
 private:
     Ui::NanaRecorderClass ui;
+    Recorder* m_recorder = nullptr;
 };

@@ -1,15 +1,22 @@
 #pragma once
 
 #include "singleton.h"
+#include "FFmpegHeader.h"
 
 #include <QString>
 
 #include <condition_variable>
 
 enum RecordStatus {
-    Stopped,
-    Started,
+    Stopped = 0,
+    Running,
     Paused,
+};
+
+struct VideoCaptureInfo {
+    int width;
+    int height;
+    AVPixelFormat format;
 };
 
 struct RecordConfig {
@@ -21,15 +28,9 @@ struct RecordConfig {
     int         fps;
     int         audioBitrate;
 
-    RecordStatus status;
+    RecordStatus status = Stopped;
     std::condition_variable cvNotPause;   // 当点击暂停的时候，两个采集线程挂起
     std::mutex              mtxPause;
-
-    //std::condition_variable     cvVBufNotFull;
-    //std::condition_variable     cvVBufNotEmpty;
-    //std::mutex                  mtxVBuf;
-    //AVFifoBuffer*               vFifoBuf;
-    //int                         vOutFrameItemSize;
 };
 
 #define g_record Singleton<RecordConfig>::instance()

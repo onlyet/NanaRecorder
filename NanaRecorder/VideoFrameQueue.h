@@ -1,8 +1,8 @@
 #pragma once
 #include "FFmpegHeader.h"
+#include "RecordConfig.h"
 
 #include <condition_variable>
-
 
 struct FrameItem {
     int64_t captureTime;
@@ -13,14 +13,15 @@ class VideoFrameQueue
 {
 public:
     int initBuf(int width, int height, AVPixelFormat format);
-    int writeFrame(AVFrame* frame, AVCodecContext* m_vDecodeCtx, int64_t captureTime);
+    void deinit();
+    int writeFrame(AVFrame* frame, const VideoCaptureInfo& info, int64_t captureTime);
     FrameItem* readFrame();
 
 private:
-    int m_width;
-    int m_height;
-    //int m_format;
-    AVPixelFormat m_format;
+    bool                        m_isInit = false;
+    int                         m_width;
+    int                         m_height;
+    AVPixelFormat               m_format;
     AVFifoBuffer*               m_vFifoBuf = nullptr;
     std::mutex                  m_mtxVBuf;
     std::condition_variable     m_cvVBufNotFull;
@@ -35,6 +36,8 @@ private:
     FrameItem                   m_vFrameItem;
 
     SwsContext*                 m_swsCtx = nullptr;
+
+    VideoCaptureInfo            m_videoCapInfo;
 
 };
 

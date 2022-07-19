@@ -7,8 +7,7 @@ int VideoEncoder::initH264(int width, int height, int fps)
     int ret = -1;
 
     m_vEncodeCtx = avcodec_alloc_context3(NULL);
-    if (nullptr == m_vEncodeCtx)
-    {
+    if (nullptr == m_vEncodeCtx) {
         qDebug() << "avcodec_alloc_context3 failed";
         return -1;
     }
@@ -39,23 +38,70 @@ int VideoEncoder::initH264(int width, int height, int fps)
     //²éÕÒÊÓÆµ±àÂëÆ÷
     AVCodec* encoder;
     encoder = avcodec_find_encoder(m_vEncodeCtx->codec_id);
-    if (!encoder)
-    {
+    if (!encoder) {
         qDebug() << "Can not find the encoder, id: " << m_vEncodeCtx->codec_id;
         return -1;
     }
     //´ò¿ªÊÓÆµ±àÂëÆ÷
     ret = avcodec_open2(m_vEncodeCtx, encoder, nullptr);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
         return -1;
     }
     return 0;
 }
 
-int VideoEncoder::encode()
+void VideoEncoder::deinit()
 {
+    if (m_vEncodeCtx) {
+        avcodec_free_context(&m_vEncodeCtx);
+        m_vEncodeCtx = nullptr;
+    }
+}
 
-    return 0;
+int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t time_base, std::vector<AVPacket*>& packets)
+{
+    if (!m_vEncodeCtx) return -1;
+
+    int ret = 0;
+
+    pts = av_rescale_q(pts, AVRational{ 1, (int)time_base }, m_vEncodeCtx->time_base);
+    frame->pts = pts;
+    ret = avcodec_send_frame(m_vEncodeCtx, frame);
+
+    if (ret != 0) {
+        char errbuf[1024] = { 0 };
+        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
+        qDebug() << "video avcodec_send_frame failed:" << errbuf;
+        return -1;
+    }
+    //ret = avcodec_receive_packet(m_vEncodeCtx, &pkt);
+    //if (ret != 0)
+    //{
+    //    qDebug() << "video avcodec_receive_packet failed, ret: " << ret;
+    //    av_packet_unref(&pkt);
+    //    continue;
+    //}
+
+    while (1) {
+        AVPacket* packet = av_packet_alloc();
+        ret = avcodec_receive_packet(m_vEncodeCtx, packet);
+        packet->stream_index = stream_index;
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+            ret = 0;
+            av_packet_free(&packet);
+            break;
+        }
+        else if (ret < 0) {
+            char errbuf[1024] = { 0 };
+            av_strerror(ret, errbuf, sizeof(errbuf) - 1);
+            qDebug() << "avcodec_receive_packet failed:" << errbuf;
+            av_packet_free(&packet);
+            ret = -1;
+        }
+        //printf("h264 pts:%lld\n", packet->pts);
+        packets.push_back(packet);
+    }
+
+    return ret;
 }

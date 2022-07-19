@@ -867,9 +867,9 @@ void ScreenRecordImpl::MuxThreadProc()
     bool done = false;
     int vFrameIndex = 0, aFrameIndex = 0;
 
-    av_register_all();
+    //av_register_all();
     avdevice_register_all();
-    avcodec_register_all();
+    //avcodec_register_all();
 
     if (OpenVideo() < 0)
         return;
