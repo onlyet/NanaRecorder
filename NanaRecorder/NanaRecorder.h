@@ -5,6 +5,8 @@
 
 class Recorder;
 
+class QTimer;
+
 class NanaRecorder : public QMainWindow
 {
     Q_OBJECT
@@ -15,8 +17,10 @@ public:
 private slots:
     void startBtnClicked();
     void stopBtnClicked();
+    void updateTime();
 
 private:
     Ui::NanaRecorderClass ui;
     Recorder* m_recorder = nullptr;
+    QTimer* m_timer = nullptr;
 };

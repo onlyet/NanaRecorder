@@ -4,7 +4,8 @@
 
 #include <QString>
 #include <QDebug>
-//#include <QDateTime>
+#include <QTime>
+#include <QDateTime>
 
 #include <string>
 #include <mutex>
@@ -143,11 +144,14 @@ void VideoCapture::videoCaptureThreadProc()
             qDebug() << "m_vFmtCtx or m_vDecodeCtx nullptr";
             break;
         }
+        static int s_cnt = 1;
+        QTime t = QTime::currentTime();
         if (av_read_frame(m_vFmtCtx, &pkt) < 0)
         {
             qDebug() << "video av_read_frame < 0";
             continue;
         }
+        qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_vIndex)
         {

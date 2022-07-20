@@ -2,6 +2,8 @@
 #include "RecordConfig.h"
 
 #include <QDebug>
+#include <QTime>
+#include <QDateTime>
 
 #include <mutex>
 
@@ -89,10 +91,13 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
     sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
         m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
 
+    static int s_cnt = 1;
+    QTime t = QTime::currentTime();
     {
         unique_lock<mutex> lk(m_mtxVBuf);
         m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vFrameItemSize; });
     }
+    qDebug() << "m_cvVBufNotFull.wait duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
     av_fifo_generic_write(m_vFifoBuf, &captureTime, sizeof(int64_t), NULL);
     av_fifo_generic_write(m_vFifoBuf, /*&*/m_vInFrameBuf, m_vFrameSize, NULL);

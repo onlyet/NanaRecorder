@@ -1,6 +1,8 @@
 #include "VideoEncoder.h"
 
 #include <QDebug>
+#include <QTime>
+#include <QDateTime>
 
 int VideoEncoder::initH264(int width, int height, int fps)
 {
@@ -35,6 +37,16 @@ int VideoEncoder::initH264(int width, int height, int fps)
     //正确设置sps/pps
     m_vEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
+#if 0
+    av_dict_set(&m_dict, "profile", "high", 0);
+    // 通过--preset的参数调节编码速度和质量的平衡。
+    av_dict_set(&m_dict, "preset", "superfast", 0);
+    av_dict_set(&m_dict, "threads", "0", 0);
+    av_dict_set(&m_dict, "crf", "26", 0);
+    // zerolatency: 零延迟，用在需要非常低的延迟的情况下，比如电视电话会议的编码
+    av_dict_set(&m_dict, "tune", "zerolatency", 0);
+#endif
+
     //查找视频编码器
     AVCodec* encoder;
     encoder = avcodec_find_encoder(m_vEncodeCtx->codec_id);
@@ -43,7 +55,7 @@ int VideoEncoder::initH264(int width, int height, int fps)
         return -1;
     }
     //打开视频编码器
-    ret = avcodec_open2(m_vEncodeCtx, encoder, nullptr);
+    ret = avcodec_open2(m_vEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
         qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
         return -1;
@@ -67,8 +79,10 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
 
     //pts = av_rescale_q(pts, AVRational{ 1, (int)time_base }, m_vEncodeCtx->time_base);
     //frame->pts = pts;
+    static int s_cnt = 1;
+    QTime t = QTime::currentTime();
     ret = avcodec_send_frame(m_vEncodeCtx, frame);
-
+    qDebug() << "avcodec_send_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
     if (ret != 0) {
         char errbuf[1024] = { 0 };
         av_strerror(ret, errbuf, sizeof(errbuf) - 1);

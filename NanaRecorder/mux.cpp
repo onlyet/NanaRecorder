@@ -1,6 +1,8 @@
 #include "mux.h"
 
 #include <QDebug>
+#include <QTime>
+#include <QDateTime>
 
 using namespace std;
 
@@ -93,10 +95,12 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 #endif
 
     int ret;
+    //QTime t = QTime::currentTime();
     {
         lock_guard<mutex> lock(m_WriteFrameMtx);
          ret = av_interleaved_write_frame(m_oFmtCtx, packet);
     }
+    //qDebug() << "av_interleaved_write_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 
     //av_free_packet(&packet);
     av_packet_free(&packet);

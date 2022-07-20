@@ -1,6 +1,9 @@
 #include "NanaRecorder.h"
 #include "Recorder.h"
 
+#include <QTimer>
+#include <QDateTime>
+
 NanaRecorder::NanaRecorder(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -9,6 +12,10 @@ NanaRecorder::NanaRecorder(QWidget *parent)
 
     connect(ui.startBtn, &QPushButton::clicked, this, &NanaRecorder::startBtnClicked);
     connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
+
+    m_timer = new QTimer(this);
+    connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
+    m_timer->start(1000);
 }
 
 void NanaRecorder::startBtnClicked()
@@ -27,4 +34,11 @@ void NanaRecorder::stopBtnClicked()
         delete m_recorder;
         m_recorder = nullptr;
     }
+}
+
+void NanaRecorder::updateTime()
+{
+    static QDateTime dt;
+    dt = QDateTime::currentDateTime();
+    ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
 }
