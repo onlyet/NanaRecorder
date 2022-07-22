@@ -1,4 +1,4 @@
-#if 0
+#if 1
 /*
  * Copyright (c) 2003 Fabrice Bellard
  *
@@ -577,6 +577,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    argv[1]  = "out.mp4";
     filename = argv[1];
     for (i = 2; i+1 < argc; i+=2) {
         if (!strcmp(argv[i], "-flags") || !strcmp(argv[i], "-fflags"))

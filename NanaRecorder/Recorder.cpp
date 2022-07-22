@@ -3,6 +3,7 @@
 #include "VideoCapture.h"
 #include "VideoFrameQueue.h"
 #include "FileOutputer.h"
+#include "FFmpegHelper.h"
 
 #include <chrono>
 
@@ -61,6 +62,8 @@ void Recorder::setRecordInfo()
 int Recorder::startRecord()
 {
 	if (Running == g_record.status) return -1;
+
+	FFmpegHelper::registerAll();
 
 	startCapture();
 	// init

@@ -54,6 +54,12 @@
     <ClCompile Include="VideoFrameQueue.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
+    <ClCompile Include="AudioCapture.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
+    <ClCompile Include="FFmpegHelper.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="NanaRecorder.h">
@@ -86,6 +92,12 @@
       <Filter>Source Files\player</Filter>
     </ClInclude>
     <ClInclude Include="VideoFrameQueue.h">
+      <Filter>Source Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioCapture.h">
+      <Filter>Source Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="FFmpegHelper.h">
       <Filter>Source Files\player</Filter>
     </ClInclude>
   </ItemGroup>

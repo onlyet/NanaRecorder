@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright (c) 2012 Stefano Sabatini
  *
@@ -214,3 +215,4 @@ end:
     swr_free(&swr_ctx);
     return ret < 0;
 }
+#endif

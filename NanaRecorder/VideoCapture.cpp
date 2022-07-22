@@ -48,10 +48,6 @@ int VideoCapture::stopCapture()
 
 int VideoCapture::initCapture()
 {
-    av_register_all();
-    avdevice_register_all();
-    avcodec_register_all();
-
     int fps = g_record.fps;
     int width = g_record.width;
     int height = g_record.height;

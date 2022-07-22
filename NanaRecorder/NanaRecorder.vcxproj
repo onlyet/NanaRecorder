@@ -185,6 +185,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioCapture.cpp" />
+    <ClCompile Include="FFmpegHelper.cpp" />
     <ClCompile Include="FileOutputer.cpp" />
     <ClCompile Include="mux.cpp" />
     <ClCompile Include="Recorder.cpp" />
@@ -198,7 +200,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioCapture.h" />
     <ClInclude Include="FFmpegHeader.h" />
+    <ClInclude Include="FFmpegHelper.h" />
     <ClInclude Include="FileOutputer.h" />
     <ClInclude Include="mux.h" />
     <ClInclude Include="RecordConfig.h" />
