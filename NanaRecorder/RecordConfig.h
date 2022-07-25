@@ -19,6 +19,10 @@ struct VideoCaptureInfo {
     AVPixelFormat format;
 };
 
+struct AudioCaptureInfo {
+
+};
+
 struct RecordConfig {
     friend Singleton<RecordConfig>;
 

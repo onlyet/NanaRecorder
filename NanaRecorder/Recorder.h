@@ -4,9 +4,13 @@
 
 class VideoCapture;
 class VideoFrameQueue;
-class FileOutputer;
 class FrameItem;
 class VideoCaptureInfo;
+
+class AudioCapture;
+class AudioFrameQueue;
+
+class FileOutputer;
 
 class Recorder
 {
@@ -26,10 +30,15 @@ private:
 	void writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info);
 	FrameItem* readVideoFrameCb();
 
+	void initAudioBufCb(AVCodecContext* encodeCtx);
+	void writeAudioFrameCb(AVFrame* frame);
+
 private:
-	VideoCapture* m_videoCap = nullptr;
-	VideoFrameQueue* m_videoFrameQueue = nullptr;
-	FileOutputer* m_outputer = nullptr;
-	int64_t		m_startTime;
+    VideoCapture*    m_videoCap        = nullptr;
+    VideoFrameQueue* m_videoFrameQueue = nullptr;
+    AudioCapture*    m_audioCap        = nullptr;
+    AudioFrameQueue* m_audioFrameQueue = nullptr;
+    FileOutputer*    m_outputer        = nullptr;
+    int64_t          m_startTime;
 };
 

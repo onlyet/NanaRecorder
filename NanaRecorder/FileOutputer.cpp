@@ -1,8 +1,9 @@
 #include "FileOutputer.h"
-#include "VideoEncoder.h"
-#include "mux.h"
 #include "RecordConfig.h"
+#include "VideoEncoder.h"
 #include "VideoFrameQueue.h"
+#include "AudioEncoder.h"
+#include "mux.h"
 
 #include <QDebug>
 
@@ -15,6 +16,7 @@ using namespace std;
 FileOutputer::FileOutputer()
 {
     m_videoEncoder = new VideoEncoder;
+    m_audioEncoder = new AudioEncoder;
     m_mux = new Mux;
 }
 
@@ -23,6 +25,10 @@ FileOutputer::~FileOutputer()
     if (m_videoEncoder) {
         delete m_videoEncoder;
         m_videoEncoder = nullptr;
+    }
+    if (m_audioEncoder) {
+        delete m_audioEncoder;
+        m_audioEncoder = nullptr;
     }
     if (m_mux) {
         delete m_mux;
@@ -33,6 +39,8 @@ FileOutputer::~FileOutputer()
 int FileOutputer::init()
 {
     openEncoder();
+    if (!m_audioEncoder) return;
+    m_initAudioBufCb(m_audioEncoder->codecCtx());
     string filename = g_record.filePath.toStdString();
     m_mux->init(filename);
     m_mux->addStream(m_videoEncoder->codecCtx());
@@ -72,6 +80,8 @@ void FileOutputer::openEncoder()
 {
     if (!m_videoEncoder) return;
     m_videoEncoder->initH264(g_record.width, g_record.height, g_record.fps);
+
+    m_audioEncoder->initAAC();
 }
 
 void FileOutputer::closeEncoder()

@@ -55,7 +55,7 @@ std::string FFmpegHelper::getAudioDevice(int id) {
                 //获取设备名称
                 WideCharToMultiByte(CP_ACP, 0, var.bstrVal, -1, sName, 256, "", NULL);
                 //capture = QString::fromLocal8Bit(sName);
-                ret = sName;
+                ret = string("audio=") + sName;
                 SysFreeString(var.bstrVal);
             }
             pBag->Release();

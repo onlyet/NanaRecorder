@@ -2,6 +2,8 @@
 #include "Recorder.h"
 #include "VideoCapture.h"
 #include "VideoFrameQueue.h"
+#include "AudioCapture.h"
+#include "AudioFrameQueue.h"
 #include "FileOutputer.h"
 #include "FFmpegHelper.h"
 
@@ -16,8 +18,14 @@ Recorder::Recorder()
 	m_videoCap = new VideoCapture;
 	m_videoCap->setFrameCb(bind(&Recorder::writeVideoFrameCb, this, _1, _2));
 	m_videoFrameQueue = new VideoFrameQueue;
+
+    m_audioCap = new AudioCapture;
+    m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1));
+    m_audioFrameQueue = new AudioFrameQueue;
+
 	m_outputer = new FileOutputer;
 	m_outputer->setVideoFrameCb(bind(&Recorder::readVideoFrameCb, this));
+    m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
 }
 
 Recorder::~Recorder()
@@ -120,4 +128,14 @@ void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
 FrameItem* Recorder::readVideoFrameCb()
 {
 	return m_videoFrameQueue->readFrame();
+}
+
+void Recorder::initAudioBufCb(AVCodecContext* encodeCtx) {
+    m_audioFrameQueue->initBuf(encodeCtx);
+}
+
+void Recorder::writeAudioFrameCb(AVFrame* frame) {
+    if (Running == g_record.status) {
+        m_audioFrameQueue->writeFrame(frame);
+    }
 }

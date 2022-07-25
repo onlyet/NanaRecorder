@@ -15,10 +15,6 @@
 using namespace std;
 using namespace std::chrono;
 
-//VideoCapture::VideoCapture(const RecordInfo& info)
-//{
-//}
-
 int VideoCapture::startCapture()
 {
     if (m_isRunning) return -1;

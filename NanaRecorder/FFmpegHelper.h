@@ -7,5 +7,5 @@
 
 namespace FFmpegHelper {
     void registerAll();
-    std::string getAudioDevice(int id == 1);
+    std::string getAudioDevice(int id = 1);
 }

@@ -37,7 +37,7 @@ int VideoEncoder::initH264(int width, int height, int fps)
     //正确设置sps/pps
     m_vEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
-#if 0
+#if 1
     av_dict_set(&m_dict, "profile", "high", 0);
     // 通过--preset的参数调节编码速度和质量的平衡。
     av_dict_set(&m_dict, "preset", "superfast", 0);
@@ -79,10 +79,11 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
 
     //pts = av_rescale_q(pts, AVRational{ 1, (int)time_base }, m_vEncodeCtx->time_base);
     //frame->pts = pts;
-    static int s_cnt = 1;
-    QTime t = QTime::currentTime();
+    // 
+    //static int s_cnt = 1;
+    //QTime t = QTime::currentTime();
     ret = avcodec_send_frame(m_vEncodeCtx, frame);
-    qDebug() << "avcodec_send_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
+    //qDebug() << "avcodec_send_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
     if (ret != 0) {
         char errbuf[1024] = { 0 };
         av_strerror(ret, errbuf, sizeof(errbuf) - 1);
