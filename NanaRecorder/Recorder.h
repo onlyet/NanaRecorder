@@ -2,6 +2,7 @@
 
 #include "FFmpegHeader.h"
 
+
 class VideoCapture;
 class VideoFrameQueue;
 class FrameItem;
@@ -9,8 +10,10 @@ class VideoCaptureInfo;
 
 class AudioCapture;
 class AudioFrameQueue;
+class AudioCaptureInfo;
 
 class FileOutputer;
+
 
 class Recorder
 {
@@ -31,7 +34,7 @@ private:
 	FrameItem* readVideoFrameCb();
 
 	void initAudioBufCb(AVCodecContext* encodeCtx);
-	void writeAudioFrameCb(AVFrame* frame);
+    void writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info);
 
 private:
     VideoCapture*    m_videoCap        = nullptr;

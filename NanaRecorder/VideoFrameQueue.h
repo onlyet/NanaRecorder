@@ -37,7 +37,7 @@ private:
 
     SwsContext*                 m_swsCtx = nullptr;
 
-    VideoCaptureInfo            m_videoCapInfo;
+    VideoCaptureInfo            m_videoCapInfo; // 解码获取到的视频信息
 
 };
 

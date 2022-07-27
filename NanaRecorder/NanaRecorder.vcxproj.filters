@@ -60,6 +60,12 @@
     <ClCompile Include="FFmpegHelper.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
+    <ClCompile Include="AudioFrameQueue.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioEncoder.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="NanaRecorder.h">
@@ -98,6 +104,12 @@
       <Filter>Source Files\player</Filter>
     </ClInclude>
     <ClInclude Include="FFmpegHelper.h">
+      <Filter>Source Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioFrameQueue.h">
+      <Filter>Source Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioEncoder.h">
       <Filter>Source Files\player</Filter>
     </ClInclude>
   </ItemGroup>

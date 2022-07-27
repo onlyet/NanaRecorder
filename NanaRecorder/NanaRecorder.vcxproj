@@ -112,7 +112,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -124,7 +124,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -186,6 +186,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioCapture.cpp" />
+    <ClCompile Include="AudioEncoder.cpp" />
+    <ClCompile Include="AudioFrameQueue.cpp" />
     <ClCompile Include="FFmpegHelper.cpp" />
     <ClCompile Include="FileOutputer.cpp" />
     <ClCompile Include="mux.cpp" />
@@ -201,6 +203,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioCapture.h" />
+    <ClInclude Include="AudioEncoder.h" />
+    <ClInclude Include="AudioFrameQueue.h" />
     <ClInclude Include="FFmpegHeader.h" />
     <ClInclude Include="FFmpegHelper.h" />
     <ClInclude Include="FileOutputer.h" />

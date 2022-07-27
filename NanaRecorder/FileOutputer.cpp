@@ -39,11 +39,11 @@ FileOutputer::~FileOutputer()
 int FileOutputer::init()
 {
     openEncoder();
-    if (!m_audioEncoder) return;
-    m_initAudioBufCb(m_audioEncoder->codecCtx());
+
     string filename = g_record.filePath.toStdString();
     m_mux->init(filename);
     m_mux->addStream(m_videoEncoder->codecCtx());
+    m_mux->addStream(m_audioEncoder->codecCtx());
     m_mux->writeHeader();
     m_isInit = true;
     return 0;
@@ -76,12 +76,13 @@ int FileOutputer::stop()
     return 0;
 }
 
-void FileOutputer::openEncoder()
-{
+void FileOutputer::openEncoder() {
     if (!m_videoEncoder) return;
     m_videoEncoder->initH264(g_record.width, g_record.height, g_record.fps);
 
+    if (!m_audioEncoder) return;
     m_audioEncoder->initAAC();
+    m_initAudioBufCb(m_audioEncoder->codecCtx());
 }
 
 void FileOutputer::closeEncoder()

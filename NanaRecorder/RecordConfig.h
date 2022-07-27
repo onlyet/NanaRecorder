@@ -20,7 +20,9 @@ struct VideoCaptureInfo {
 };
 
 struct AudioCaptureInfo {
-
+    int64_t        channelLayout;
+    AVSampleFormat format;
+    int            sampleRate;
 };
 
 struct RecordConfig {

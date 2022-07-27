@@ -20,7 +20,7 @@ Recorder::Recorder()
 	m_videoFrameQueue = new VideoFrameQueue;
 
     m_audioCap = new AudioCapture;
-    m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1));
+    m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
     m_audioFrameQueue = new AudioFrameQueue;
 
 	m_outputer = new FileOutputer;
@@ -109,11 +109,15 @@ int Recorder::stopRecord()
 void Recorder::startCapture()
 {
 	m_videoCap->startCapture();
+
+	m_audioCap->startCapture();
 }
 
 void Recorder::stopCapture()
 {
 	m_videoCap->stopCapture();
+
+	m_audioCap->stopCapture();
 }
 
 void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
@@ -134,8 +138,8 @@ void Recorder::initAudioBufCb(AVCodecContext* encodeCtx) {
     m_audioFrameQueue->initBuf(encodeCtx);
 }
 
-void Recorder::writeAudioFrameCb(AVFrame* frame) {
+void Recorder::writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info) {
     if (Running == g_record.status) {
-        m_audioFrameQueue->writeFrame(frame);
+        m_audioFrameQueue->writeFrame(frame, info);
     }
 }

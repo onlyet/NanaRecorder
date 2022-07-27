@@ -120,7 +120,7 @@ int Mux::writeTrailer()
 
 int Mux::addStream(AVCodecContext* encodeCtx)
 {
-    if (!m_isInit || !m_oFmtCtx) return -1;
+    if (!m_isInit || !m_oFmtCtx || !encodeCtx) return -1;
 
     AVStream* stream = avformat_new_stream(m_oFmtCtx, nullptr);
 	if (!stream)

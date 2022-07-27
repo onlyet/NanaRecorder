@@ -2,8 +2,17 @@
 
 #include <QDebug>
 
+#include <mutex>
+
+using namespace std;
+
 int AudioFrameQueue::initBuf(AVCodecContext* encodeCtx) {
     if (!encodeCtx) return -1;
+
+    m_channelLayout = encodeCtx->channel_layout;
+    m_format        = encodeCtx->sample_fmt;
+    m_sampleRate    = encodeCtx->sample_rate;
+    m_channelNum    = av_get_channel_layout_nb_channels(m_channelLayout);
 
     m_aOutFrame = av_frame_alloc();
     m_aOutFrame->format     = encodeCtx->sample_fmt;
@@ -23,6 +32,8 @@ int AudioFrameQueue::initBuf(AVCodecContext* encodeCtx) {
         return -1;
     }
 
+    memset(m_resampleBuf, 0, sizeof(m_resampleBuf));
+
     m_isInit = true;
     return 0;
 }
@@ -30,7 +41,64 @@ int AudioFrameQueue::initBuf(AVCodecContext* encodeCtx) {
 void AudioFrameQueue::deinit() {
 }
 
-int AudioFrameQueue::writeFrame(AVFrame* frame) {
+int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info) {
+    if (!m_isInit) return -1;
+    if (!oldFrame) return -1;
+
+    int ret = -1;
+    if (info.channelLayout != m_audioCapInfo.channelLayout || info.format != m_audioCapInfo.format 
+        || info.sampleRate != m_audioCapInfo.sampleRate) {
+        m_audioCapInfo = info;
+
+        m_swrCtx = swr_alloc();
+        if (!m_swrCtx) return -1;
+        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", info.channelLayout, 0);
+        av_opt_set_channel_layout(m_swrCtx, "out_channel_layout", m_channelLayout, 0);
+        av_opt_set_int(m_swrCtx, "in_sample_rate", info.sampleRate, 0);
+        av_opt_set_int(m_swrCtx, "out_sample_rate", m_sampleRate, 0);
+        av_opt_set_sample_fmt(m_swrCtx, "in_sample_fmt", info.format, 0);
+        av_opt_set_sample_fmt(m_swrCtx, "out_sample_fmt", m_format, 0);
+        swr_init(m_swrCtx);
+        if ((ret = swr_init(m_swrCtx)) < 0) {
+            qDebug() << "swr_init failed";
+            return -1;
+        }
+    }
+    
+    int dst_nb_samples = av_rescale_rnd(oldFrame->nb_samples + swr_get_delay(m_swrCtx, info.sampleRate), 
+        m_sampleRate, info.sampleRate, AV_ROUND_UP);
+    if (dst_nb_samples <= 0) {
+        qDebug() << "av_rescale_rnd failed";
+        return -1;
+    }
+
+    if (dst_nb_samples > m_resampleBufSize) {
+        av_freep(&m_resampleBuf[0]);
+        ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
+        if (ret < 0) {
+            qDebug() << "av_samples_alloc failed";
+            return -1;
+        }
+        m_resampleBufSize = dst_nb_samples;
+    }
+
+    int outSampleNum = swr_convert(m_swrCtx, m_resampleBuf, dst_nb_samples, (const uint8_t**)oldFrame->data, oldFrame->nb_samples);
+    if (outSampleNum <= 0) {
+        qDebug() << "swr_convert failed";
+        return -1;
+    }
+    
+    //static int s_cnt = 1;
+    //QTime      t     = QTime::currentTime();
+    {
+        unique_lock<mutex> lk(m_mtxABuf);
+        m_cvABufNotFull.wait(lk, [this, &outSampleNum] { return av_audio_fifo_space(m_aFifoBuf) >= outSampleNum; });
+    }
+    //qDebug() << "m_cvVBufNotFull.wait duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
+
+    av_audio_fifo_write(m_aFifoBuf, (void**)m_resampleBuf, outSampleNum);
+    m_cvABufNotEmpty.notify_one();
+
     return 0;
 }
 
