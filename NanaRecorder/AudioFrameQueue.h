@@ -27,7 +27,7 @@ private:
     //AVFrame*                m_vInFrame     = nullptr;
     //uint8_t*                m_vInFrameBuf  = nullptr;
     AVFrame*                m_aOutFrame    = nullptr;
-    uint8_t*                m_aOutFrameBuf = nullptr;
+    //uint8_t*                m_aOutFrameBuf = nullptr;
     SwrContext*             m_swrCtx       = nullptr;
     AudioCaptureInfo        m_audioCapInfo; // 解码获取到的音频信息
     int                     m_resampleBufSize = 0;

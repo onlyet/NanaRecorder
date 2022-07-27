@@ -110,12 +110,39 @@ void FileOutputer::encodeVideoAndMux()
 		item = m_videoFrameCb();
 		if (!item) return;
 
-		m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_packets);
+		m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_videoPackets);
 
-		for_each(m_packets.cbegin(), m_packets.cend(), [this, item](AVPacket* packet) {
+		for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this, item](AVPacket* packet) {
 			m_mux->writePacket(packet, item->captureTime);
 			});
 
-		m_packets.clear();
+		m_videoPackets.clear();
+    }
+}
+
+void FileOutputer::outputAudioThreadProc() {
+    while (m_isRunning) {
+        encodeAudioAndMux();
+    }
+    qDebug() << "outputAudioThreadProc thread exit";
+}
+
+void FileOutputer::encodeAudioAndMux() {
+    if (!m_isInit || !m_isRunning || !m_audioEncoder || !m_mux) {
+        return;
+    }
+
+    AVFrame* frame;
+    while (1) {
+        frame = m_audioFrameCb();
+        if (!frame) return;
+
+        m_videoEncoder->encode(frame, m_mux->videoStreamIndex(), 0, 0, m_audioPackets);
+
+        for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, frame](AVPacket* packet) {
+            m_mux->writePacket(packet, frame->captureTime);
+        });
+
+        m_audioPackets.clear();
     }
 }
