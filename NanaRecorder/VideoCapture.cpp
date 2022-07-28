@@ -121,7 +121,7 @@ void VideoCapture::videoCaptureThreadProc()
     int ret = -1;
     AVPacket pkt = { 0 };
     av_init_packet(&pkt);
-    int y_size = width * height;
+    //int y_size = width * height;
     AVFrame* oldFrame = av_frame_alloc();
 
     while (m_isRunning)
