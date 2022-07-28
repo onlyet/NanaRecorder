@@ -62,9 +62,6 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 {
     if (!m_isInit || !m_oFmtCtx) return -1;
 
-    int stream_index = packet->stream_index;
-    //printf("index:%d, pts:%lld\n", stream_index, packet->pts);
-
     if (!packet || packet->size <= 0 || !packet->data) {
         qDebug() << "packet is null";
         if (packet) av_packet_free(&packet);
@@ -72,8 +69,11 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
         return -1;
     }
 
-    AVRational src_time_base;   // 编码后的包
-    AVRational dst_time_base;   // mp4输出文件对应流的time_base
+    int stream_index = packet->stream_index;
+    //printf("index:%d, pts:%lld\n", stream_index, packet->pts);
+
+    AVRational src_time_base;  // 编码后的包
+    AVRational dst_time_base;  // mp4输出文件对应流的time_base
     if (m_vStream && m_vEncodeCtx && stream_index == m_vIndex) {
         src_time_base = m_vEncodeCtx->time_base;
         dst_time_base = m_vStream->time_base;
