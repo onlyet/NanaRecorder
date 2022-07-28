@@ -19,9 +19,9 @@ public:
     void setAudioBufCb(std::function<void(AVCodecContext*)> cb) { m_initAudioBufCb = cb; }
     void setAudioFrameCb(std::function<AVFrame*()> cb) { m_audioFrameCb = cb; }
     int  init();
-    int deinit();
-    int start();
-    int stop();
+    int  deinit();
+    int  start(int64_t startTime);
+    int  stop();
 
 private:
     void openEncoder();
@@ -44,5 +44,6 @@ private:
     std::vector<AVPacket*>               m_videoPackets;
     std::thread                          m_outputAudioThread;
     std::vector<AVPacket*>               m_audioPackets;
+    int64_t                              m_startTime;
 };
 

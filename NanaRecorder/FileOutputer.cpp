@@ -9,9 +9,12 @@
 
 #include <string>
 #include <functional>
+#include <chrono>
 
 
 using namespace std;
+using namespace std::chrono;
+
 
 FileOutputer::FileOutputer()
 {
@@ -58,12 +61,15 @@ int FileOutputer::deinit()
     return 0;
 }
 
-int FileOutputer::start()
-{
+int FileOutputer::start(int64_t startTime) {
     if (!m_isInit) return -1;
     m_isRunning = true;
-    std::thread t(std::bind(&FileOutputer::outputVideoThreadProc, this));
-    m_outputVideoThread.swap(t);
+    m_startTime = startTime;
+    thread vt(bind(&FileOutputer::outputVideoThreadProc, this));
+    m_outputVideoThread.swap(vt);
+
+   thread at(bind(&FileOutputer::outputAudioThreadProc, this));
+    m_outputAudioThread.swap(at);
     return 0;
 }
 
@@ -72,6 +78,9 @@ int FileOutputer::stop()
     m_isRunning = false;
     if (m_outputVideoThread.joinable()) {
         m_outputVideoThread.join();
+    }
+    if (m_outputAudioThread.joinable()) {
+        m_outputAudioThread.join();
     }
     return 0;
 }
@@ -89,6 +98,8 @@ void FileOutputer::closeEncoder()
 {
     if (!m_videoEncoder) return;
     m_videoEncoder->deinit();
+
+    m_audioEncoder->deinit();
 }
 
 void FileOutputer::outputVideoThreadProc()
@@ -132,15 +143,24 @@ void FileOutputer::encodeAudioAndMux() {
         return;
     }
 
+    if (!m_audioFrameCb) {
+        return;
+    }
+
     AVFrame* frame;
     while (1) {
         frame = m_audioFrameCb();
         if (!frame) return;
 
-        m_videoEncoder->encode(frame, m_mux->videoStreamIndex(), 0, 0, m_audioPackets);
+        m_audioEncoder->encode(frame, m_mux->audioStreamIndex(), 0, 0, m_audioPackets);
 
-        for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, frame](AVPacket* packet) {
-            m_mux->writePacket(packet, frame->captureTime);
+        int tt = m_audioPackets.size();
+
+        int64_t now         = duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+        int64_t captureTime = now - m_startTime;
+
+        for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, &captureTime](AVPacket* packet) {
+            m_mux->writePacket(packet, captureTime);
         });
 
         m_audioPackets.clear();

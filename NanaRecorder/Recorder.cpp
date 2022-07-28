@@ -26,6 +26,7 @@ Recorder::Recorder()
 	m_outputer = new FileOutputer;
 	m_outputer->setVideoFrameCb(bind(&Recorder::readVideoFrameCb, this));
     m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
+    m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
 }
 
 Recorder::~Recorder()
@@ -81,7 +82,7 @@ int Recorder::startRecord()
 
 	// start
 	m_startTime = duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
-	m_outputer->start();
+    m_outputer->start(m_startTime);
 
 	g_record.status = Running;
 
@@ -102,6 +103,7 @@ int Recorder::stopRecord()
 	m_outputer->stop();
 	m_outputer->deinit();
 	m_videoFrameQueue->deinit();
+    m_audioFrameQueue->deinit();
 	g_record.status = Stopped;
 	return 0;
 }
@@ -142,4 +144,8 @@ void Recorder::writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info) {
     if (Running == g_record.status) {
         m_audioFrameQueue->writeFrame(frame, info);
     }
+}
+
+AVFrame* Recorder::readAudioFrameCb() {
+    return m_audioFrameQueue->readFrame();
 }

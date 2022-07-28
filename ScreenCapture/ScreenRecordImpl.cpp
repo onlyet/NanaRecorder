@@ -170,11 +170,13 @@ int ScreenRecordImpl::OpenAudio()
     qDebug() << GetMicrophoneDeviceName();
 
     AVInputFormat *ifmt = av_find_input_format("dshow");
-    QString audioDeviceName = "audio=" + GetMicrophoneDeviceName();
+    QString audioDeviceName = "audio=" + GetSpeakerDeviceName();
 
-    if (avformat_open_input(&m_aFmtCtx, audioDeviceName.toStdString().c_str(), ifmt, nullptr) < 0)
-    {
-        qDebug() << "Can not open audio input stream";
+    if (avformat_open_input(&m_aFmtCtx, audioDeviceName.toStdString().c_str(), ifmt, nullptr) < 0) {
+        //qDebug() << "Can not open audio input stream";
+        char errbuf[1024] = {0};
+        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
+        qDebug() << "Auido avformat_open_input failed:" << errbuf;
         return -1;
     }
     if (avformat_find_stream_info(m_aFmtCtx, nullptr) < 0)

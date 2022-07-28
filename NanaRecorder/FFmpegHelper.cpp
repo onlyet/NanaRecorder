@@ -3,6 +3,8 @@
 
 #include <dshow.h>
 
+#include <QDebug>
+
 using namespace std;
 
 void FFmpegHelper::registerAll()
@@ -41,10 +43,11 @@ std::string FFmpegHelper::getAudioDevice(int id) {
         return ret;
     }
 
+    bool isRuning = true;
     pEm->Reset();
     ULONG cFetched;
     IMoniker* pM;
-    while (hr = pEm->Next(1, &pM, &cFetched), hr == S_OK) {
+    while (pEm->Next(1, &pM, &cFetched) == S_OK && isRuning) {
         IPropertyBag* pBag = NULL;
         hr                 = pM->BindToStorage(0, 0, IID_IPropertyBag, (void**)&pBag);
         if (SUCCEEDED(hr)) {
@@ -54,17 +57,22 @@ std::string FFmpegHelper::getAudioDevice(int id) {
             if (hr == NOERROR) {
                 //获取设备名称
                 WideCharToMultiByte(CP_ACP, 0, var.bstrVal, -1, sName, 256, "", NULL);
-                //capture = QString::fromLocal8Bit(sName);
-                ret = string("audio=") + sName;
                 SysFreeString(var.bstrVal);
+                ret = string("audio=") + sName;
+                if (ret.find(/*"扬声器"*/ "virtual-audio-capturer") != string::npos) {
+                    isRuning = false;
+                }
+                qDebug() << "Audio device:" << /*QString::fromStdString(ret)*/ QString::fromLocal8Bit(ret.c_str());
             }
             pBag->Release();
         }
         pM->Release();
         bRet = true;
     }
-    pCreateDevEnum = NULL;
-    pEm            = NULL;
+    //pCreateDevEnum = NULL;
+    //pEm            = NULL;
+    pCreateDevEnum->Release();
+    pEm->Release();
     ::CoUninitialize();
     //return capture;
     return ret;

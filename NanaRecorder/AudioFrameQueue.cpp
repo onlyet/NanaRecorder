@@ -66,11 +66,12 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
         m_swrCtx = swr_alloc();
         if (!m_swrCtx) return -1;
-        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", info.channelLayout, 0);
+        // 为什么解码上下问的通道布局是0
+        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", /*m_audioCapInfo.channelLayout*/ /*2*/ AV_CH_LAYOUT_STEREO, 0);
         av_opt_set_channel_layout(m_swrCtx, "out_channel_layout", m_channelLayout, 0);
-        av_opt_set_int(m_swrCtx, "in_sample_rate", info.sampleRate, 0);
+        av_opt_set_int(m_swrCtx, "in_sample_rate", m_audioCapInfo.sampleRate, 0);
         av_opt_set_int(m_swrCtx, "out_sample_rate", m_sampleRate, 0);
-        av_opt_set_sample_fmt(m_swrCtx, "in_sample_fmt", info.format, 0);
+        av_opt_set_sample_fmt(m_swrCtx, "in_sample_fmt", m_audioCapInfo.format, 0);
         av_opt_set_sample_fmt(m_swrCtx, "out_sample_fmt", m_format, 0);
         swr_init(m_swrCtx);
         if ((ret = swr_init(m_swrCtx)) < 0) {
@@ -131,5 +132,5 @@ AVFrame* AudioFrameQueue::readFrame() {
     av_audio_fifo_read(m_aFifoBuf, (void**)m_aOutFrame->data, m_aOutFrame->nb_samples);
     m_cvABufNotFull.notify_one();
 
-    return nullptr;
+    return m_aOutFrame;
 }

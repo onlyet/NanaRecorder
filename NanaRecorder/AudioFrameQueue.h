@@ -23,13 +23,9 @@ private:
     std::mutex              m_mtxABuf;
     std::condition_variable m_cvABufNotFull;
     std::condition_variable m_cvABufNotEmpty;
-    //int                     m_vFrameSize;
-    //AVFrame*                m_vInFrame     = nullptr;
-    //uint8_t*                m_vInFrameBuf  = nullptr;
     AVFrame*                m_aOutFrame    = nullptr;
-    //uint8_t*                m_aOutFrameBuf = nullptr;
     SwrContext*             m_swrCtx       = nullptr;
-    AudioCaptureInfo        m_audioCapInfo; // 解码获取到的音频信息
+    AudioCaptureInfo        m_audioCapInfo{};  // 解码获取到的音频信息
     int                     m_resampleBufSize = 0;
     uint8_t*                m_resampleBuf[MAX_AV_PLANES];
 };

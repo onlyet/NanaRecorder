@@ -37,7 +37,7 @@ int AudioCapture::initCapture() {
     AVDictionary* options  = nullptr;
     AVCodec* decoder       = nullptr;
     AVInputFormat* ifmt    = av_find_input_format("dshow");
-    string audioDeviceName = FFmpegHelper::getAudioDevice();
+    string audioDeviceName = FFmpegHelper::getAudioDevice(2);
 
     if (avformat_open_input(&m_aFmtCtx, audioDeviceName.c_str(), ifmt, &options) != 0) {
         char errbuf[1024] = {0};
@@ -76,6 +76,14 @@ int AudioCapture::initCapture() {
 }
 
 void AudioCapture::deinit() {
+    if (m_aFmtCtx) {
+        avformat_close_input(&m_aFmtCtx);
+        m_aFmtCtx = nullptr;
+    }
+    if (m_aDecodeCtx) {
+        avcodec_free_context(&m_aDecodeCtx);
+        m_aDecodeCtx = nullptr;
+    }
 }
 
 void AudioCapture::audioCaptureThreadProc() {
@@ -120,14 +128,14 @@ void AudioCapture::audioCaptureThreadProc() {
         }
         av_packet_unref(&pkt);
 
-        //VideoCaptureInfo info;
-        //info.width  = m_aDecodeCtx->width;
-        //info.height = m_aDecodeCtx->height;
-        //info.format = m_aDecodeCtx->pix_fmt;
-        m_frameCb(oldFrame, AudioCaptureInfo());
+        AudioCaptureInfo info;
+        info.channelLayout = m_aDecodeCtx->channel_layout;
+        info.format        = m_aDecodeCtx->sample_fmt;
+        info.sampleRate    = m_aDecodeCtx->sample_rate;
+        m_frameCb(oldFrame, info);
     }
     //FlushVideoDecoder();
 
     av_frame_free(&oldFrame);
-    qDebug() << "screen record thread exit";
+    qDebug() << "audioCaptureThreadProc thread exit";
 }

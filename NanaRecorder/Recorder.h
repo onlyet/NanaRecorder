@@ -35,6 +35,7 @@ private:
 
 	void initAudioBufCb(AVCodecContext* encodeCtx);
     void writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info);
+    AVFrame* readAudioFrameCb();
 
 private:
     VideoCapture*    m_videoCap        = nullptr;
