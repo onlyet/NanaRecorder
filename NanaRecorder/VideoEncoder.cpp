@@ -38,13 +38,11 @@ int VideoEncoder::initH264(int width, int height, int fps)
     m_vEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
 #if 1
-    av_dict_set(&m_dict, "profile", "high", 0);
-    // 通过--preset的参数调节编码速度和质量的平衡。
-    av_dict_set(&m_dict, "preset", "superfast", 0);
-    av_dict_set(&m_dict, "threads", "0", 0);
-    av_dict_set(&m_dict, "crf", "26", 0);
-    // zerolatency: 零延迟，用在需要非常低的延迟的情况下，比如电视电话会议的编码
-    av_dict_set(&m_dict, "tune", "zerolatency", 0);
+    //av_dict_set(&m_dict, "threads", "0", 0); // 会造成编码延迟几帧，avcodec_receive_packet EAGAIN n次后才返回第一帧对应的packet
+    av_dict_set(&m_dict, "preset", "superfast", 0); // 调节编码速度和质量的平衡。
+    av_dict_set(&m_dict, "tune", "zerolatency", 0); // 零延迟，用在需要非常低的延迟的情况下，比如电视电话会议的编码
+    //av_dict_set(&m_dict, "profile", "high", 0);
+    //av_dict_set(&m_dict, "crf", "26", 0); 
 #endif
 
     //查找视频编码器
@@ -98,6 +96,7 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             ret = 0;
             av_packet_free(&packet);
+            qDebug() << "EAGAIN time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
             break;
         }
         else if (ret < 0) {

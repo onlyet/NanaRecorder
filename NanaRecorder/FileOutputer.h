@@ -4,6 +4,7 @@
 #include <thread>
 #include <functional>
 #include <vector>
+#include <queue>
 
 class VideoEncoder;
 class AudioEncoder;
@@ -45,5 +46,6 @@ private:
     std::thread                          m_outputAudioThread;
     std::vector<AVPacket*>               m_audioPackets;
     int64_t                              m_startTime;
+    std::queue<int64_t>                  m_captureTimeQueue; // 保存视频编码延迟帧的捕获时间戳
 };
 

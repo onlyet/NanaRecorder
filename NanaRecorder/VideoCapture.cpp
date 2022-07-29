@@ -12,6 +12,9 @@
 //#include <chrono>
 //#include <functional>
 
+//#include <processthreadsapi.h>
+#include <Windows.h>
+
 using namespace std;
 using namespace std::chrono;
 
@@ -20,13 +23,17 @@ int VideoCapture::startCapture()
     if (m_isRunning) return -1;
 
     m_isRunning = true;
-    int ret = initCapture();
+    int ret     = initCapture();
     if (0 != ret) {
         return -1;
     }
     std::thread t(std::bind(&VideoCapture::videoCaptureThreadProc, this));
     m_captureThread.swap(t);
     //m_captureThread.swap(std::thread(std::bind(&VideoCapture::videoCaptureThreadProc, this)));
+
+    //SetThreadPriority(m_captureThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+
+
     return 0;
 }
 

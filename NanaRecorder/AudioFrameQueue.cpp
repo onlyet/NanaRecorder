@@ -1,6 +1,7 @@
 #include "AudioFrameQueue.h"
 
 #include <QDebug>
+#include <QDateTime>
 
 #include <mutex>
 
@@ -66,7 +67,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
         m_swrCtx = swr_alloc();
         if (!m_swrCtx) return -1;
-        // 为什么解码上下问的通道布局是0
+        // 为什么解码上下文的通道布局是0
         av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", /*m_audioCapInfo.channelLayout*/ /*2*/ AV_CH_LAYOUT_STEREO, 0);
         av_opt_set_channel_layout(m_swrCtx, "out_channel_layout", m_channelLayout, 0);
         av_opt_set_int(m_swrCtx, "in_sample_rate", m_audioCapInfo.sampleRate, 0);
@@ -113,6 +114,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
     av_audio_fifo_write(m_aFifoBuf, (void**)m_resampleBuf, outSampleNum);
     m_cvABufNotEmpty.notify_one();
+    qDebug() << "av_audio_fifo_write time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 
     return 0;
 }

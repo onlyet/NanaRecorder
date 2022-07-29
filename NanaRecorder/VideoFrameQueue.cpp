@@ -78,7 +78,7 @@ void VideoFrameQueue::deinit()
 int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info, int64_t captureTime)
 {
     if (!m_isInit) return -1;
-    if (!oldFrame /*|| !m_vDecodeCtx*/) return -1;
+    if (!oldFrame) return -1;
 
     if (info.width != m_videoCapInfo.width || info.height != m_videoCapInfo.height
         || info.format != m_videoCapInfo.format) {
@@ -88,7 +88,7 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
             SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
     }
     // srcSliceH应该是输入高度，return输出高度
-    sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
+    int h = sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
         m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
 
     //static int s_cnt = 1;
@@ -103,7 +103,7 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
     av_fifo_generic_write(m_vFifoBuf, m_vInFrameBuf, m_vFrameSize, NULL);
     //qDebug() << "av_fifo_generic_write 2";
     m_cvVBufNotEmpty.notify_one();
-
+    qDebug() << "av_fifo_generic_write time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << "capture time:" << captureTime;
     return 0;
 }
 

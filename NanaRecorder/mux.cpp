@@ -44,14 +44,14 @@ int Mux::writeHeader()
         const char* outFileName = m_filename.c_str();
         if (avio_open(&m_oFmtCtx->pb, outFileName, AVIO_FLAG_WRITE) < 0)
         {
-            printf("can not open output file handle!\n");
+            qDebug() << "can not open output file handle!";
             return -1;
         }
     }
     //写文件头
     if (avformat_write_header(m_oFmtCtx, nullptr) < 0)
     {
-        printf("can not write the header of the output file!\n");
+        qDebug() << "can not write the header of the output file!";
         return -1;
     }
 
@@ -70,7 +70,6 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
     }
 
     int stream_index = packet->stream_index;
-    //printf("index:%d, pts:%lld\n", stream_index, packet->pts);
 
     AVRational src_time_base;  // 编码后的包
     AVRational dst_time_base;  // mp4输出文件对应流的time_base
@@ -90,6 +89,7 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 #else
     //packet->pts = pFrame->nCaptureTime * (pStream->time_base.den / pStream->time_base.num) / 1000;
     packet->pts = av_rescale_q(captureTime, AVRational{ 1, 1000 }, dst_time_base);
+    qDebug() << "Index:" << stream_index << " pts:" << packet->pts << " captureTime:" << captureTime;
     packet->dts = packet->pts;
 #endif
 
@@ -141,11 +141,13 @@ int Mux::addStream(AVCodecContext* encodeCtx)
         m_vEncodeCtx = encodeCtx;
         m_vStream = stream;
         m_vIndex = stream->index;
+        qDebug() << "Video stream index" << m_vIndex;
     }
     else if (encodeCtx->codec_type == AVMEDIA_TYPE_AUDIO) {
         m_aEncodeCtx = encodeCtx;
         m_aStream = stream;
         m_aIndex = stream->index;
+        qDebug() << "Audio stream index" << m_aIndex;
     }
 
     return 0;

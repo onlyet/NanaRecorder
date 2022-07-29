@@ -11,6 +11,7 @@
 #include <functional>
 #include <chrono>
 
+#include <Windows.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -67,10 +68,12 @@ int FileOutputer::start(int64_t startTime) {
     m_startTime = startTime;
     thread vt(bind(&FileOutputer::outputVideoThreadProc, this));
     m_outputVideoThread.swap(vt);
+    //SetThreadPriority(m_outputVideoThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 
    thread at(bind(&FileOutputer::outputAudioThreadProc, this));
     m_outputAudioThread.swap(at);
-    return 0;
+   //SetThreadPriority(m_outputAudioThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+   return 0;
 }
 
 int FileOutputer::stop()
@@ -119,13 +122,24 @@ void FileOutputer::encodeVideoAndMux()
     FrameItem* item;
     while (1) {
 		item = m_videoFrameCb();
-		if (!item) return;
+        if (!item) {
+            qDebug() << "m_videoFrameCb is null";
+            return;
+        }
 
+        m_captureTimeQueue.push(item->captureTime);
+
+        // 8次EAGAIN后avcodec_receive_packet才成功
 		m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_videoPackets);
 
-		for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this, item](AVPacket* packet) {
-			m_mux->writePacket(packet, item->captureTime);
-			});
+        if (m_videoPackets.empty()) return;
+
+		for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this/*, item*/](AVPacket* packet) {
+            if (!m_captureTimeQueue.empty()) {
+                m_mux->writePacket(packet, /*item->captureTime*/ m_captureTimeQueue.front());
+                m_captureTimeQueue.pop();
+            }
+        });
 
 		m_videoPackets.clear();
     }
@@ -156,7 +170,7 @@ void FileOutputer::encodeAudioAndMux() {
 
         int tt = m_audioPackets.size();
 
-        int64_t now         = duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+        int64_t now         = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t captureTime = now - m_startTime;
 
         for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, &captureTime](AVPacket* packet) {

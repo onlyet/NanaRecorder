@@ -9,6 +9,9 @@
 
 #include <chrono>
 
+#include <QDateTime>
+#include <QDebug>
+
 using namespace std;
 using namespace std::placeholders;
 using namespace std::chrono;
@@ -81,7 +84,8 @@ int Recorder::startRecord()
 	m_outputer->init();
 
 	// start
-	m_startTime = duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+	m_startTime = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+    qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
 	g_record.status = Running;
@@ -125,7 +129,7 @@ void Recorder::stopCapture()
 void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
 {
 	if (Running == g_record.status) {
-        int64_t now = duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+        int64_t now = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t captureTime = now - m_startTime;
         m_videoFrameQueue->writeFrame(frame, info, captureTime);
 	}
