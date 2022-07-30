@@ -168,7 +168,7 @@ void FileOutputer::encodeAudioAndMux() {
 
         m_audioEncoder->encode(frame, m_mux->audioStreamIndex(), 0, 0, m_audioPackets);
 
-        int tt = m_audioPackets.size();
+        if (m_audioPackets.empty()) return;
 
         int64_t now         = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t captureTime = now - m_startTime;
