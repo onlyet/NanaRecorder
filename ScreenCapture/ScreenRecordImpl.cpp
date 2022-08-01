@@ -22,7 +22,10 @@ extern "C"
 
 #include <dshow.h>
 
+#include <chrono>
+
 using namespace std;
+using namespace std::chrono;
 
 int g_vCollectFrameCnt = 0;	//视频采集帧数
 int g_vEncodeFrameCnt = 0;	//视频编码帧数
@@ -531,7 +534,10 @@ void ScreenRecordImpl::InitVideoBuffer()
     //先让AVFrame指针指向buf，后面再写入数据到buf
     av_image_fill_arrays(m_vOutFrame->data, m_vOutFrame->linesize, m_vOutFrameBuf, m_vEncodeCtx->pix_fmt, m_width, m_height, 1);
     //申请30帧缓存
-    if (!(m_vFifoBuf = av_fifo_alloc_array(30, m_vOutFrameSize)))
+    //if (!(m_vFifoBuf = av_fifo_alloc_array(30, m_vOutFrameSize)))
+    m_vOutFrameItemSize = (m_vOutFrameSize + sizeof(m_timestamp));
+    m_vFifoBuf = av_fifo_alloc(30 * m_vOutFrameItemSize);
+    if (!m_vFifoBuf)
     {
         qDebug() << "av_fifo_alloc_array failed";
         return;
@@ -933,8 +939,10 @@ void ScreenRecordImpl::MuxThreadProc()
             unique_lock<mutex> vBufLock(m_mtxVBuf, std::defer_lock);
             unique_lock<mutex> aBufLock(m_mtxABuf, std::defer_lock);
             std::lock(vBufLock, aBufLock);
-            if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize &&
-                av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
+            //if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize &&
+            //    av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
+                if (av_fifo_size(m_vFifoBuf) < m_vOutFrameItemSize &&
+                    av_audio_fifo_size(m_aFifoBuf) < m_nbSamples)
             {
                 qDebug() << "both video and audio fifo buf are empty, break";
                 break;
@@ -948,7 +956,8 @@ void ScreenRecordImpl::MuxThreadProc()
             if (done)
             {
                 lock_guard<mutex> lk(m_mtxVBuf);
-                if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
+                //if (av_fifo_size(m_vFifoBuf) < m_vOutFrameSize)
+                if (av_fifo_size(m_vFifoBuf) < m_vOutFrameItemSize)
                 {
                     qDebug() << "video wirte done";
                     //break;
@@ -960,10 +969,15 @@ void ScreenRecordImpl::MuxThreadProc()
             else
             {
                 unique_lock<mutex> lk(m_mtxVBuf);
-                m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameSize; });
+                //m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameSize; });
+                m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vOutFrameItemSize; });
             }
+            long long timestamp;
+            av_fifo_generic_read(m_vFifoBuf, &timestamp, sizeof(long long), NULL);
             av_fifo_generic_read(m_vFifoBuf, m_vOutFrameBuf, m_vOutFrameSize, NULL);
             m_cvVBufNotFull.notify_one();
+
+            //qDebug() << ""
 
             //设置视频帧参数
             //m_vOutFrame->pts = vFrameIndex * ((m_oFmtCtx->streams[m_vOutIndex]->time_base.den / m_oFmtCtx->streams[m_vOutIndex]->time_base.num) / m_fps);
@@ -972,6 +986,7 @@ void ScreenRecordImpl::MuxThreadProc()
             m_vOutFrame->format = m_vEncodeCtx->pix_fmt;
             m_vOutFrame->width = m_vEncodeCtx->width;
             m_vOutFrame->height = m_vEncodeCtx->height;
+
 
             AVPacket pkt = { 0 };
             av_init_packet(&pkt);
@@ -990,11 +1005,17 @@ void ScreenRecordImpl::MuxThreadProc()
                 continue;
             }
             pkt.stream_index = m_vOutIndex;
+
+            // pts设置为帧采集时间戳
+            pkt.pts = av_rescale_q(timestamp, AVRational{ 1, 1000 }, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+
+
             //将pts从编码层的timebase转成复用层的timebase
-            av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
+            //av_packet_rescale_ts(&pkt, m_vEncodeCtx->time_base, m_oFmtCtx->streams[m_vOutIndex]->time_base);
 
             m_vCurPts = pkt.pts;
             //qDebug() << "m_vCurPts: " << m_vCurPts;
+            qDebug() << QString("pts: %1, dts: %2, duration: %3").arg(m_vCurPts).arg(pkt.dts).arg(pkt.duration);
 
             ret = av_interleaved_write_frame(m_oFmtCtx, &pkt);
 			if (ret == 0)
@@ -1105,6 +1126,19 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
             qDebug() << "video av_read_frame < 0";
             continue;
         }
+
+        static bool s_singleton = true;
+        if (s_singleton)
+        {
+            s_singleton = false;
+            m_firstTimePoint = chrono::steady_clock::now();
+            m_timestamp = 0;
+        }
+        else
+        {
+            m_timestamp = duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - m_firstTimePoint).count();
+        }
+
         if (pkt.stream_index != m_vIndex)
         {
             qDebug() << "not a video packet from video input";
@@ -1133,8 +1167,13 @@ void ScreenRecordImpl::ScreenRecordThreadProc()
 
         {
             unique_lock<mutex> lk(m_mtxVBuf);
-            m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vOutFrameSize; });
+            //m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vOutFrameSize; });
+            m_cvVBufNotFull.wait(lk, [this] { return av_fifo_space(m_vFifoBuf) >= m_vOutFrameItemSize; });
         }
+
+        // 先写入时间戳
+        av_fifo_generic_write(m_vFifoBuf, &m_timestamp, sizeof(m_timestamp), NULL);
+
         av_fifo_generic_write(m_vFifoBuf, newFrame->data[0], y_size, NULL);
         av_fifo_generic_write(m_vFifoBuf, newFrame->data[1], y_size / 4, NULL);
         av_fifo_generic_write(m_vFifoBuf, newFrame->data[2], y_size / 4, NULL);

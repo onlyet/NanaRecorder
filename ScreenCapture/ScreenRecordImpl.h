@@ -5,6 +5,7 @@
 #include <QString>
 #include <QMutex>
 #include <condition_variable>
+#include <chrono>
 
 #ifdef	__cplusplus
 extern "C"
@@ -90,7 +91,8 @@ private:
 
     AVFrame*                    m_vOutFrame;
     uint8_t*                    m_vOutFrameBuf;
-    int                         m_vOutFrameSize;
+    int                         m_vOutFrameSize;    // yuv:3/2*width*height
+    int                         m_vOutFrameItemSize; // m_vOutFrameSize + sizeof(long long)
 
     int                         m_nbSamples;
     RecordState                 m_state;
@@ -104,4 +106,7 @@ private:
     std::mutex                  m_mtxABuf;
     int64_t                     m_vCurPts;
     int64_t                     m_aCurPts;
+
+    std::chrono::steady_clock::time_point    m_firstTimePoint;
+    long long                               m_timestamp;    // 相对时间戳，采集的第一帧为0
 };
