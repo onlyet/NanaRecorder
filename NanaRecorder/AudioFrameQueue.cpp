@@ -89,7 +89,10 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
     }
 
     if (dst_nb_samples > m_resampleBufSize) {
-        av_freep(&m_resampleBuf[0]);
+        // WARN: 这里每个通道的buf都要释放
+        for (int i = 0; i < m_channelNum; ++i) {
+            if (m_resampleBuf[i]) av_freep(&m_resampleBuf[i]);
+        }
         ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
         if (ret < 0) {
             qDebug() << "av_samples_alloc failed";
