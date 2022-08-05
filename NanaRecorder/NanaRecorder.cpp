@@ -1,8 +1,10 @@
 #include "NanaRecorder.h"
 #include "Recorder.h"
+#include "FFmpegHeader.h"
 
 #include <QTimer>
 #include <QDateTime>
+#include <QDebug>
 
 NanaRecorder::NanaRecorder(QWidget *parent)
     : QMainWindow(parent)
@@ -16,6 +18,8 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
     m_timer->start(1000);
+
+    qDebug() << "av_version_info:" << av_version_info();
 }
 
 void NanaRecorder::startBtnClicked()
