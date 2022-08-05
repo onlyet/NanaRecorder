@@ -53,11 +53,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="ScreenRecordImpl.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="ScreenRecordTest.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ScreenRecordImpl.h">
+      <Filter>Source Files</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

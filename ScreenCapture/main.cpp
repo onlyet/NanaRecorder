@@ -1,3 +1,4 @@
+#if 0
 #include <QApplication>
 #include "ScreenRecordImpl.h"
 #include "ScreenRecordTest.h"
@@ -10,3 +11,4 @@ int main(int argc, char *argv[])
 
 	return a.exec();
 }
+#endif

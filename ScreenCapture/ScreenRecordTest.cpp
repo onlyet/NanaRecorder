@@ -14,13 +14,12 @@ ScreenRecord::ScreenRecord(QObject *parent) :
     //args["height"] = 1080;
     args["width"] = QApplication::desktop()->screenGeometry().width();
     args["height"] = QApplication::desktop()->screenGeometry().height();
-    args["fps"] = 15;
     args["audioBitrate"] = 128000;
 
     sr->Init(args);
 
     QTimer::singleShot(1000, sr, SLOT(Start()));
-    QTimer::singleShot(21000, sr, SLOT(Stop()));
+    QTimer::singleShot(16000, sr, SLOT(Stop()));
 
     //QTimer::singleShot(5000, sr, SLOT(Pause()));
     //QTimer::singleShot(10000, sr, SLOT(Pause()));
