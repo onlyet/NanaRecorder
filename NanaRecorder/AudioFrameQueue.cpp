@@ -88,18 +88,21 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
     }
 
     if (dst_nb_samples > m_resampleBufSize) {
-        //for (int i = 0; i < m_channelNum; ++i) {
-        //    qDebug() << "dump 1-1-1";
-        //    if (m_resampleBuf[i]) {
-        //        av_freep(&m_resampleBuf[i]);
-        //    }
-        //    qDebug() << "dump 1-1-2";
-        //}
-        
+#if 0
+        // FIXME: bug
+        for (int i = 0; i < m_channelNum; ++i) {
+            qDebug() << "dump 1-1-1";
+            if (m_resampleBuf[i]) {
+                av_freep(&m_resampleBuf[i]);
+            }
+            qDebug() << "dump 1-1-2";
+        }
+#else
         if (m_resampleBuf[0]) {
             // 整个buf都会被释放，不需要掉各个通道单独free
             av_freep(&m_resampleBuf[0]);
-        } 
+        }
+#endif
         
         ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
         if (ret < 0) {
