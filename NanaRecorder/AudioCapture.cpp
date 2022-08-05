@@ -113,7 +113,7 @@ void AudioCapture::audioCaptureThreadProc() {
             qDebug() << "Audio av_read_frame < 0";
             continue;
         }
-        qDebug() << "audio pkt: " << pkt.pts << "," << pkt.dts;
+        //qDebug() << "audio pkt: " << pkt.pts << "," << pkt.dts;
         //qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_aIndex) {

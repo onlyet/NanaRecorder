@@ -75,6 +75,8 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
 
     int ret = 0;
 
+        qDebug() << "VideoEncoder::encode time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+
     //pts = av_rescale_q(pts, AVRational{ 1, (int)time_base }, m_vEncodeCtx->time_base);
     //frame->pts = pts;
     // 
@@ -96,7 +98,7 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             ret = 0;
             av_packet_free(&packet);
-            qDebug() << "EAGAIN time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+            //qDebug() << "EAGAIN time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
             break;
         }
         else if (ret < 0) {

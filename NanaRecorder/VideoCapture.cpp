@@ -155,7 +155,7 @@ void VideoCapture::videoCaptureThreadProc()
             qDebug() << "video av_read_frame < 0";
             continue;
         }
-        qDebug() << "video pkt: " << pkt.pts << "," << pkt.dts;
+        //qDebug() << "video pkt: " << pkt.pts << "," << pkt.dts;
         //qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_vIndex)

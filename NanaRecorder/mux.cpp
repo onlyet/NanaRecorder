@@ -89,9 +89,14 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 #else
     //packet->pts = pFrame->nCaptureTime * (pStream->time_base.den / pStream->time_base.num) / 1000;
     packet->pts = av_rescale_q(captureTime, AVRational{ 1, 1000 }, dst_time_base);
-    qDebug() << "Index:" << stream_index << " pts:" << packet->pts << " captureTime:" << captureTime;
+    //qDebug() << "Index:" << stream_index << " pts:" << packet->pts << " captureTime:" << captureTime;
     packet->dts = packet->pts;
 #endif
+
+
+    //if (packet->stream_index == 0) {
+    //    qDebug() << "av_interleaved_write_frame time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+    //}
 
     int ret;
     //QTime t = QTime::currentTime();
@@ -100,6 +105,7 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
          ret = av_interleaved_write_frame(m_oFmtCtx, packet);
     }
     //qDebug() << "av_interleaved_write_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+
 
     //av_free_packet(&packet);
     av_packet_free(&packet);
