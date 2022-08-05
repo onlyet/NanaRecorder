@@ -87,6 +87,11 @@ void AudioCapture::deinit() {
 }
 
 void AudioCapture::audioCaptureThreadProc() {
+    if (!m_frameCb) {
+        qDebug() << "m_frameCb empty, thread exit";
+        return;
+    }
+
     int      ret = -1;
     AVPacket pkt = {0};
     av_init_packet(&pkt);
@@ -108,11 +113,13 @@ void AudioCapture::audioCaptureThreadProc() {
             qDebug() << "Audio av_read_frame < 0";
             continue;
         }
+        qDebug() << "audio pkt: " << pkt.pts << "," << pkt.dts;
         //qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_aIndex) {
             qDebug() << "not a Audio packet from Audio input";
             av_packet_unref(&pkt);
+            continue;
         }
         ret = avcodec_send_packet(m_aDecodeCtx, &pkt);
         if (ret != 0) {
@@ -129,7 +136,8 @@ void AudioCapture::audioCaptureThreadProc() {
         av_packet_unref(&pkt);
 
         AudioCaptureInfo info;
-        info.channelLayout = m_aDecodeCtx->channel_layout;
+        // 手动设置布局，因为从流中获取的通道布局是0
+        info.channelLayout = /*m_aDecodeCtx->channel_layout*/ AV_CH_LAYOUT_STEREO;
         info.format        = m_aDecodeCtx->sample_fmt;
         info.sampleRate    = m_aDecodeCtx->sample_rate;
         m_frameCb(oldFrame, info);

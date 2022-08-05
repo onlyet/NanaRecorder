@@ -1,4 +1,4 @@
-#if 0
+#if 1
 /*
  * Copyright (c) 2012 Stefano Sabatini
  *

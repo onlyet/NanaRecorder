@@ -67,8 +67,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
         m_swrCtx = swr_alloc();
         if (!m_swrCtx) return -1;
-        // 为什么解码上下文的通道布局是0
-        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", /*m_audioCapInfo.channelLayout*/ /*2*/ AV_CH_LAYOUT_STEREO, 0);
+        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", m_audioCapInfo.channelLayout /*AV_CH_LAYOUT_STEREO*/, 0);
         av_opt_set_channel_layout(m_swrCtx, "out_channel_layout", m_channelLayout, 0);
         av_opt_set_int(m_swrCtx, "in_sample_rate", m_audioCapInfo.sampleRate, 0);
         av_opt_set_int(m_swrCtx, "out_sample_rate", m_sampleRate, 0);
@@ -89,10 +88,19 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
     }
 
     if (dst_nb_samples > m_resampleBufSize) {
-        // WARN: 这里每个通道的buf都要释放
-        for (int i = 0; i < m_channelNum; ++i) {
-            if (m_resampleBuf[i]) av_freep(&m_resampleBuf[i]);
-        }
+        //for (int i = 0; i < m_channelNum; ++i) {
+        //    qDebug() << "dump 1-1-1";
+        //    if (m_resampleBuf[i]) {
+        //        av_freep(&m_resampleBuf[i]);
+        //    }
+        //    qDebug() << "dump 1-1-2";
+        //}
+        
+        if (m_resampleBuf[0]) {
+            // 整个buf都会被释放，不需要掉各个通道单独free
+            av_freep(&m_resampleBuf[0]);
+        } 
+        
         ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
         if (ret < 0) {
             qDebug() << "av_samples_alloc failed";

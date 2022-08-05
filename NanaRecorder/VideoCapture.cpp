@@ -122,6 +122,11 @@ void VideoCapture::deinit()
 // TODO: flush
 void VideoCapture::videoCaptureThreadProc()
 {
+    if (!m_frameCb) {
+        qDebug() << "m_frameCb empty, thread exit";
+        return;
+    }
+
     int width = g_record.width;
     int height = g_record.height;
 
@@ -150,12 +155,14 @@ void VideoCapture::videoCaptureThreadProc()
             qDebug() << "video av_read_frame < 0";
             continue;
         }
+        qDebug() << "video pkt: " << pkt.pts << "," << pkt.dts;
         //qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_vIndex)
         {
             qDebug() << "not a video packet from video input";
             av_packet_unref(&pkt);
+            continue;
         }
         ret = avcodec_send_packet(m_vDecodeCtx, &pkt);
         if (ret != 0)

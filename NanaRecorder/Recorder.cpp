@@ -47,6 +47,7 @@ Recorder::~Recorder()
 		m_outputer = nullptr;
 	}
 }
+
 void Recorder::setRecordInfo()
 {
 	g_record.filePath = "nana.mp4";
