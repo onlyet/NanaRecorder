@@ -91,7 +91,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -101,7 +101,7 @@
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -125,6 +125,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
       <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -162,13 +164,13 @@
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat>None</DebugInformationFormat>
-      <Optimization>MaxSpeed</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -185,6 +187,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\dump\dump.cpp" />
     <ClCompile Include="AudioCapture.cpp" />
     <ClCompile Include="AudioEncoder.cpp" />
     <ClCompile Include="AudioFrameQueue.cpp" />
@@ -202,6 +205,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\dump\dump.h" />
+    <ClInclude Include="..\common\log\log.h" />
     <ClInclude Include="AudioCapture.h" />
     <ClInclude Include="AudioEncoder.h" />
     <ClInclude Include="AudioFrameQueue.h" />
