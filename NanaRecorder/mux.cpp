@@ -60,14 +60,14 @@ int Mux::writeHeader()
 
 int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 {
-    if (!m_isInit || !m_oFmtCtx) return -1;
-
     if (!packet || packet->size <= 0 || !packet->data) {
         qDebug() << "packet is null";
         if (packet) av_packet_free(&packet);
 
         return -1;
     }
+
+    if (!m_isInit || !m_oFmtCtx) return -1;
 
     int stream_index = packet->stream_index;
 
@@ -81,18 +81,15 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
         src_time_base = m_aEncodeCtx->time_base;
         dst_time_base = m_aStream->time_base;
     }
-    // 时间基转换
 #if 0
     packet->pts = av_rescale_q(packet->pts, src_time_base, dst_time_base);
     packet->dts = av_rescale_q(packet->dts, src_time_base, dst_time_base);
     packet->duration = av_rescale_q(packet->duration, src_time_base, dst_time_base);
 #else
-    //packet->pts = pFrame->nCaptureTime * (pStream->time_base.den / pStream->time_base.num) / 1000;
     packet->pts = av_rescale_q(captureTime, AVRational{ 1, 1000 }, dst_time_base);
     //qDebug() << "Index:" << stream_index << " pts:" << packet->pts << " captureTime:" << captureTime;
     packet->dts = packet->pts;
 #endif
-
 
     //if (packet->stream_index == 0) {
     //    qDebug() << "av_interleaved_write_frame time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
@@ -106,8 +103,6 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
     }
     //qDebug() << "av_interleaved_write_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 
-
-    //av_free_packet(&packet);
     av_packet_free(&packet);
     if (ret != 0) {
 		qDebug() << "av_interleaved_write_frame failed, ret:" << ret;
