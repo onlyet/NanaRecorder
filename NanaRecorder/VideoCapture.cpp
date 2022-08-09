@@ -9,10 +9,7 @@
 
 #include <string>
 #include <mutex>
-//#include <chrono>
-//#include <functional>
 
-//#include <processthreadsapi.h>
 #include <Windows.h>
 
 using namespace std;
@@ -29,11 +26,6 @@ int VideoCapture::startCapture()
     }
     std::thread t(std::bind(&VideoCapture::videoCaptureThreadProc, this));
     m_captureThread.swap(t);
-    //m_captureThread.swap(std::thread(std::bind(&VideoCapture::videoCaptureThreadProc, this)));
-
-    //SetThreadPriority(m_captureThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
-
-
     return 0;
 }
 
@@ -133,8 +125,12 @@ void VideoCapture::videoCaptureThreadProc()
     int ret = -1;
     AVPacket pkt = { 0 };
     av_init_packet(&pkt);
-    //int y_size = width * height;
     AVFrame* oldFrame = av_frame_alloc();
+
+    VideoCaptureInfo info;
+    info.width  = m_vDecodeCtx->width;
+    info.height = m_vDecodeCtx->height;
+    info.format = m_vDecodeCtx->pix_fmt;
 
     while (m_isRunning)
     {
@@ -180,14 +176,7 @@ void VideoCapture::videoCaptureThreadProc()
         }
         av_packet_unref(&pkt);
 
-        VideoCaptureInfo info;
-        info.width = m_vDecodeCtx->width;
-        info.height = m_vDecodeCtx->height;
-        info.format = m_vDecodeCtx->pix_fmt;
         m_frameCb(oldFrame, info);
-
-        //int a = 3;
-        //qDebug() << "a:" << a;
     }
     //FlushVideoDecoder();
 

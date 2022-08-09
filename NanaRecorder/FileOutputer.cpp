@@ -66,13 +66,12 @@ int FileOutputer::start(int64_t startTime) {
     if (!m_isInit) return -1;
     m_isRunning = true;
     m_startTime = startTime;
+
     thread vt(bind(&FileOutputer::outputVideoThreadProc, this));
     m_outputVideoThread.swap(vt);
-    //SetThreadPriority(m_outputVideoThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 
    thread at(bind(&FileOutputer::outputAudioThreadProc, this));
     m_outputAudioThread.swap(at);
-   //SetThreadPriority(m_outputAudioThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
    return 0;
 }
 
