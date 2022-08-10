@@ -12,6 +12,17 @@
 
 #include <Windows.h>
 
+//#define USE_DSHOW
+
+#ifdef USE_DSHOW
+#define VIDEO_DEVICE_FORMAT "dshow"
+#define VIDEO_DEVICE_NAME "video=screen-capture-recorder"
+#else
+#define VIDEO_DEVICE_FORMAT "gdigrab"
+#define VIDEO_DEVICE_NAME "desktop"
+#endif  // USE_DSHOW
+
+
 using namespace std;
 using namespace std::chrono;
 
@@ -50,13 +61,13 @@ int VideoCapture::initCapture()
     int ret = -1;
     AVDictionary* options = nullptr;
     AVCodec* decoder = nullptr;
-    AVInputFormat* ifmt = av_find_input_format("gdigrab");
-    string resolution = QString("%1x%2").arg(width).arg(height).toStdString();
+    AVInputFormat* ifmt       = av_find_input_format(VIDEO_DEVICE_FORMAT);
+    string         resolution = QString("%1x%2").arg(width).arg(height).toStdString();
 
     av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str(), NULL);
     av_dict_set(&options, "video_size", resolution.c_str(), 0);
 
-    if (avformat_open_input(&m_vFmtCtx, "desktop", ifmt, &options) != 0)
+    if (avformat_open_input(&m_vFmtCtx, VIDEO_DEVICE_NAME, ifmt, &options) != 0)
     {
         char errbuf[1024] = { 0 };
         av_strerror(ret, errbuf, sizeof(errbuf) - 1);

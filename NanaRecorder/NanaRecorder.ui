@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>268</width>
+    <width>362</width>
     <height>145</height>
    </rect>
   </property>
@@ -58,6 +58,32 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QLabel" name="durationLabel">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel
+{
+font-size: 20px;
+font-family: PingFangSC-Regular, PingFang SC;
+font-weight: 400;
+color: blue;
+line-height: 22px;
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -99,7 +125,7 @@ line-height: 22px;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>268</width>
+     <width>362</width>
      <height>23</height>
     </rect>
    </property>

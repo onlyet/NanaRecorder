@@ -20,9 +20,11 @@ int VideoEncoder::initH264(int width, int height, int fps)
     m_vEncodeCtx->codec_type = AVMEDIA_TYPE_VIDEO;
     m_vEncodeCtx->pix_fmt = AV_PIX_FMT_YUV420P;
     m_vEncodeCtx->codec_id = AV_CODEC_ID_H264;
+#if 0
     m_vEncodeCtx->bit_rate = 800 * 1000;
     m_vEncodeCtx->rc_max_rate = 800 * 1000;
     m_vEncodeCtx->rc_buffer_size = 500 * 1000;
+#endif
     //设置图像组层的大小, gop_size越大，文件越小 
     m_vEncodeCtx->gop_size = 30;
     m_vEncodeCtx->max_b_frames = 0;
@@ -42,7 +44,8 @@ int VideoEncoder::initH264(int width, int height, int fps)
     av_dict_set(&m_dict, "preset", "superfast", 0); // 调节编码速度和质量的平衡。
     av_dict_set(&m_dict, "tune", "zerolatency", 0); // 零延迟，用在需要非常低的延迟的情况下，比如电视电话会议的编码
     //av_dict_set(&m_dict, "profile", "high", 0);
-    //av_dict_set(&m_dict, "crf", "26", 0); 
+    //av_dict_set(&m_dict, "crf", "16", 0);
+    //av_dict_set(&m_dict, "qp", "0", 0);
 #endif
 
     //查找视频编码器
