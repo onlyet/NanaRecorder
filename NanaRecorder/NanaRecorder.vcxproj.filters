@@ -23,6 +23,24 @@
     <Filter Include="Source Files\player">
       <UniqueIdentifier>{e43b6de2-5b92-43db-a11c-d88ae861f7d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{18d1a5d1-f203-4533-adfe-621d195ab591}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common\dump">
+      <UniqueIdentifier>{1cda6c12-0409-425f-8d25-5bd4256712cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common\log">
+      <UniqueIdentifier>{17270474-f555-4547-a59b-9d3d2f8d31c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common\util">
+      <UniqueIdentifier>{f32c67e7-af7a-4544-99cb-e6a633c67d52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\player\audio">
+      <UniqueIdentifier>{5a5a1c07-d2f2-49af-8110-0ba4ff3ed0ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\player\video">
+      <UniqueIdentifier>{f6e2195b-25a0-4201-a407-c2bdfcc53733}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="NanaRecorder.qrc">
@@ -36,35 +54,41 @@
     <ClCompile Include="FileOutputer.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files\player</Filter>
-    </ClCompile>
     <ClCompile Include="mux.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
     <ClCompile Include="Recorder.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
-    <ClCompile Include="VideoCapture.cpp">
-      <Filter>Source Files\player</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoEncoder.cpp">
-      <Filter>Source Files\player</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoFrameQueue.cpp">
-      <Filter>Source Files\player</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioCapture.cpp">
-      <Filter>Source Files\player</Filter>
-    </ClCompile>
     <ClCompile Include="FFmpegHelper.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
-    <ClCompile Include="AudioFrameQueue.cpp">
-      <Filter>Source Files\player</Filter>
+    <ClCompile Include="..\common\dump\dump.cpp">
+      <Filter>Source Files\common\dump</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\util\util.cpp">
+      <Filter>Source Files\common\util</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioCapture.cpp">
+      <Filter>Source Files\player\audio</Filter>
     </ClCompile>
     <ClCompile Include="AudioEncoder.cpp">
-      <Filter>Source Files\player</Filter>
+      <Filter>Source Files\player\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioFrameQueue.cpp">
+      <Filter>Source Files\player\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoCapture.cpp">
+      <Filter>Source Files\player\video</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoEncoder.cpp">
+      <Filter>Source Files\player\video</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoFrameQueue.cpp">
+      <Filter>Source Files\player\video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -91,26 +115,35 @@
     <ClInclude Include="Recorder.h">
       <Filter>Source Files\player</Filter>
     </ClInclude>
-    <ClInclude Include="VideoCapture.h">
-      <Filter>Source Files\player</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoEncoder.h">
-      <Filter>Source Files\player</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoFrameQueue.h">
-      <Filter>Source Files\player</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioCapture.h">
-      <Filter>Source Files\player</Filter>
-    </ClInclude>
     <ClInclude Include="FFmpegHelper.h">
       <Filter>Source Files\player</Filter>
     </ClInclude>
-    <ClInclude Include="AudioFrameQueue.h">
-      <Filter>Source Files\player</Filter>
+    <ClInclude Include="..\common\dump\dump.h">
+      <Filter>Source Files\common\dump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\log\log.h">
+      <Filter>Source Files\common\log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\util\util.h">
+      <Filter>Source Files\common\util</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioCapture.h">
+      <Filter>Source Files\player\audio</Filter>
     </ClInclude>
     <ClInclude Include="AudioEncoder.h">
-      <Filter>Source Files\player</Filter>
+      <Filter>Source Files\player\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioFrameQueue.h">
+      <Filter>Source Files\player\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoCapture.h">
+      <Filter>Source Files\player\video</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoEncoder.h">
+      <Filter>Source Files\player\video</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoFrameQueue.h">
+      <Filter>Source Files\player\video</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

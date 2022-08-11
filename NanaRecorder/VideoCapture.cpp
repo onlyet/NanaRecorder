@@ -9,11 +9,19 @@
 
 #include <string>
 #include <mutex>
-//#include <chrono>
-//#include <functional>
 
-//#include <processthreadsapi.h>
 #include <Windows.h>
+
+//#define USE_DSHOW
+
+#ifdef USE_DSHOW
+#define VIDEO_DEVICE_FORMAT "dshow"
+#define VIDEO_DEVICE_NAME "video=screen-capture-recorder"
+#else
+#define VIDEO_DEVICE_FORMAT "gdigrab"
+#define VIDEO_DEVICE_NAME "desktop"
+#endif  // USE_DSHOW
+
 
 using namespace std;
 using namespace std::chrono;
@@ -29,11 +37,6 @@ int VideoCapture::startCapture()
     }
     std::thread t(std::bind(&VideoCapture::videoCaptureThreadProc, this));
     m_captureThread.swap(t);
-    //m_captureThread.swap(std::thread(std::bind(&VideoCapture::videoCaptureThreadProc, this)));
-
-    //SetThreadPriority(m_captureThread.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
-
-
     return 0;
 }
 
@@ -52,19 +55,19 @@ int VideoCapture::stopCapture()
 int VideoCapture::initCapture()
 {
     int fps = g_record.fps;
-    int width = g_record.width;
-    int height = g_record.height;
+    int inWidth = g_record.inWidth;
+    int inHeight = g_record.inHeight;
 
     int ret = -1;
     AVDictionary* options = nullptr;
     AVCodec* decoder = nullptr;
-    AVInputFormat* ifmt = av_find_input_format("gdigrab");
-    string resolution = QString("%1x%2").arg(width).arg(height).toStdString();
+    AVInputFormat* ifmt       = av_find_input_format(VIDEO_DEVICE_FORMAT);
+    string         resolution = QString("%1x%2").arg(inWidth).arg(inHeight).toStdString();
 
     av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str(), NULL);
     av_dict_set(&options, "video_size", resolution.c_str(), 0);
 
-    if (avformat_open_input(&m_vFmtCtx, "desktop", ifmt, &options) != 0)
+    if (avformat_open_input(&m_vFmtCtx, VIDEO_DEVICE_NAME, ifmt, &options) != 0)
     {
         char errbuf[1024] = { 0 };
         av_strerror(ret, errbuf, sizeof(errbuf) - 1);
@@ -127,14 +130,15 @@ void VideoCapture::videoCaptureThreadProc()
         return;
     }
 
-    int width = g_record.width;
-    int height = g_record.height;
-
     int ret = -1;
     AVPacket pkt = { 0 };
     av_init_packet(&pkt);
-    //int y_size = width * height;
     AVFrame* oldFrame = av_frame_alloc();
+
+    VideoCaptureInfo info;
+    info.width  = m_vDecodeCtx->width;
+    info.height = m_vDecodeCtx->height;
+    info.format = m_vDecodeCtx->pix_fmt;
 
     while (m_isRunning)
     {
@@ -180,14 +184,7 @@ void VideoCapture::videoCaptureThreadProc()
         }
         av_packet_unref(&pkt);
 
-        VideoCaptureInfo info;
-        info.width = m_vDecodeCtx->width;
-        info.height = m_vDecodeCtx->height;
-        info.format = m_vDecodeCtx->pix_fmt;
         m_frameCb(oldFrame, info);
-
-        //int a = 3;
-        //qDebug() << "a:" << a;
     }
     //FlushVideoDecoder();
 

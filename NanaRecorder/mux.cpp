@@ -1,5 +1,7 @@
 #include "mux.h"
 
+#include "FFmpegHelper.h"
+
 #include <QDebug>
 #include <QTime>
 #include <QDateTime>
@@ -60,14 +62,14 @@ int Mux::writeHeader()
 
 int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 {
-    if (!m_isInit || !m_oFmtCtx) return -1;
-
     if (!packet || packet->size <= 0 || !packet->data) {
         qDebug() << "packet is null";
         if (packet) av_packet_free(&packet);
 
         return -1;
     }
+
+    if (!m_isInit || !m_oFmtCtx) return -1;
 
     int stream_index = packet->stream_index;
 
@@ -81,18 +83,15 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
         src_time_base = m_aEncodeCtx->time_base;
         dst_time_base = m_aStream->time_base;
     }
-    // 时间基转换
 #if 0
     packet->pts = av_rescale_q(packet->pts, src_time_base, dst_time_base);
     packet->dts = av_rescale_q(packet->dts, src_time_base, dst_time_base);
     packet->duration = av_rescale_q(packet->duration, src_time_base, dst_time_base);
 #else
-    //packet->pts = pFrame->nCaptureTime * (pStream->time_base.den / pStream->time_base.num) / 1000;
-    packet->pts = av_rescale_q(captureTime, AVRational{ 1, 1000 }, dst_time_base);
+    packet->pts = av_rescale_q(captureTime, AVRational{ 1, /*1000*/ 1000*1000 }, dst_time_base);
     //qDebug() << "Index:" << stream_index << " pts:" << packet->pts << " captureTime:" << captureTime;
     packet->dts = packet->pts;
 #endif
-
 
     //if (packet->stream_index == 0) {
     //    qDebug() << "av_interleaved_write_frame time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
@@ -102,15 +101,22 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
     //QTime t = QTime::currentTime();
     {
         lock_guard<mutex> lock(m_WriteFrameMtx);
+        // av_interleaved_write_frame调用后packet的各个字段变为0
+        qDebug() << QString("av_interleaved_write_frame, stream_index=%1, pts=%2, dts=%3, duration=%4, size=%5")
+                        .arg(stream_index)
+                        .arg(packet->pts)
+                        .arg(packet->dts)
+                        .arg(packet->duration)
+                        .arg(packet->size);
+        // 相同dts会导致av_interleaved_write_frame返回Invalid argument（-22）
          ret = av_interleaved_write_frame(m_oFmtCtx, packet);
     }
     //qDebug() << "av_interleaved_write_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 
-
-    //av_free_packet(&packet);
     av_packet_free(&packet);
     if (ret != 0) {
-		qDebug() << "av_interleaved_write_frame failed, ret:" << ret;
+		//qDebug() << "av_interleaved_write_frame failed, ret:" << ret;
+        qDebug() << QString("stream_index=%1, av_interleaved_write_frame failed: %2").arg(stream_index).arg(FFmpegHelper::err2Str(ret));
         return -1;
     }
     return 0;

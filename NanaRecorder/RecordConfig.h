@@ -14,8 +14,8 @@ enum RecordStatus {
 };
 
 struct VideoCaptureInfo {
-    int width;
-    int height;
+    int           width;  // 输入宽高
+    int           height;
     AVPixelFormat format;
 };
 
@@ -28,14 +28,21 @@ struct AudioCaptureInfo {
 struct RecordConfig {
     friend Singleton<RecordConfig>;
 
-    QString     filePath;
-    int         width;
-    int         height;
-    int         fps;
-    int         audioBitrate;
+    int inWidth; // 输入宽高
+    int inHeight;
 
-    RecordStatus status = Stopped;
-    std::condition_variable cvNotPause;   // 当点击暂停的时候，两个采集线程挂起
+    bool enableAudio;
+    int  audioDeviceIndex; // 0：扬声器，1：麦克风
+    int  channel;
+
+    QString filePath;
+    int     outWidth; // 输出宽高
+    int     outHeight;
+    int     fps;
+    int     audioBitrate;
+
+    RecordStatus            status = Stopped;
+    std::condition_variable cvNotPause;  // 当点击暂停的时候，两个采集线程挂起
     std::mutex              mtxPause;
 };
 

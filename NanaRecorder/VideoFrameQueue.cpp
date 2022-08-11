@@ -116,7 +116,7 @@ FrameItem* VideoFrameQueue::readFrame()
         //m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
         bool notTimeout = m_cvVBufNotEmpty.wait_for(lk, 100ms, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
         if (!notTimeout) {
-            qDebug() << "wait timeout";
+            qDebug() << "Video wait timeout";
             return nullptr;
         }
     }

@@ -7,29 +7,39 @@
 #include "FileOutputer.h"
 #include "FFmpegHelper.h"
 
+#include <util.h>
+
 #include <chrono>
 
 #include <QDateTime>
 #include <QDebug>
+#include <QApplication>
+#include <QDesktopWidget>
 
 using namespace std;
 using namespace std::placeholders;
 using namespace std::chrono;
 
-Recorder::Recorder()
-{
+Recorder::Recorder(const QVariantMap& recordInfo) {
+
+	setRecordInfo(recordInfo);
+
 	m_videoCap = new VideoCapture;
 	m_videoCap->setFrameCb(bind(&Recorder::writeVideoFrameCb, this, _1, _2));
-	m_videoFrameQueue = new VideoFrameQueue;
+    m_videoFrameQueue = new VideoFrameQueue;
 
-    m_audioCap = new AudioCapture;
-    m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
-    m_audioFrameQueue = new AudioFrameQueue;
+    if (g_record.enableAudio) {
+        m_audioCap = new AudioCapture;
+        m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+        m_audioFrameQueue = new AudioFrameQueue;
+    }
 
 	m_outputer = new FileOutputer;
 	m_outputer->setVideoFrameCb(bind(&Recorder::readVideoFrameCb, this));
-    m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
-    m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
+    if (g_record.enableAudio) {
+        m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
+        m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
+    }
 }
 
 Recorder::~Recorder()
@@ -48,12 +58,27 @@ Recorder::~Recorder()
 	}
 }
 
-void Recorder::setRecordInfo()
-{
-	g_record.filePath = "nana.mp4";
-	g_record.width = 1920;
-	g_record.height = 1080;
-	g_record.fps = 25;
+void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
+    g_record.filePath         = "nana.mp4";
+    g_record.inWidth          = util::screenWidth();
+    g_record.inHeight         = util::screenHeight();
+    g_record.outWidth         = recordInfo["outWidth"].toInt();
+    g_record.outHeight        = recordInfo["outHeight"].toInt();
+    g_record.fps              = recordInfo["fps"].toInt();
+    g_record.enableAudio      = recordInfo["enableAudio"].toBool();
+    g_record.audioDeviceIndex = recordInfo["audioDeviceIndex"].toInt();
+    g_record.channel          = recordInfo["channel"].toInt();
+
+    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9")
+                   .arg(g_record.filePath)
+                   .arg(g_record.inWidth)
+                   .arg(g_record.inHeight)
+                   .arg(g_record.outWidth)
+                   .arg(g_record.outHeight)
+                   .arg(g_record.fps)
+                   .arg(g_record.enableAudio)
+                   .arg(g_record.audioDeviceIndex)
+                   .arg(g_record.channel);
 }
 
 /**
@@ -80,12 +105,12 @@ int Recorder::startRecord()
 
 	startCapture();
 	// init
-	m_videoFrameQueue->initBuf(g_record.width, g_record.height, AV_PIX_FMT_YUV420P);
+    m_videoFrameQueue->initBuf(g_record.outWidth, g_record.outHeight, AV_PIX_FMT_YUV420P);
 
 	m_outputer->init();
 
 	// start
-	m_startTime = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+    m_startTime = duration_cast<chrono::/*milliseconds*/ microseconds>(chrono::system_clock::now().time_since_epoch()).count();
     qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
@@ -108,7 +133,9 @@ int Recorder::stopRecord()
 	m_outputer->stop();
 	m_outputer->deinit();
 	m_videoFrameQueue->deinit();
-    m_audioFrameQueue->deinit();
+    if (g_record.enableAudio) {
+        m_audioFrameQueue->deinit();
+    }
 	g_record.status = Stopped;
 	return 0;
 }
@@ -116,21 +143,27 @@ int Recorder::stopRecord()
 void Recorder::startCapture()
 {
 	m_videoCap->startCapture();
-
-	m_audioCap->startCapture();
+    if (g_record.enableAudio) {
+        int ret = m_audioCap->startCapture();
+		// 找不到音频或打开失败
+        if (-1 == ret) {
+            g_record.enableAudio = false;
+		}
+    }
 }
 
 void Recorder::stopCapture()
 {
 	m_videoCap->stopCapture();
-
-	m_audioCap->stopCapture();
+    if (g_record.enableAudio) {
+        m_audioCap->stopCapture();
+    }
 }
 
 void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
 {
 	if (Running == g_record.status) {
-        int64_t now = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+        int64_t now         = duration_cast<chrono::/*milliseconds*/ microseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t captureTime = now - m_startTime;
         m_videoFrameQueue->writeFrame(frame, info, captureTime);
 	}
@@ -142,15 +175,22 @@ FrameItem* Recorder::readVideoFrameCb()
 }
 
 void Recorder::initAudioBufCb(AVCodecContext* encodeCtx) {
-    m_audioFrameQueue->initBuf(encodeCtx);
+    if (m_audioFrameQueue) {
+        m_audioFrameQueue->initBuf(encodeCtx);
+    }
 }
 
 void Recorder::writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info) {
     if (Running == g_record.status) {
-        m_audioFrameQueue->writeFrame(frame, info);
+        if (m_audioFrameQueue) {
+            m_audioFrameQueue->writeFrame(frame, info);
+        }
     }
 }
 
 AVFrame* Recorder::readAudioFrameCb() {
-    return m_audioFrameQueue->readFrame();
+    if (m_audioFrameQueue) {
+        return m_audioFrameQueue->readFrame();
+    }
+    return nullptr;
 }

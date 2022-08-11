@@ -3,6 +3,8 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_NanaRecorder.h"
 
+#include <QTime>
+
 class Recorder;
 
 class QTimer;
@@ -18,9 +20,12 @@ private slots:
     void startBtnClicked();
     void stopBtnClicked();
     void updateTime();
+    void updateRecordTime();
 
 private:
     Ui::NanaRecorderClass ui;
-    Recorder* m_recorder = nullptr;
-    QTimer* m_timer = nullptr;
+    Recorder*             m_recorder = nullptr;
+    QTimer*               m_timer    = nullptr;
+    QTimer*               m_recordTimer = nullptr;
+    int                   m_totalTimeSec = 0;
 };

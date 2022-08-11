@@ -67,7 +67,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
         m_swrCtx = swr_alloc();
         if (!m_swrCtx) return -1;
-        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", m_audioCapInfo.channelLayout /*AV_CH_LAYOUT_STEREO*/, 0);
+        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", m_audioCapInfo.channelLayout, 0);
         av_opt_set_channel_layout(m_swrCtx, "out_channel_layout", m_channelLayout, 0);
         av_opt_set_int(m_swrCtx, "in_sample_rate", m_audioCapInfo.sampleRate, 0);
         av_opt_set_int(m_swrCtx, "out_sample_rate", m_sampleRate, 0);
@@ -88,18 +88,21 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
     }
 
     if (dst_nb_samples > m_resampleBufSize) {
-        //for (int i = 0; i < m_channelNum; ++i) {
-        //    qDebug() << "dump 1-1-1";
-        //    if (m_resampleBuf[i]) {
-        //        av_freep(&m_resampleBuf[i]);
-        //    }
-        //    qDebug() << "dump 1-1-2";
-        //}
-        
+#if 0
+        // FIXME: bug
+        for (int i = 0; i < m_channelNum; ++i) {
+            qDebug() << "dump 1-1-1";
+            if (m_resampleBuf[i]) {
+                av_freep(&m_resampleBuf[i]);
+            }
+            qDebug() << "dump 1-1-2";
+        }
+#else
         if (m_resampleBuf[0]) {
             // 整个buf都会被释放，不需要掉各个通道单独free
             av_freep(&m_resampleBuf[0]);
-        } 
+        }
+#endif
         
         ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
         if (ret < 0) {
@@ -137,7 +140,7 @@ AVFrame* AudioFrameQueue::readFrame() {
         unique_lock<mutex> lk(m_mtxABuf);
         bool               notTimeout = m_cvABufNotEmpty.wait_for(lk, 100ms, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_aOutFrame->nb_samples; });
         if (!notTimeout) {
-            qDebug() << "wait timeout";
+            qDebug() << "Audio wait timeout";
             return nullptr;
         }
     }

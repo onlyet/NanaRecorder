@@ -19,7 +19,7 @@ public:
 
 private:
     bool                        m_isInit = false;
-    int                         m_width;
+    int                         m_width; // Êä³ö¿í¸ß
     int                         m_height;
     AVPixelFormat               m_format;
     AVFifoBuffer*               m_vFifoBuf = nullptr;

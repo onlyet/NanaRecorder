@@ -1,10 +1,12 @@
-#include "AudioCapture.h"
+ï»¿#include "AudioCapture.h"
 #include "RecordConfig.h"
 #include "FFmpegHelper.h"
 
 #include <QDebug>
 
 #include <string>
+
+#include <Windows.h>
 
 using namespace std;
 
@@ -32,17 +34,25 @@ int AudioCapture::stopCapture() {
     return 0;
 }
 
-int AudioCapture::initCapture() {
-    int ret                = -1;
-    AVDictionary* options  = nullptr;
-    AVCodec* decoder       = nullptr;
-    AVInputFormat* ifmt    = av_find_input_format("dshow");
-    string audioDeviceName = FFmpegHelper::getAudioDevice(2);
 
-    if (avformat_open_input(&m_aFmtCtx, audioDeviceName.c_str(), ifmt, &options) != 0) {
-        char errbuf[1024] = {0};
-        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qDebug() << "Auido avformat_open_input failed:" << errbuf;
+
+
+int AudioCapture::initCapture() {
+    int            ret     = -1;
+    AVDictionary*  options = nullptr;
+    AVCodec*       decoder = nullptr;
+    AVInputFormat* ifmt    = av_find_input_format("dshow");
+
+#if 1
+    string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));
+#else
+    string audioDeviceName = FFmpegHelper::getAudioDevice(AudioCaptureDevice_Microphone);
+#endif
+    if ("" == audioDeviceName) {
+        return -1;
+    }
+    if ((ret = avformat_open_input(&m_aFmtCtx, audioDeviceName.c_str(), ifmt, &options)) != 0) {
+        qDebug() << "Auido avformat_open_input failed:" << FFmpegHelper::err2Str(ret);
         return -1;
     }
     if (avformat_find_stream_info(m_aFmtCtx, nullptr) < 0) {
@@ -57,7 +67,7 @@ int AudioCapture::initCapture() {
                 qDebug() << "can not find decoder";
                 return -1;
             }
-            //´ÓÒôÆµÁ÷ÖÐ¿½±´²ÎÊýµ½codecCtx
+            //ä»ŽéŸ³é¢‘æµä¸­æ‹·è´å‚æ•°åˆ°codecCtx
             m_aDecodeCtx = avcodec_alloc_context3(decoder);
             if ((ret = avcodec_parameters_to_context(m_aDecodeCtx, stream->codecpar)) < 0) {
                 qDebug() << "Audio avcodec_parameters_to_context failed,error code: " << ret;
@@ -136,7 +146,7 @@ void AudioCapture::audioCaptureThreadProc() {
         av_packet_unref(&pkt);
 
         AudioCaptureInfo info;
-        // ÊÖ¶¯ÉèÖÃ²¼¾Ö£¬ÒòÎª´ÓÁ÷ÖÐ»ñÈ¡µÄÍ¨µÀ²¼¾ÖÊÇ0
+        // æ‰‹åŠ¨è®¾ç½®å¸ƒå±€ï¼Œå› ä¸ºä»Žæµä¸­èŽ·å–çš„é€šé“å¸ƒå±€æ˜¯0
         info.channelLayout = /*m_aDecodeCtx->channel_layout*/ AV_CH_LAYOUT_STEREO;
         info.format        = m_aDecodeCtx->sample_fmt;
         info.sampleRate    = m_aDecodeCtx->sample_rate;

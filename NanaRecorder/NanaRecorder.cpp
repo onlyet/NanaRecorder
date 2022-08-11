@@ -19,20 +19,52 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
     m_timer->start(1000);
 
+    m_recordTimer = new QTimer(this);
+    connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
+    ui.durationLabel->setText("00:00:00");
     qDebug() << "av_version_info:" << av_version_info();
+
+    ui.videoCheckBox->setEnabled(false);
+    ui.audioComboBox->setEnabled(false);
+    ui.channelComboBox->setEnabled(false);
+    connect(ui.audioCheckBox, &QCheckBox::stateChanged, [this](int state) {
+        bool checked = ui.audioCheckBox->isChecked();
+        ui.audioComboBox->setEnabled(checked);
+        ui.channelComboBox->setEnabled(checked);
+    });
 }
 
 void NanaRecorder::startBtnClicked()
 {
+    m_totalTimeSec = 0;
+    ui.durationLabel->setText("00:00:00");
+    m_recordTimer->start(1000);
     if (!m_recorder) {
-        m_recorder = new Recorder;
-        m_recorder->setRecordInfo();
+        QString     c = ui.channelComboBox->currentText();
+        QVariantMap info;
+        QString resolution = ui.resolutionComboBox->currentText();
+        QStringList sl = resolution.split('x');
+        if (2 != sl.length()) {
+            return;
+        }
+        info.insert("outWidth", sl.first());
+        info.insert("outHeight", sl.last());
+        info.insert("fps", ui.fpsComboBox->currentText());
+        
+        bool        enableAudio = ui.audioCheckBox->isChecked();
+        info.insert("enableAudio", enableAudio);
+        if (enableAudio) {
+            info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
+            info.insert("channel", ui.channelComboBox->currentText());
+        }
+        m_recorder = new Recorder(info);
     }
     m_recorder->startRecord();
 }
 
 void NanaRecorder::stopBtnClicked()
 {
+    m_recordTimer->stop();
     m_recorder->stopRecord();
     if (m_recorder) {
         delete m_recorder;
@@ -45,4 +77,15 @@ void NanaRecorder::updateTime()
     static QDateTime dt;
     dt = QDateTime::currentDateTime();
     ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
+}
+
+void NanaRecorder::updateRecordTime() {
+    m_totalTimeSec += 1;
+    int     hour         = m_totalTimeSec / 3600;
+    QString hourString   = hour < 10 ? QString("0%1").arg(hour) : QString::number(hour);
+    int     min          = m_totalTimeSec % 3600 / 60;
+    QString minString    = min < 10 ? QString("0%1").arg(min) : QString::number(min);
+    int     second       = m_totalTimeSec % 60;
+    QString secondString = second < 10 ? QString("0%1").arg(second) : QString::number(second);
+    ui.durationLabel->setText(QString("%1:%2:%3").arg(hourString).arg(minString).arg(secondString));
 }

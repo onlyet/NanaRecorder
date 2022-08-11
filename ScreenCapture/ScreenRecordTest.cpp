@@ -14,6 +14,7 @@ ScreenRecord::ScreenRecord(QObject *parent) :
     //args["height"] = 1080;
     args["width"] = QApplication::desktop()->screenGeometry().width();
     args["height"] = QApplication::desktop()->screenGeometry().height();
+    args["fps"]          = 25;
     args["audioBitrate"] = 128000;
 
     sr->Init(args);
