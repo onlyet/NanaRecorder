@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include <QApplication>
 #include "ScreenRecordImpl.h"
 #include "ScreenRecordTest.h"

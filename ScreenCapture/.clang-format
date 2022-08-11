@@ -1,4 +1,4 @@
-# 基于GNU格式
+# 基于Google格式
 BasedOnStyle: Google
 # 使用支持的最新标准
 Standard: Latest
@@ -22,10 +22,13 @@ IndentCaseLabels: true
 # 初始化列表左右侧不留空格
 Cpp11BracedListStyle: true
 
-
+# 连续声明时，对齐所有声明的变量名
+AlignConsecutiveDeclarations: true
 # 让多行的等式以等号对齐
 AlignConsecutiveAssignments: true
 
 UseTab: Never
 TabWidth: 4
 AllowShortIfStatementsOnASingleLine: true
+# 命名空间里的函数缩进
+NamespaceIndentation: All

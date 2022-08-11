@@ -148,39 +148,6 @@ static void outputMessage(QtMsgType type, const QMessageLogContext &context, con
 
     //std::cout << message.toLocal8Bit().constData() << std::endl;
 
-#if 0
-    if (message.contains(/*QStringLiteral(*/"服务器时间"/*)*/))
-    {
-        writeLog(message, "http");
-        return;
-    }
-    if ("xffmpeg.cpp" == fileText || funcText.contains("FFmpegLogFunc"))
-    {
-        writeLog(message, "ffmpeg");
-        return;
-    }
-	if (fileText.contains("ftp", Qt::CaseInsensitive))
-	{
-		writeLog(message, "ftp");
-		return;
-	}
-    if ("cserver.cpp" == fileText)
-    {
-        writeLog(message, "tcpServer");
-        return;
-    }
-    if ("tcpclient.cpp" == fileText)
-    {
-        writeLog(message, "tcpClient");
-        return;
-    }
-#endif
-    if ("chttpclient.cpp" == fileText || message.contains("HTTPLog"))
-    {
-        writeLog(message, "http");
-        return;
-    }
-
     writeLog(message);
 }
 
@@ -210,41 +177,7 @@ void LogInit(const QString &logDir /*= QString()*/, const QString &logVer = QStr
           "\r\n    +---------------------------------+",
           qPrintable(logName), qPrintable(logVer));
 
-    QString s = QString("\r\n\r\n"
-        "\r\n    +---------------------------------+"
-        "\r\n    +  %1 Start.  V %2"
-        "\r\n    +---------------------------------+"
-        "\r\n")
-        .arg(qPrintable(logName)).arg(qPrintable(logVer));
-
-    writeLog(s, "http");
-#if 0
-    writeLog(s, "ffmpeg");
-    writeLog(s, "tcpServer");
-    writeLog(s, "tcpClient");
-    writeLog(s, "ftp");
-#endif
-
     qDebug() << "Qt version: " << qVersion();
 }
-
-#if 0
-// 只对版本更新程序写入日志
-void LogInitV2(const QString &logName = QString(), const QString &logVer = QString())
-{
-    if (!logName.isEmpty()) s_LogName = logName;
-    if (!logVer.isEmpty()) s_LogVer = logVer;
-    makeLogDir();
-    qInstallMessageHandler(outputMessage);
-
-    qInfo(); qInfo(); qInfo();
-    qInfo("\r\n    +---------------------------------+"
-        "\r\n    +  %s Start.  V %s"
-        "\r\n    +---------------------------------+",
-        qPrintable(logName), qPrintable(logVer));
-
-    qDebug() << "Qt version: " << qVersion();
-}
-#endif
 
 #endif // LOG_H
