@@ -42,7 +42,7 @@ int AudioCapture::initCapture() {
     AVDictionary*  options = nullptr;
     AVCodec*       decoder = nullptr;
     AVInputFormat* ifmt    = av_find_input_format("dshow");
-#if 0
+#if 1
     string         audioDeviceName = FFmpegHelper::getAudioDevice(AudioCaptureDevice_Speaker);
 #else
     string audioDeviceName = FFmpegHelper::getAudioDevice(AudioCaptureDevice_Microphone);

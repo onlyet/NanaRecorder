@@ -140,7 +140,7 @@ AVFrame* AudioFrameQueue::readFrame() {
         unique_lock<mutex> lk(m_mtxABuf);
         bool               notTimeout = m_cvABufNotEmpty.wait_for(lk, 100ms, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_aOutFrame->nb_samples; });
         if (!notTimeout) {
-            qDebug() << "wait timeout";
+            qDebug() << "Audio wait timeout";
             return nullptr;
         }
     }

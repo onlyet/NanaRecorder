@@ -169,7 +169,7 @@ void FileOutputer::encodeAudioAndMux() {
 
         if (m_audioPackets.empty()) return;
 
-        int64_t now         = duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+        int64_t now         = duration_cast<chrono::/*milliseconds*/ microseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t captureTime = now - m_startTime;
 
         for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, &captureTime](AVPacket* packet) {
