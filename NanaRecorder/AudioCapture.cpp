@@ -42,11 +42,15 @@ int AudioCapture::initCapture() {
     AVDictionary*  options = nullptr;
     AVCodec*       decoder = nullptr;
     AVInputFormat* ifmt    = av_find_input_format("dshow");
+
 #if 1
-    string         audioDeviceName = FFmpegHelper::getAudioDevice(AudioCaptureDevice_Speaker);
+    string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));
 #else
     string audioDeviceName = FFmpegHelper::getAudioDevice(AudioCaptureDevice_Microphone);
 #endif
+    if ("" == audioDeviceName) {
+        return -1;
+    }
     if ((ret = avformat_open_input(&m_aFmtCtx, audioDeviceName.c_str(), ifmt, &options)) != 0) {
         qDebug() << "Auido avformat_open_input failed:" << FFmpegHelper::err2Str(ret);
         return -1;

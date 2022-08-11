@@ -33,6 +33,7 @@ private:
     void encodeAudioAndMux();
 
 private:
+    bool                                 m_enableAudio;
     std::function<FrameItem*()>          m_videoFrameCb;
     std::function<void(AVCodecContext*)> m_initAudioBufCb;
     std::function<AVFrame*()>            m_audioFrameCb;

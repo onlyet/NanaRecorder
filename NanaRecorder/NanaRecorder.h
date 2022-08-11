@@ -26,7 +26,6 @@ private:
     Ui::NanaRecorderClass ui;
     Recorder*             m_recorder = nullptr;
     QTimer*               m_timer    = nullptr;
-    //QTime                 m_recordTime;
     QTimer*               m_recordTimer = nullptr;
     int                   m_totalTimeSec = 0;
 };

@@ -28,14 +28,18 @@ struct AudioCaptureInfo {
 struct RecordConfig {
     friend Singleton<RecordConfig>;
 
-    QString     filePath;
-    int         width;
-    int         height;
-    int         fps;
-    int         audioBitrate;
+    bool enableAudio;
+    int  audioDeviceIndex;
+    int  channel;
 
-    RecordStatus status = Stopped;
-    std::condition_variable cvNotPause;   // 当点击暂停的时候，两个采集线程挂起
+    QString filePath;
+    int     width;
+    int     height;
+    int     fps;
+    int     audioBitrate;
+
+    RecordStatus            status = Stopped;
+    std::condition_variable cvNotPause;  // 当点击暂停的时候，两个采集线程挂起
     std::mutex              mtxPause;
 };
 

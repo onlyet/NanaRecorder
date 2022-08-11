@@ -19,8 +19,11 @@ using namespace std::chrono;
 
 FileOutputer::FileOutputer()
 {
+    m_enableAudio  = g_record.enableAudio;
     m_videoEncoder = new VideoEncoder;
-    m_audioEncoder = new AudioEncoder;
+    if (m_enableAudio) {
+        m_audioEncoder = new AudioEncoder;
+    }
     m_mux = new Mux;
 }
 
@@ -47,7 +50,9 @@ int FileOutputer::init()
     string filename = g_record.filePath.toStdString();
     m_mux->init(filename);
     m_mux->addStream(m_videoEncoder->codecCtx());
-    m_mux->addStream(m_audioEncoder->codecCtx());
+    if (m_audioEncoder) {
+        m_mux->addStream(m_audioEncoder->codecCtx());
+    }
     m_mux->writeHeader();
     m_isInit = true;
     return 0;
@@ -70,8 +75,10 @@ int FileOutputer::start(int64_t startTime) {
     thread vt(bind(&FileOutputer::outputVideoThreadProc, this));
     m_outputVideoThread.swap(vt);
 
-   thread at(bind(&FileOutputer::outputAudioThreadProc, this));
-    m_outputAudioThread.swap(at);
+    if (m_enableAudio) {
+        thread at(bind(&FileOutputer::outputAudioThreadProc, this));
+        m_outputAudioThread.swap(at);
+    }
    return 0;
 }
 
@@ -81,7 +88,7 @@ int FileOutputer::stop()
     if (m_outputVideoThread.joinable()) {
         m_outputVideoThread.join();
     }
-    if (m_outputAudioThread.joinable()) {
+    if (m_enableAudio && m_outputAudioThread.joinable()) {
         m_outputAudioThread.join();
     }
     return 0;
@@ -93,7 +100,9 @@ void FileOutputer::openEncoder() {
 
     if (!m_audioEncoder) return;
     m_audioEncoder->initAAC();
-    m_initAudioBufCb(m_audioEncoder->codecCtx());
+    if (m_initAudioBufCb) {
+        m_initAudioBufCb(m_audioEncoder->codecCtx());
+    }
 }
 
 void FileOutputer::closeEncoder()
@@ -101,7 +110,9 @@ void FileOutputer::closeEncoder()
     if (!m_videoEncoder) return;
     m_videoEncoder->deinit();
 
-    m_audioEncoder->deinit();
+    if (m_audioEncoder) {
+        m_audioEncoder->deinit();
+    }
 }
 
 void FileOutputer::outputVideoThreadProc()

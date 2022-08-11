@@ -16,20 +16,26 @@ using namespace std;
 using namespace std::placeholders;
 using namespace std::chrono;
 
-Recorder::Recorder()
-{
+Recorder::Recorder(const QVariantMap& recordInfo) {
+
+	setRecordInfo(recordInfo);
+
 	m_videoCap = new VideoCapture;
 	m_videoCap->setFrameCb(bind(&Recorder::writeVideoFrameCb, this, _1, _2));
-	m_videoFrameQueue = new VideoFrameQueue;
+    m_videoFrameQueue = new VideoFrameQueue;
 
-    m_audioCap = new AudioCapture;
-    m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
-    m_audioFrameQueue = new AudioFrameQueue;
+    if (g_record.enableAudio) {
+        m_audioCap = new AudioCapture;
+        m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+        m_audioFrameQueue = new AudioFrameQueue;
+    }
 
 	m_outputer = new FileOutputer;
 	m_outputer->setVideoFrameCb(bind(&Recorder::readVideoFrameCb, this));
-    m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
-    m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
+    if (g_record.enableAudio) {
+        m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
+        m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
+    }
 }
 
 Recorder::~Recorder()
@@ -48,12 +54,15 @@ Recorder::~Recorder()
 	}
 }
 
-void Recorder::setRecordInfo()
-{
+void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
 	g_record.filePath = "nana.mp4";
 	g_record.width = 1920;
 	g_record.height = 1080;
 	g_record.fps = 25;
+
+    g_record.enableAudio      = recordInfo["enableAudio"].toBool();
+    g_record.audioDeviceIndex = recordInfo["audioDeviceIndex"].toInt();
+    g_record.channel          = recordInfo["channel"].toInt();
 }
 
 /**
@@ -108,7 +117,9 @@ int Recorder::stopRecord()
 	m_outputer->stop();
 	m_outputer->deinit();
 	m_videoFrameQueue->deinit();
-    m_audioFrameQueue->deinit();
+    if (g_record.enableAudio) {
+        m_audioFrameQueue->deinit();
+    }
 	g_record.status = Stopped;
 	return 0;
 }
@@ -116,15 +127,17 @@ int Recorder::stopRecord()
 void Recorder::startCapture()
 {
 	m_videoCap->startCapture();
-
-	m_audioCap->startCapture();
+    if (g_record.enableAudio) {
+        m_audioCap->startCapture();
+    }
 }
 
 void Recorder::stopCapture()
 {
 	m_videoCap->stopCapture();
-
-	m_audioCap->stopCapture();
+    if (g_record.enableAudio) {
+        m_audioCap->stopCapture();
+    }
 }
 
 void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
@@ -142,15 +155,22 @@ FrameItem* Recorder::readVideoFrameCb()
 }
 
 void Recorder::initAudioBufCb(AVCodecContext* encodeCtx) {
-    m_audioFrameQueue->initBuf(encodeCtx);
+    if (m_audioFrameQueue) {
+        m_audioFrameQueue->initBuf(encodeCtx);
+    }
 }
 
 void Recorder::writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info) {
     if (Running == g_record.status) {
-        m_audioFrameQueue->writeFrame(frame, info);
+        if (m_audioFrameQueue) {
+            m_audioFrameQueue->writeFrame(frame, info);
+        }
     }
 }
 
 AVFrame* Recorder::readAudioFrameCb() {
-    return m_audioFrameQueue->readFrame();
+    if (m_audioFrameQueue) {
+        return m_audioFrameQueue->readFrame();
+    }
+    return nullptr;
 }

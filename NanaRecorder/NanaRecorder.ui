@@ -6,17 +6,42 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>145</height>
+    <width>410</width>
+    <height>241</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>NanaRecorder</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QLabel {
+font-size: 14px;
+font-family: PingFangSC-Regular, PingFang SC;
+font-weight: 400;
+color: #3A3A3A;
+line-height: 28px;
+}
+
+QCheckBox {
+font-size: 14px;
+font-family: PingFangSC-Regular, PingFang SC;
+font-weight: 400;
+color: #3A3A3A;
+line-height: 28px;
+}
+
+QPushButton {
+font-size: 18px;
+font-family: PingFangSC-Regular, PingFang SC;
+font-weight: 400;
+color: #3A3A3A;
+line-height: 28px;
+}</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
     <property name="spacing">
-     <number>6</number>
+     <number>0</number>
     </property>
     <property name="leftMargin">
      <number>0</number>
@@ -31,43 +56,213 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QPushButton" name="startBtn">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>开始</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="stopBtn">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>结束</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="durationLabel">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLabel
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QFrame" name="frame_2">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>70</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="videoCheckBox">
+            <property name="text">
+             <string>录制视频</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="audioCheckBox">
+            <property name="text">
+             <string>录制音频</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="audioComboBox">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+            <item>
+             <property name="text">
+              <string>扬声器（您听到的声音）</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>麦克风</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>帧率</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox_2">
+              <property name="currentIndex">
+               <number>3</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>15</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>20</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>25</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>分辨率</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox">
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="currentText">
+               <string>1920x1080</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>1920x1080</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>1280x720</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>通道数</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="channelComboBox">
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>2</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="startBtn">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>开始</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stopBtn">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>结束</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="durationLabel">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel
 {
 font-size: 20px;
 font-family: PingFangSC-Regular, PingFang SC;
@@ -75,33 +270,33 @@ font-weight: 400;
 color: blue;
 line-height: 22px;
 }</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QLabel" name="timeLabel">
-      <property name="minimumSize">
-       <size>
-        <width>250</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QLabel
+           </property>
+           <property name="text">
+            <string>00:00:00</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="timeLabel">
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel
 {
 font-size: 20px;
 font-family: PingFangSC-Regular, PingFang SC;
@@ -109,13 +304,16 @@ font-weight: 400;
 color: green;
 line-height: 22px;
 }</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -125,7 +323,7 @@ line-height: 22px;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>362</width>
+     <width>410</width>
      <height>23</height>
     </rect>
    </property>

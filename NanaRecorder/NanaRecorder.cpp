@@ -23,6 +23,8 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
     ui.durationLabel->setText("00:00:00");
     qDebug() << "av_version_info:" << av_version_info();
+
+    ui.videoCheckBox->setEnabled(false);
 }
 
 void NanaRecorder::startBtnClicked()
@@ -30,10 +32,15 @@ void NanaRecorder::startBtnClicked()
     m_totalTimeSec = 0;
     ui.durationLabel->setText("00:00:00");
     m_recordTimer->start(1000);
-    //m_recordTime = QTime::currentTime();
     if (!m_recorder) {
-        m_recorder = new Recorder;
-        m_recorder->setRecordInfo();
+        QVariantMap info;
+        bool        enableAudio = ui.audioCheckBox->isChecked();
+        info.insert("enableAudio", enableAudio);
+        if (enableAudio) {
+            info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
+            info.insert("channel", ui.channelComboBox->currentText());
+        }
+        m_recorder = new Recorder(info);
     }
     m_recorder->startRecord();
 }

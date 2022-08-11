@@ -2,6 +2,7 @@
 
 #include "FFmpegHeader.h"
 
+#include <QVariant>
 
 class VideoCapture;
 class VideoFrameQueue;
@@ -18,10 +19,10 @@ class FileOutputer;
 class Recorder
 {
 public:
-	Recorder();
+    Recorder(const QVariantMap& recordInfo);
 	~Recorder();
 
-	void setRecordInfo();
+	void setRecordInfo(const QVariantMap& recordInfo);
 	int startRecord();
 	int pauseRecord();
 	int stopRecord();
@@ -43,6 +44,6 @@ private:
     AudioCapture*    m_audioCap        = nullptr;
     AudioFrameQueue* m_audioFrameQueue = nullptr;
     FileOutputer*    m_outputer        = nullptr;
-    int64_t          m_startTime;
+    int64_t          m_startTime       = -1;
 };
 
