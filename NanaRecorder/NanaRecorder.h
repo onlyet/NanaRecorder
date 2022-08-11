@@ -19,13 +19,13 @@ public:
 private slots:
     void startBtnClicked();
     void stopBtnClicked();
-    void updateTime();
+    //void updateTime();
     void updateRecordTime();
 
 private:
     Ui::NanaRecorderClass ui;
     Recorder*             m_recorder = nullptr;
-    QTimer*               m_timer    = nullptr;
+    //QTimer*               m_timer    = nullptr;
     QTimer*               m_recordTimer = nullptr;
     int                   m_totalTimeSec = 0;
 };
