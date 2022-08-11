@@ -67,7 +67,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
         m_swrCtx = swr_alloc();
         if (!m_swrCtx) return -1;
-        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", m_audioCapInfo.channelLayout /*AV_CH_LAYOUT_STEREO*/, 0);
+        av_opt_set_channel_layout(m_swrCtx, "in_channel_layout", m_audioCapInfo.channelLayout, 0);
         av_opt_set_channel_layout(m_swrCtx, "out_channel_layout", m_channelLayout, 0);
         av_opt_set_int(m_swrCtx, "in_sample_rate", m_audioCapInfo.sampleRate, 0);
         av_opt_set_int(m_swrCtx, "out_sample_rate", m_sampleRate, 0);

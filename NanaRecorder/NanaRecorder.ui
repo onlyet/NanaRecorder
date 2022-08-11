@@ -129,7 +129,7 @@ line-height: 28px;
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboBox_2">
+             <widget class="QComboBox" name="fpsComboBox">
               <property name="currentIndex">
                <number>3</number>
               </property>
@@ -170,7 +170,7 @@ line-height: 28px;
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboBox">
+             <widget class="QComboBox" name="resolutionComboBox">
               <property name="minimumSize">
                <size>
                 <width>80</width>
@@ -188,6 +188,11 @@ line-height: 28px;
               <item>
                <property name="text">
                 <string>1280x720</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>1366x768</string>
                </property>
               </item>
              </widget>

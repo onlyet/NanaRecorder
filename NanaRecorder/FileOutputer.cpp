@@ -96,7 +96,7 @@ int FileOutputer::stop()
 
 void FileOutputer::openEncoder() {
     if (!m_videoEncoder) return;
-    m_videoEncoder->initH264(g_record.width, g_record.height, g_record.fps);
+    m_videoEncoder->initH264(g_record.outWidth, g_record.outHeight, g_record.fps);
 
     if (!m_audioEncoder) return;
     m_audioEncoder->initAAC();

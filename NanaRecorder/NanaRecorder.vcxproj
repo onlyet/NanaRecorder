@@ -91,7 +91,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -101,7 +101,7 @@
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -188,6 +188,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\dump\dump.cpp" />
+    <ClCompile Include="..\common\util\util.cpp" />
     <ClCompile Include="AudioCapture.cpp" />
     <ClCompile Include="AudioEncoder.cpp" />
     <ClCompile Include="AudioFrameQueue.cpp" />
@@ -207,6 +208,7 @@
   <ItemGroup>
     <ClInclude Include="..\common\dump\dump.h" />
     <ClInclude Include="..\common\log\log.h" />
+    <ClInclude Include="..\common\util\util.h" />
     <ClInclude Include="AudioCapture.h" />
     <ClInclude Include="AudioEncoder.h" />
     <ClInclude Include="AudioFrameQueue.h" />

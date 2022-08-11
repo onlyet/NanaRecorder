@@ -55,14 +55,14 @@ int VideoCapture::stopCapture()
 int VideoCapture::initCapture()
 {
     int fps = g_record.fps;
-    int width = g_record.width;
-    int height = g_record.height;
+    int inWidth = g_record.inWidth;
+    int inHeight = g_record.inHeight;
 
     int ret = -1;
     AVDictionary* options = nullptr;
     AVCodec* decoder = nullptr;
     AVInputFormat* ifmt       = av_find_input_format(VIDEO_DEVICE_FORMAT);
-    string         resolution = QString("%1x%2").arg(width).arg(height).toStdString();
+    string         resolution = QString("%1x%2").arg(inWidth).arg(inHeight).toStdString();
 
     av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str(), NULL);
     av_dict_set(&options, "video_size", resolution.c_str(), 0);
@@ -129,9 +129,6 @@ void VideoCapture::videoCaptureThreadProc()
         qDebug() << "m_frameCb empty, thread exit";
         return;
     }
-
-    int width = g_record.width;
-    int height = g_record.height;
 
     int ret = -1;
     AVPacket pkt = { 0 };

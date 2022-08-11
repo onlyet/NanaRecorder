@@ -25,6 +25,13 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     qDebug() << "av_version_info:" << av_version_info();
 
     ui.videoCheckBox->setEnabled(false);
+    ui.audioComboBox->setEnabled(false);
+    ui.channelComboBox->setEnabled(false);
+    connect(ui.audioCheckBox, &QCheckBox::stateChanged, [this](int state) {
+        bool checked = ui.audioCheckBox->isChecked();
+        ui.audioComboBox->setEnabled(checked);
+        ui.channelComboBox->setEnabled(checked);
+    });
 }
 
 void NanaRecorder::startBtnClicked()
@@ -33,7 +40,17 @@ void NanaRecorder::startBtnClicked()
     ui.durationLabel->setText("00:00:00");
     m_recordTimer->start(1000);
     if (!m_recorder) {
+        QString     c = ui.channelComboBox->currentText();
         QVariantMap info;
+        QString resolution = ui.resolutionComboBox->currentText();
+        QStringList sl = resolution.split('x');
+        if (2 != sl.length()) {
+            return;
+        }
+        info.insert("outWidth", sl.first());
+        info.insert("outHeight", sl.last());
+        info.insert("fps", ui.fpsComboBox->currentText());
+        
         bool        enableAudio = ui.audioCheckBox->isChecked();
         info.insert("enableAudio", enableAudio);
         if (enableAudio) {

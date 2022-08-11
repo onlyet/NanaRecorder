@@ -1,8 +1,11 @@
 #include "AudioEncoder.h"
+#include "RecordConfig.h"
 
 #include <QDebug>
 
 int AudioEncoder::initAAC() {
+    m_channel = g_record.channel;
+
     m_aEncodeCtx = avcodec_alloc_context3(NULL);
     if (nullptr == m_aEncodeCtx) {
         qDebug() << "avcodec_alloc_context3 failed";
@@ -14,8 +17,8 @@ int AudioEncoder::initAAC() {
     m_aEncodeCtx->sample_fmt     = AV_SAMPLE_FMT_FLTP;
     m_aEncodeCtx->codec_id       = AV_CODEC_ID_AAC;
     m_aEncodeCtx->sample_rate    = 44100;
-    m_aEncodeCtx->channel_layout = AV_CH_LAYOUT_STEREO;
-    m_aEncodeCtx->channels       = av_get_channel_layout_nb_channels(m_aEncodeCtx->channel_layout);
+    m_aEncodeCtx->channel_layout = /*AV_CH_LAYOUT_STEREO*/ av_get_default_channel_layout(m_channel);
+    m_aEncodeCtx->channels       = /*av_get_channel_layout_nb_channels(m_aEncodeCtx->channel_layout)*/ m_channel;
     //ÕýÈ·ÉèÖÃsps/pps
     m_aEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 

@@ -13,4 +13,5 @@ public:
 private:
     AVCodecContext* m_aEncodeCtx = nullptr;
     AVDictionary*   m_dict       = nullptr;
+    int             m_channel;
 };

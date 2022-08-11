@@ -7,10 +7,14 @@
 #include "FileOutputer.h"
 #include "FFmpegHelper.h"
 
+#include <util.h>
+
 #include <chrono>
 
 #include <QDateTime>
 #include <QDebug>
+#include <QApplication>
+#include <QDesktopWidget>
 
 using namespace std;
 using namespace std::placeholders;
@@ -55,14 +59,26 @@ Recorder::~Recorder()
 }
 
 void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
-	g_record.filePath = "nana.mp4";
-	g_record.width = 1920;
-	g_record.height = 1080;
-	g_record.fps = 25;
-
+    g_record.filePath         = "nana.mp4";
+    g_record.inWidth          = util::screenWidth();
+    g_record.inHeight         = util::screenHeight();
+    g_record.outWidth         = recordInfo["outWidth"].toInt();
+    g_record.outHeight        = recordInfo["outHeight"].toInt();
+    g_record.fps              = recordInfo["fps"].toInt();
     g_record.enableAudio      = recordInfo["enableAudio"].toBool();
     g_record.audioDeviceIndex = recordInfo["audioDeviceIndex"].toInt();
     g_record.channel          = recordInfo["channel"].toInt();
+
+    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9")
+                   .arg(g_record.filePath)
+                   .arg(g_record.inWidth)
+                   .arg(g_record.inHeight)
+                   .arg(g_record.outWidth)
+                   .arg(g_record.outHeight)
+                   .arg(g_record.fps)
+                   .arg(g_record.enableAudio)
+                   .arg(g_record.audioDeviceIndex)
+                   .arg(g_record.channel);
 }
 
 /**
@@ -89,7 +105,7 @@ int Recorder::startRecord()
 
 	startCapture();
 	// init
-	m_videoFrameQueue->initBuf(g_record.width, g_record.height, AV_PIX_FMT_YUV420P);
+    m_videoFrameQueue->initBuf(g_record.outWidth, g_record.outHeight, AV_PIX_FMT_YUV420P);
 
 	m_outputer->init();
 
