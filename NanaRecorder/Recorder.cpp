@@ -128,7 +128,11 @@ void Recorder::startCapture()
 {
 	m_videoCap->startCapture();
     if (g_record.enableAudio) {
-        m_audioCap->startCapture();
+        int ret = m_audioCap->startCapture();
+		// 找不到音频或打开失败
+        if (-1 == ret) {
+            g_record.enableAudio = false;
+		}
     }
 }
 

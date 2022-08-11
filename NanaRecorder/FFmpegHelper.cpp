@@ -5,8 +5,11 @@
 
 #include <QDebug>
 
+#include <unordered_set>
+
 #define CAPTURE_SPEAKER_NAME "virtual-audio-capturer"
-#define CAPTURE_MICROPHONE_NAME "麦克风"
+#define CAPTURE_MICROPHONE_NAME1 "麦克风"
+#define CAPTURE_MICROPHONE_NAME2 "Microphone"
 
 using namespace std;
 
@@ -56,6 +59,8 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     string ret;
     GUID guid;
     char   sName[256] = {0};
+    unordered_set<string> audioDevSet;
+
 #if 0
     if (1 == id) {
         guid = CLSID_AudioRendererCategory;
@@ -67,11 +72,11 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     guid = CLSID_AudioInputDeviceCategory;
 #endif
 
-    string captureDevice;
     if (AudioCaptureDevice_Speaker == type) {
-        captureDevice = CAPTURE_SPEAKER_NAME;
+        audioDevSet.emplace(CAPTURE_SPEAKER_NAME);
     } else if (AudioCaptureDevice_Microphone == type) {
-        captureDevice = CAPTURE_MICROPHONE_NAME;
+        audioDevSet.emplace(CAPTURE_MICROPHONE_NAME1);
+        audioDevSet.emplace(CAPTURE_MICROPHONE_NAME2);
     } else {
         return ret;
     }
@@ -93,11 +98,11 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
         return ret;
     }
 
-    bool isRuning = true;
+    bool isFound = false;
     pEm->Reset();
     ULONG cFetched;
     IMoniker* pM;
-    while (pEm->Next(1, &pM, &cFetched) == S_OK && isRuning) {
+    while (pEm->Next(1, &pM, &cFetched) == S_OK && !isFound) {
         IPropertyBag* pBag = NULL;
         hr                 = pM->BindToStorage(0, 0, IID_IPropertyBag, (void**)&pBag);
         if (SUCCEEDED(hr)) {
@@ -109,23 +114,31 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
                 WideCharToMultiByte(CP_ACP, 0, var.bstrVal, -1, sName, 256, "", NULL);
                 SysFreeString(var.bstrVal);
                 // 注意：=前后没有空格，FFmpeg命令行需要对设备名加双引号，API则不用
-                ret = string("audio=") + sName;
-                if (ret.find(captureDevice) != string::npos) {
-                    isRuning = false;
-                }
+                string tmpName = string("audio=") + sName;
 
+                for (const auto& dev : audioDevSet) {
+                    if (tmpName.find(dev) != string::npos) {
 #if 0
-                ret = QString::fromLocal8Bit(ret.c_str()).toStdString();
-                qDebug() << "Audio device:" << QString::fromLocal8Bit(ret.c_str());
+                        tmpName = QString::fromLocal8Bit(tmpName.c_str()).toStdString();
+                        qDebug() << "Audio device:" << QString::fromLocal8Bit(tmpName.c_str());
 #else
-                // 包含中文需要转UTF8编码
-                ret = AnsiToUTF8(ret.c_str(), ret.length());
-                qDebug() << "Audio device:" << QString::fromStdString(ret);
+                        // 包含中文需要转UTF8编码
+                        tmpName = AnsiToUTF8(tmpName.c_str(), tmpName.length());
+                        qDebug() << "Audio device:" << QString::fromStdString(tmpName);
 #endif
+                        ret     = tmpName;
+                        isFound = true;
+                        break;
+                    }
+                }
             }
             pBag->Release();
         }
         pM->Release();
+    }
+
+    if (!isFound) {
+        qInfo() << QString("Cant't find %1 device").arg(AudioCaptureDevice_Speaker == type ? "speaker" : "microphone");
     }
 
     pCreateDevEnum->Release();
