@@ -7,16 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>365</width>
-    <height>120</height>
+    <height>136</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>NanaRecorder</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QFrame {
+   <string notr="true">/*
+QFrame#xxx {
 background:#5FC3EC;
 }
+*/
 
 QLabel {
 font-size: 14px;
@@ -61,6 +63,11 @@ line-height: 28px;
     </property>
     <item>
      <widget class="QFrame" name="frame">
+      <property name="styleSheet">
+       <string notr="true">QFrame#frame {
+	border-image: url(:/NanaRecorder/res/image/972438.png);
+}</string>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
