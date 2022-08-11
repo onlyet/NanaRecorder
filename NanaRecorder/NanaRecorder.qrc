@@ -1,4 +1,12 @@
 <RCC>
-    <qresource prefix="NanaRecorder">
-    </qresource>
+  <qresource prefix="NanaRecorder">
+    <file>../res/image/908755.png</file>
+    <file>../res/image/908756.png</file>
+    <file>../res/image/962294.png</file>
+    <file>../res/image/962298.png</file>
+    <file>../res/image/972431.png</file>
+    <file>../res/image/972438.png</file>
+    <file>../res/image/972441.png</file>
+    <file>../res/image/908755.png</file>
+  </qresource>
 </RCC>

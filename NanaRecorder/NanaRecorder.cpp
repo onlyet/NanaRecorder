@@ -15,9 +15,9 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     connect(ui.startBtn, &QPushButton::clicked, this, &NanaRecorder::startBtnClicked);
     connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
 
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
-    m_timer->start(1000);
+    //m_timer = new QTimer(this);
+    //connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
+    //m_timer->start(1000);
 
     m_recordTimer = new QTimer(this);
     connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
@@ -36,6 +36,7 @@ NanaRecorder::NanaRecorder(QWidget *parent)
 
 void NanaRecorder::startBtnClicked()
 {
+    ui.infoFrame->setEnabled(false);
     m_totalTimeSec = 0;
     ui.durationLabel->setText("00:00:00");
     m_recordTimer->start(1000);
@@ -70,14 +71,15 @@ void NanaRecorder::stopBtnClicked()
         delete m_recorder;
         m_recorder = nullptr;
     }
+    ui.infoFrame->setEnabled(true);
 }
 
-void NanaRecorder::updateTime()
-{
-    static QDateTime dt;
-    dt = QDateTime::currentDateTime();
-    ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
-}
+//void NanaRecorder::updateTime()
+//{
+//    static QDateTime dt;
+//    dt = QDateTime::currentDateTime();
+//    ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
+//}
 
 void NanaRecorder::updateRecordTime() {
     m_totalTimeSec += 1;

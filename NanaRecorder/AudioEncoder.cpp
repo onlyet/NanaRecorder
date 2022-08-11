@@ -32,14 +32,14 @@ int AudioEncoder::initAAC() {
     av_dict_set(&m_dict, "tune", "zerolatency", 0);
 #endif
 
-    //查找视频编码器
+    //查找音频编码器
     AVCodec* encoder;
     encoder = avcodec_find_encoder(m_aEncodeCtx->codec_id);
     if (!encoder) {
         qDebug() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;
         return -1;
     }
-    //打开视频编码器
+    //打开音频编码器
     int ret = avcodec_open2(m_aEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
         qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
