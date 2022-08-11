@@ -18,13 +18,13 @@
 - FFmpeg4.1（项目已包含）
 
 ### UI
-![image](https://user-images.githubusercontent.com/19988547/183002906-ab068a9a-ec36-469f-a933-7fdbd5c759bf.png)  
+![image](https://user-images.githubusercontent.com/19988547/184171390-0052357c-7b3c-4d34-8db3-6ef7d8519f8e.png)
 
 开始：开始录制  
 结束：结束录制
 
 ### TODO
-平衡高画质高帧率低码率
-使用dshow替代gdigrab录制桌面
-flush编码器
-支持同时录制扬声器和麦克风
+- [ ] 平衡高画质高帧率低码率  
+- [ ] 使用dshow替代gdigrab录制桌面  
+- [ ] flush编码器  
+- [ ] 支持同时录制扬声器和麦克风
