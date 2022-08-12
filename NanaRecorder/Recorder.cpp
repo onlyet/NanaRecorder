@@ -112,7 +112,7 @@ int Recorder::startRecord()
 
 	// start
     m_startTime = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-    qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime).toString("yyyy-MM-dd hh:mm:ss.zzz");
+    qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime / 1000).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
 	g_record.status = Running;

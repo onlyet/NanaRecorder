@@ -128,7 +128,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
     av_audio_fifo_write(m_aFifoBuf, (void**)m_resampleBuf, outSampleNum);
     m_cvABufNotEmpty.notify_one();
-    qDebug() << "av_audio_fifo_write time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+    //qDebug() << "av_audio_fifo_write time:" << QDateTime::currentDate Time().toString("yyyy-MM-dd hh:mm:ss.zzz");
 
     return 0;
 }
@@ -140,7 +140,7 @@ AVFrame* AudioFrameQueue::readFrame() {
         unique_lock<mutex> lk(m_mtxABuf);
         bool               notTimeout = m_cvABufNotEmpty.wait_for(lk, 100ms, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_aOutFrame->nb_samples; });
         if (!notTimeout) {
-            qDebug() << "Audio wait timeout";
+            //qDebug() << "Audio wait timeout";
             return nullptr;
         }
     }

@@ -4,14 +4,11 @@
 #include <QVariant>
 
 enum class AppDataRole {
-    TmpDir,         ///< 临时数据目录
-    LogDir,         ///< 日志目录
-    RecordDir,       // 录制视频保存目录
-    VideoOutDir,     // 视频输出目录
-
-    UserInfo,       // 用户信息
+    TmpDir,     // 临时数据目录
+    LogDir,     // 日志目录
+    RecordDir,  // 录制视频目录
+    RecordPath  // 录制视频绝对路径
 };
-
 
 /**
  * @brief 存放全局属性

@@ -9,6 +9,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QFileDialog>
+#include <QDesktopServices>
 
 NanaRecorder::NanaRecorder(QWidget *parent)
     : QMainWindow(parent)
@@ -18,10 +19,12 @@ NanaRecorder::NanaRecorder(QWidget *parent)
 }
 
 void NanaRecorder::startBtnClicked() {
+    // ÔÝÍ£ºó»Ö¸´
     if (m_paused) {
         m_paused = false;
         m_recordTimer->start();
         m_recorder->resumeRecord();
+        qInfo() << "Resume record";
         return;
     }
     if (m_started) {
@@ -56,10 +59,12 @@ void NanaRecorder::startBtnClicked() {
         }
 
         QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
+        APPDATA->set(AppDataRole::RecordPath, path);
         info.insert("recordPath", path);
         m_recorder = new Recorder(info);
     }
     m_recorder->startRecord();
+    qInfo() << "Start record";
 }
 
 void NanaRecorder::pauseBtnClicked() {
@@ -74,6 +79,7 @@ void NanaRecorder::pauseBtnClicked() {
     if (m_recorder) {
         m_recorder->pauseRecord();
     }
+    qInfo() << "Pause record";
 }
 
 void NanaRecorder::stopBtnClicked() {
@@ -91,6 +97,12 @@ void NanaRecorder::stopBtnClicked() {
         m_recorder = nullptr;
     }
     ui.infoFrame->setEnabled(true);
+
+    bool ok = QDesktopServices::openUrl(QUrl::fromLocalFile(APPDATA->get(AppDataRole::RecordPath).toString()));
+    if (!ok) {
+        qDebug() << "QDesktopServices::openUrl failed";
+    }
+    qInfo() << "Stop record";
 }
 
 //void NanaRecorder::updateTime()

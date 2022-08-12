@@ -121,6 +121,11 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
         qDebug() << QString("stream_index=%1, av_interleaved_write_frame failed: %2").arg(stream_index).arg(FFmpegHelper::err2Str(ret));
         return -1;
     }
+#if 0
+    static int s_writeCnt = 0;
+    ++s_writeCnt;
+    qDebug() << "s_writeCnt" << s_writeCnt;
+#endif
     return 0;
 }
 
