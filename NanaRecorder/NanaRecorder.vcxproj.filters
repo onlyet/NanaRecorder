@@ -17,9 +17,6 @@
       <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
       <Extensions>ui</Extensions>
     </Filter>
-    <Filter Include="Source Files\UI">
-      <UniqueIdentifier>{7da2643f-2c05-4ee9-8f37-0db0f7e67bf7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\player">
       <UniqueIdentifier>{e43b6de2-5b92-43db-a11c-d88ae861f7d1}</UniqueIdentifier>
     </Filter>
@@ -41,15 +38,22 @@
     <Filter Include="Source Files\player\video">
       <UniqueIdentifier>{f6e2195b-25a0-4201-a407-c2bdfcc53733}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <QtRcc Include="NanaRecorder.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
+    <Filter Include="Source Files\NanaRecorder">
+      <UniqueIdentifier>{edae5389-4fcb-4e04-a01c-863d20e38f84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NanaRecorder\UI">
+      <UniqueIdentifier>{7da2643f-2c05-4ee9-8f37-0db0f7e67bf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NanaRecorder\model">
+      <UniqueIdentifier>{cc35ca25-929c-4b04-9c0d-b201c4bf91be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common\setting">
+      <UniqueIdentifier>{a5345cfd-b753-4fe3-847a-5083229cd853}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NanaRecorder.cpp">
-      <Filter>Source Files\UI</Filter>
+      <Filter>Source Files\NanaRecorder\UI</Filter>
     </ClCompile>
     <ClCompile Include="FileOutputer.cpp">
       <Filter>Source Files\player</Filter>
@@ -65,9 +69,6 @@
     </ClCompile>
     <ClCompile Include="..\common\dump\dump.cpp">
       <Filter>Source Files\common\dump</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\common\util\util.cpp">
       <Filter>Source Files\common\util</Filter>
@@ -90,10 +91,25 @@
     <ClCompile Include="VideoFrameQueue.cpp">
       <Filter>Source Files\player\video</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\NanaRecorder</Filter>
+    </ClCompile>
+    <ClCompile Include="model\AppConfig.cpp">
+      <Filter>Source Files\NanaRecorder\model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\AppData.cpp">
+      <Filter>Source Files\NanaRecorder\model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\UserConfig.cpp">
+      <Filter>Source Files\NanaRecorder\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\setting\CSetting.cpp">
+      <Filter>Source Files\common\setting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="NanaRecorder.h">
-      <Filter>Source Files\UI</Filter>
+      <Filter>Source Files\NanaRecorder\UI</Filter>
     </QtMoc>
     <QtMoc Include="singleton.h">
       <Filter>Source Files\player</Filter>
@@ -145,10 +161,27 @@
     <ClInclude Include="VideoFrameQueue.h">
       <Filter>Source Files\player\video</Filter>
     </ClInclude>
+    <ClInclude Include="model\AppConfig.h">
+      <Filter>Source Files\NanaRecorder\model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\AppData.h">
+      <Filter>Source Files\NanaRecorder\model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\UserConfig.h">
+      <Filter>Source Files\NanaRecorder\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\setting\CSetting.h">
+      <Filter>Source Files\common\setting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="NanaRecorder.ui">
-      <Filter>Source Files\UI</Filter>
+      <Filter>Source Files\NanaRecorder\UI</Filter>
     </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\res\NanaRecorder.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>365</width>
-    <height>136</height>
+    <width>398</width>
+    <height>164</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,7 @@ line-height: 28px;
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>70</height>
+           <height>100</height>
           </size>
          </property>
          <property name="frameShape">
@@ -105,32 +105,27 @@ line-height: 28px;
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <property name="spacing">
-           <number>10</number>
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="videoCheckBox">
-            <property name="text">
-             <string>录制视频</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="audioCheckBox">
-            <property name="text">
-             <string>录制音频</string>
-            </property>
-           </widget>
-          </item>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="1" column="1">
            <widget class="QComboBox" name="audioComboBox">
             <property name="minimumSize">
              <size>
               <width>150</width>
-              <height>0</height>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>150</width>
+              <height>16777215</height>
              </size>
             </property>
             <item>
@@ -145,113 +140,308 @@ line-height: 28px;
             </item>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="audioCheckBox">
+            <property name="text">
+             <string>录制音频</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>帧率</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="fpsComboBox">
-              <property name="currentIndex">
-               <number>3</number>
-              </property>
-              <item>
-               <property name="text">
-                <string>10</string>
+           <widget class="QFrame" name="">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
                </property>
-              </item>
-              <item>
                <property name="text">
-                <string>15</string>
+                <string>帧率</string>
                </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>20</string>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>25</string>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="fpsComboBox">
+               <property name="currentIndex">
+                <number>3</number>
                </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
+               <item>
+                <property name="text">
+                 <string>10</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>15</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>20</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>25</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="videoCheckBox">
+            <property name="text">
+             <string>录制视频</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item row="0" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>分辨率</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="resolutionComboBox">
-              <property name="minimumSize">
-               <size>
-                <width>80</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="currentText">
-               <string>1920x1080</string>
-              </property>
-              <item>
+           <widget class="QFrame" name="">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="text">
+                <string>分辨率</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="resolutionComboBox">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="currentText">
                 <string>1920x1080</string>
                </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>1280x720</string>
+               <property name="frame">
+                <bool>true</bool>
                </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>1366x768</string>
+               <item>
+                <property name="text">
+                 <string>1920x1080</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1280x720</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1366x768</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item row="1" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>通道数</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="channelComboBox">
-              <property name="currentIndex">
-               <number>1</number>
-              </property>
-              <item>
-               <property name="text">
-                <string>1</string>
+           <widget class="QFrame" name="">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
                </property>
-              </item>
-              <item>
                <property name="text">
-                <string>2</string>
+                <string>通道数</string>
                </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="channelComboBox">
+               <property name="currentIndex">
+                <number>1</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="3">
+           <widget class="QFrame" name="">
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>录像路径</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="indent">
+                <number>6</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="recordEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>240</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>E:/Documents/NanaRecorder/video</string>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="recordPathBtn">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>浏览</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -312,7 +502,7 @@ line-height: 28px;
 font-size: 20px;
 font-family: PingFangSC-Regular, PingFang SC;
 font-weight: 400;
-color: blue;
+color: #000000;
 line-height: 22px;
 }</string>
             </property>
@@ -323,19 +513,6 @@ line-height: 22px;
              <set>Qt::AlignCenter</set>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -348,7 +525,7 @@ line-height: 22px;
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="NanaRecorder.qrc"/>
+  <include location="../res/NanaRecorder.qrc"/>
  </resources>
  <connections/>
 </ui>

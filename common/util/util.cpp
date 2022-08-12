@@ -8,14 +8,14 @@
 #include <QCryptographicHash>
 #include <math.h>
 #include <QTimer>
-//#include <QLocalSocket>
-//#include <QLocalServer>
+#include <QLocalSocket>
+#include <QLocalServer>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QJsonDocument>
 #include <QApplication>
-//#include  <QNetworkInterface>
+#include  <QNetworkInterface>
 #include <QProcess>
 #include <QDesktopWidget>
 #include <QLabel>
@@ -178,7 +178,7 @@ QString util::getHtmlIconTextVertical(const QString &icon, const QString &text)
     return QStringLiteral("<div><img src=\"%1\"</img><div style=\"margin-top: 5px;\">%2</div></div>").arg(icon).arg(text);
 }
 
-#if 0
+#if 1
 bool util::setProgramUnique(const QString &name)
 {
     QLocalSocket localSocket;

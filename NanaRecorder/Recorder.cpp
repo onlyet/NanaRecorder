@@ -59,7 +59,7 @@ Recorder::~Recorder()
 }
 
 void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
-    g_record.filePath         = "nana.mp4";
+    g_record.filePath         = recordInfo["recordPath"].toString();
     g_record.inWidth          = util::screenWidth();
     g_record.inHeight         = util::screenHeight();
     g_record.outWidth         = recordInfo["outWidth"].toInt();

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/NanaRecorder">
+        <file>../res/image/972438.png</file>
+    </qresource>
+</RCC>

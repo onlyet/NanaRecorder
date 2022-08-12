@@ -2,41 +2,24 @@
 #include "Recorder.h"
 #include "FFmpegHeader.h"
 
+#include <AppData.h>
+#include <util.h>
+
 #include <QTimer>
 #include <QDateTime>
 #include <QDebug>
+#include <QFileDialog>
 
 NanaRecorder::NanaRecorder(QWidget *parent)
     : QMainWindow(parent)
 {
-    ui.setupUi(this);
-
-
-    connect(ui.startBtn, &QPushButton::clicked, this, &NanaRecorder::startBtnClicked);
-    connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
-
-    //m_timer = new QTimer(this);
-    //connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
-    //m_timer->start(1000);
-
-    m_recordTimer = new QTimer(this);
-    connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
-    ui.durationLabel->setText("00:00:00");
-    qDebug() << "av_version_info:" << av_version_info();
-
-    ui.videoCheckBox->setEnabled(false);
-    ui.audioComboBox->setEnabled(false);
-    ui.channelComboBox->setEnabled(false);
-    connect(ui.audioCheckBox, &QCheckBox::stateChanged, [this](int state) {
-        bool checked = ui.audioCheckBox->isChecked();
-        ui.audioComboBox->setEnabled(checked);
-        ui.channelComboBox->setEnabled(checked);
-    });
+    initUI();
 }
 
 void NanaRecorder::startBtnClicked()
 {
     ui.infoFrame->setEnabled(false);
+
     m_totalTimeSec = 0;
     ui.durationLabel->setText("00:00:00");
     m_recordTimer->start(1000);
@@ -58,6 +41,9 @@ void NanaRecorder::startBtnClicked()
             info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
             info.insert("channel", ui.channelComboBox->currentText());
         }
+
+        QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
+        info.insert("recordPath", path);
         m_recorder = new Recorder(info);
     }
     m_recorder->startRecord();
@@ -90,4 +76,49 @@ void NanaRecorder::updateRecordTime() {
     int     second       = m_totalTimeSec % 60;
     QString secondString = second < 10 ? QString("0%1").arg(second) : QString::number(second);
     ui.durationLabel->setText(QString("%1:%2:%3").arg(hourString).arg(minString).arg(secondString));
+}
+
+void NanaRecorder::initUI() {
+    ui.setupUi(this);
+
+    connect(ui.startBtn, &QPushButton::clicked, this, &NanaRecorder::startBtnClicked);
+    connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
+
+    //m_timer = new QTimer(this);
+    //connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
+    //m_timer->start(1000);
+
+    m_recordTimer = new QTimer(this);
+    connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
+    ui.durationLabel->setText("00:00:00");
+    qDebug() << "av_version_info:" << av_version_info();
+
+    ui.videoCheckBox->setEnabled(false);
+    ui.audioComboBox->setEnabled(false);
+    ui.channelComboBox->setEnabled(false);
+    connect(ui.audioCheckBox, &QCheckBox::stateChanged, [this](int state) {
+        bool checked = ui.audioCheckBox->isChecked();
+        ui.audioComboBox->setEnabled(checked);
+        ui.channelComboBox->setEnabled(checked);
+    });
+
+    QString dir = APPDATA->get(AppDataRole::RecordDir).toString();
+    ui.recordEdit->setText(dir);
+    connect(ui.recordPathBtn, &QPushButton::clicked, [this, dir]() {
+        QFileDialog fileDialog;
+        fileDialog.setWindowTitle(QStringLiteral("设置视频保存路径"));
+        fileDialog.setDirectory(dir);
+        fileDialog.setFileMode(QFileDialog::Directory);
+        fileDialog.setViewMode(QFileDialog::Detail);
+        if (!fileDialog.exec()) {
+            return;
+        }
+        QStringList sl = fileDialog.selectedFiles();
+        if (!sl.empty()) {
+            QString newDir = sl.first();
+            ui.recordEdit->setText(newDir);
+            ui.recordEdit->setToolTip(newDir);
+            APPDATA->set(AppDataRole::RecordDir, newDir);
+        }
+    });
 }
