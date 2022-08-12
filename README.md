@@ -18,10 +18,7 @@
 - FFmpeg4.1（项目已包含）
 
 ### UI
-![image](https://user-images.githubusercontent.com/19988547/184192822-e971253a-33ea-43f0-913f-9ef8754271c1.png)
-
-开始：开始录制  
-结束：结束录制
+![image](https://user-images.githubusercontent.com/19988547/184412993-248cb2d1-b0b5-428f-be1b-8329d8bb837a.png)
 
 ### TODO
 - [ ] 平衡高画质高帧率低码率  
