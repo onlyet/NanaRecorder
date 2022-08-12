@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
+    <width>400</width>
     <height>166</height>
    </rect>
   </property>
@@ -37,11 +37,13 @@ line-height: 28px;
 }
 
 QPushButton {
-font-size: 18px;
+font-size: 14px;
 font-family: PingFangSC-Regular, PingFang SC;
 font-weight: 400;
-color: #3A3A3A;
+color: #FAC7E4;
 line-height: 28px;
+border:1px solid #FAC7E4;
+border-radius:12px;
 }
 
 QComboBox {
@@ -153,9 +155,9 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
      <number>0</number>
     </property>
     <item>
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="outFrame">
       <property name="styleSheet">
-       <string notr="true">QFrame#frame {
+       <string notr="true">QFrame#outFrame {
 	
 	border-image: url(:/NanaRecorder/image/972438.png);
 }</string>
@@ -240,7 +242,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QFrame" name="">
+           <widget class="QFrame" name="frame1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <property name="spacing">
               <number>10</number>
@@ -320,7 +322,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QFrame" name="">
+           <widget class="QFrame" name="frame2">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <property name="spacing">
               <number>10</number>
@@ -407,7 +409,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QFrame" name="">
+           <widget class="QFrame" name="frame3">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <property name="spacing">
               <number>10</number>
@@ -467,7 +469,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
            </widget>
           </item>
           <item row="2" column="0" colspan="3">
-           <widget class="QFrame" name="">
+           <widget class="QFrame" name="frame4">
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <property name="spacing">
               <number>6</number>
@@ -538,6 +540,21 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
                  <width>60</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton#recordPathBtn {
+font-size: 14px;
+font-family: PingFangSC-Regular, PingFang SC;
+font-weight: 400;
+color: #3A3A3A;
+background:#FBDCD6;
+border:none;
+border-radius:12px;
+}
+
+QPushButton#recordPathBtn:hover {
+border:2px solid transparent;
+}</string>
                </property>
                <property name="text">
                 <string>浏览</string>
