@@ -133,7 +133,7 @@ void FileOutputer::encodeVideoAndMux()
     while (1) {
 		item = m_videoFrameCb();
         if (!item) {
-            qDebug() << "m_videoFrameCb is null";
+            //qDebug() << "m_videoFrameCb is null";
             return;
         }
 
@@ -167,7 +167,7 @@ void FileOutputer::encodeAudioAndMux() {
         return;
     }
 
-    if (!m_audioFrameCb) {
+    if (!m_audioFrameCb || !m_pauseCb) {
         return;
     }
 
@@ -180,8 +180,9 @@ void FileOutputer::encodeAudioAndMux() {
 
         if (m_audioPackets.empty()) return;
 
-        int64_t now         = duration_cast<chrono::/*milliseconds*/ microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-        int64_t captureTime = now - m_startTime;
+        int64_t now         = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
+        int64_t pauseDuration = m_pauseCb();
+        int64_t captureTime   = now - m_startTime - pauseDuration;  // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
 
         for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, &captureTime](AVPacket* packet) {
             m_mux->writePacket(packet, captureTime);

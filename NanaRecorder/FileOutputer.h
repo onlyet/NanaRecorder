@@ -19,6 +19,7 @@ public:
     void setVideoFrameCb(std::function<FrameItem*()> cb) { m_videoFrameCb = cb; }
     void setAudioBufCb(std::function<void(AVCodecContext*)> cb) { m_initAudioBufCb = cb; }
     void setAudioFrameCb(std::function<AVFrame*()> cb) { m_audioFrameCb = cb; }
+    void setPauseDurationCb(std::function<int64_t()> cb) { m_pauseCb = cb; }
     int  init();
     int  deinit();
     int  start(int64_t startTime);
@@ -48,5 +49,6 @@ private:
     std::vector<AVPacket*>               m_audioPackets;
     int64_t                              m_startTime;
     std::queue<int64_t>                  m_captureTimeQueue; // 保存视频编码延迟帧的捕获时间戳
+    std::function<int64_t()>             m_pauseCb;
 };
 

@@ -18,6 +18,7 @@ public:
 
 private slots:
     void startBtnClicked();
+    void pauseBtnClicked();
     void stopBtnClicked();
     //void updateTime();
     void updateRecordTime();
@@ -31,4 +32,6 @@ private:
     //QTimer*               m_timer    = nullptr;
     QTimer*               m_recordTimer = nullptr;
     int                   m_totalTimeSec = 0;
+    bool                  m_started      = false;
+    bool                  m_paused       = false;
 };

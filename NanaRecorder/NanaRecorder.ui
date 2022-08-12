@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>398</width>
-    <height>164</height>
+    <height>166</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,98 @@ font-family: PingFangSC-Regular, PingFang SC;
 font-weight: 400;
 color: #3A3A3A;
 line-height: 28px;
-}</string>
+}
+
+QComboBox {
+  border-radius: 3px;
+
+  /*min-width: 2em;*/
+}
+QComboBox:editable {
+  background: #FFFFFF;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+  background: #FFFFFF;
+}
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+  background: #FFFFFF;
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+}
+
+/*下拉框*/
+QComboBox::drop-down {
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  width: 16px;
+  border-left-width: 2px;
+  border-left-color: transparent;
+  border-left-style: solid; /* just a single line */
+  border-top-right-radius: 3px; /* same radius as the QComboBox */
+  border-bottom-right-radius: 3px;
+}
+/*下拉箭头*/
+QComboBox::down-arrow { 
+  height:18px;
+  image: url(:/NanaRecorder/image/downArrow.png);
+}
+QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+  top: 1px;
+  /*left: 1px;*/
+}
+
+QComboBox QAbstractItemView {
+  font-size: 16px;
+  outline: 0;
+  border: 1px solid rgb(204, 204, 204);
+  background-color: white;
+  color: gray;
+}
+/*下拉item*/
+QComboBox QAbstractItemView::item {
+  color: gray;
+  background: transparent;
+  min-height: 24px;
+  padding-left: 2px;
+}
+
+QComboBox QAbstractItemView::item:selected {
+  color: white;
+  background-color: rgb(30, 144, 255);
+}
+
+/*滚动区*/
+QComboBox QScrollBar::vertical{/*主体部分*/
+  width:6px;
+  background:rgb(89,89,89);
+  border:none;
+  border-radius:5px;
+}
+
+QComboBox QScrollBar::handle::vertical{/*滑块主体*/
+  border-radius:5px;
+  width:6px;
+  background:rgb(173,173,173);
+}
+
+QComboBox QScrollBar::handle::vertical::hover{
+  background:rgb(232,232,232);
+}
+
+QComboBox QScrollBar::add-line::vertical{/*上箭头*/
+  border:none;
+}
+
+QComboBox QScrollBar::sub-line::vertical{/*下箭头*/
+  border:none;
+}
+
+QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
+  background:white;
+}
+</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -65,7 +156,8 @@ line-height: 28px;
      <widget class="QFrame" name="frame">
       <property name="styleSheet">
        <string notr="true">QFrame#frame {
-	border-image: url(:/NanaRecorder/res/image/972438.png);
+	
+	border-image: url(:/NanaRecorder/image/972438.png);
 }</string>
       </property>
       <property name="frameShape">
@@ -118,7 +210,7 @@ line-height: 28px;
            <widget class="QComboBox" name="audioComboBox">
             <property name="minimumSize">
              <size>
-              <width>150</width>
+              <width>0</width>
               <height>20</height>
              </size>
             </property>
@@ -183,6 +275,12 @@ line-height: 28px;
              </item>
              <item>
               <widget class="QComboBox" name="fpsComboBox">
+               <property name="minimumSize">
+                <size>
+                 <width>40</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="currentIndex">
                 <number>3</number>
                </property>
@@ -259,13 +357,13 @@ line-height: 28px;
               <widget class="QComboBox" name="resolutionComboBox">
                <property name="minimumSize">
                 <size>
-                 <width>60</width>
+                 <width>80</width>
                  <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>80</width>
+                 <width>90</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -344,6 +442,12 @@ line-height: 28px;
              </item>
              <item>
               <widget class="QComboBox" name="channelComboBox">
+               <property name="minimumSize">
+                <size>
+                 <width>40</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="currentIndex">
                 <number>1</number>
                </property>
@@ -448,11 +552,128 @@ line-height: 28px;
        </item>
        <item>
         <widget class="QFrame" name="bottomFrame">
-         <layout class="QHBoxLayout" name="horizontalLayout">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
-           <spacer name="horizontalSpacer">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="startBtn">
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">
+QPushButton {
+
+	
+	border-image: url(:/NanaRecorder/image/record/start_normal.png);
+}
+
+QPushButton:disabled {
+    
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pauseBtn">
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">
+QPushButton {
+	border-image: url(:/NanaRecorder/image/record/pause_normal.png);
+}
+
+QPushButton:disabled {
+    
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="stopBtn">
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">
+QPushButton {
+	border-image: url(:/NanaRecorder/image/record/stop_normal.png);
+}
+
+QPushButton:disabled {
+    
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -461,32 +682,6 @@ line-height: 28px;
              </size>
             </property>
            </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="startBtn">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>开始</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="stopBtn">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>结束</string>
-            </property>
-           </widget>
           </item>
           <item>
            <widget class="QLabel" name="durationLabel">

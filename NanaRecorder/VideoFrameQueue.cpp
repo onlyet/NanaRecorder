@@ -103,7 +103,7 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
     av_fifo_generic_write(m_vFifoBuf, m_vInFrameBuf, m_vFrameSize, NULL);
     //qDebug() << "av_fifo_generic_write 2";
     m_cvVBufNotEmpty.notify_one();
-    qDebug() << "av_fifo_generic_write time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << "capture time:" << captureTime;
+    //qDebug() << "av_fifo_generic_write time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << "capture time:" << captureTime;
     return 0;
 }
 
@@ -116,7 +116,7 @@ FrameItem* VideoFrameQueue::readFrame()
         //m_cvVBufNotEmpty.wait(lk, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
         bool notTimeout = m_cvVBufNotEmpty.wait_for(lk, 100ms, [this] { return av_fifo_size(m_vFifoBuf) >= m_vFrameItemSize; });
         if (!notTimeout) {
-            qDebug() << "Video wait timeout";
+            //qDebug() << "Video wait timeout";
             return nullptr;
         }
     }

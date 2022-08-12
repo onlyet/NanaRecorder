@@ -34,9 +34,6 @@ int AudioCapture::stopCapture() {
     return 0;
 }
 
-
-
-
 int AudioCapture::initCapture() {
     int            ret     = -1;
     AVDictionary*  options = nullptr;

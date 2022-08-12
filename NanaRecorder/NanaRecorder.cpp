@@ -14,10 +14,23 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     : QMainWindow(parent)
 {
     initUI();
+    ui.pauseBtn->hide();
 }
 
-void NanaRecorder::startBtnClicked()
-{
+void NanaRecorder::startBtnClicked() {
+    if (m_paused) {
+        m_paused = false;
+        m_recordTimer->start();
+        m_recorder->resumeRecord();
+        return;
+    }
+    if (m_started) {
+        return;
+    }
+    m_started = true;
+
+    ui.pauseBtn->show();
+    ui.startBtn->hide();
     ui.infoFrame->setEnabled(false);
 
     m_totalTimeSec = 0;
@@ -26,16 +39,16 @@ void NanaRecorder::startBtnClicked()
     if (!m_recorder) {
         QString     c = ui.channelComboBox->currentText();
         QVariantMap info;
-        QString resolution = ui.resolutionComboBox->currentText();
-        QStringList sl = resolution.split('x');
+        QString     resolution = ui.resolutionComboBox->currentText();
+        QStringList sl         = resolution.split('x');
         if (2 != sl.length()) {
             return;
         }
         info.insert("outWidth", sl.first());
         info.insert("outHeight", sl.last());
         info.insert("fps", ui.fpsComboBox->currentText());
-        
-        bool        enableAudio = ui.audioCheckBox->isChecked();
+
+        bool enableAudio = ui.audioCheckBox->isChecked();
         info.insert("enableAudio", enableAudio);
         if (enableAudio) {
             info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
@@ -49,8 +62,28 @@ void NanaRecorder::startBtnClicked()
     m_recorder->startRecord();
 }
 
-void NanaRecorder::stopBtnClicked()
-{
+void NanaRecorder::pauseBtnClicked() {
+    if (!m_started || m_paused) {
+        return;
+    }
+    m_paused = true;
+
+    ui.startBtn->show();
+    ui.pauseBtn->hide();
+    m_recordTimer->stop();
+    if (m_recorder) {
+        m_recorder->pauseRecord();
+    }
+}
+
+void NanaRecorder::stopBtnClicked() {
+    if (!m_started) {
+        return;
+    }
+    m_started = false;
+
+    ui.startBtn->show();
+    ui.pauseBtn->hide();
     m_recordTimer->stop();
     m_recorder->stopRecord();
     if (m_recorder) {
@@ -82,6 +115,7 @@ void NanaRecorder::initUI() {
     ui.setupUi(this);
 
     connect(ui.startBtn, &QPushButton::clicked, this, &NanaRecorder::startBtnClicked);
+    connect(ui.pauseBtn, &QPushButton::clicked, this, &NanaRecorder::pauseBtnClicked);
     connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
 
     //m_timer = new QTimer(this);

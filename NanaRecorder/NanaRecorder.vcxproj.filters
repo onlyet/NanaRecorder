@@ -173,6 +173,9 @@
     <ClInclude Include="..\common\setting\CSetting.h">
       <Filter>Source Files\common\setting</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\timer.h">
+      <Filter>Source Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="NanaRecorder.ui">

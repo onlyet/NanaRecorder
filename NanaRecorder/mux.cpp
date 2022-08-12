@@ -102,12 +102,14 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
     {
         lock_guard<mutex> lock(m_WriteFrameMtx);
         // av_interleaved_write_frame调用后packet的各个字段变为0
+#if 0
         qDebug() << QString("av_interleaved_write_frame, stream_index=%1, pts=%2, dts=%3, duration=%4, size=%5")
                         .arg(stream_index)
                         .arg(packet->pts)
                         .arg(packet->dts)
                         .arg(packet->duration)
                         .arg(packet->size);
+#endif
         // 相同dts会导致av_interleaved_write_frame返回Invalid argument（-22）
          ret = av_interleaved_write_frame(m_oFmtCtx, packet);
     }
