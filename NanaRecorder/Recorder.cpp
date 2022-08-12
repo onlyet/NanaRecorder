@@ -39,6 +39,7 @@ Recorder::Recorder(const QVariantMap& recordInfo) {
     if (g_record.enableAudio) {
         m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
         m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
+        m_outputer->setPauseDurationCb(bind(&Recorder::getPauseDurationCb, this));
     }
 }
 
@@ -59,7 +60,7 @@ Recorder::~Recorder()
 }
 
 void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
-    g_record.filePath         = "nana.mp4";
+    g_record.filePath         = recordInfo["recordPath"].toString();
     g_record.inWidth          = util::screenWidth();
     g_record.inHeight         = util::screenHeight();
     g_record.outWidth         = recordInfo["outWidth"].toInt();
@@ -110,8 +111,8 @@ int Recorder::startRecord()
 	m_outputer->init();
 
 	// start
-    m_startTime = duration_cast<chrono::/*milliseconds*/ microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-    qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime).toString("yyyy-MM-dd hh:mm:ss.zzz");
+    m_startTime = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
+    qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime / 1000).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
 	g_record.status = Running;
@@ -121,13 +122,29 @@ int Recorder::startRecord()
 
 int Recorder::pauseRecord()
 {
-	//stopCapture();
+    if (Running != g_record.status) return -1;
+    g_record.status = Paused;
+    m_pauseStopwatch.start();
 	return 0;
+}
+
+int Recorder::resumeRecord() {
+    if (Paused != g_record.status) return -1;
+    g_record.status = Running;
+    g_record.cvNotPause.notify_all();
+    m_pauseDuration += m_pauseStopwatch.delta<Timer<>::us>();
+    return 0;
 }
 
 int Recorder::stopRecord()
 {
-	if (Stopped == g_record.status) return -1;
+    RecordStatus oldStatus = g_record.status;
+    if (Stopped == oldStatus) return -1;
+    g_record.status = Stopped;
+
+    if (Paused == oldStatus) {
+        g_record.cvNotPause.notify_all();
+    }
 
 	stopCapture();
 	m_outputer->stop();
@@ -163,8 +180,8 @@ void Recorder::stopCapture()
 void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
 {
 	if (Running == g_record.status) {
-        int64_t now         = duration_cast<chrono::/*milliseconds*/ microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-        int64_t captureTime = now - m_startTime;
+        int64_t now         = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
+        int64_t captureTime = now - m_startTime - m_pauseDuration; // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
         m_videoFrameQueue->writeFrame(frame, info, captureTime);
 	}
 }

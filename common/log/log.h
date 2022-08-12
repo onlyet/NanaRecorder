@@ -33,6 +33,8 @@ static QString s_LogDir = "";
 static QString s_logName = "";
 static QString s_LogVer = "0.0.0.0";
 
+static int s_logLevel = QtDebugMsg;
+
 static QString getLogFileName(const QString &fileName, quint32 idx = 0)
 {
 	//QString exeDirPath = QCoreApplication::applicationDirPath();
@@ -75,6 +77,8 @@ static void writeLog(const QString &msg, const QString &fileName = s_logName)
 
 static void outputMessage(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    if (type < s_logLevel) return;
+
     static QMutex mutex;
     QMutexLocker locker(&mutex);
 
@@ -160,7 +164,7 @@ void makeLogDir()
 	}
 }
 
-void LogInit(const QString &logDir /*= QString()*/, const QString &logVer = QString())
+void LogInit(const QString &logDir, const QString &logVer = QString())
 {
     s_logName = qApp->applicationName();
 
@@ -177,7 +181,12 @@ void LogInit(const QString &logDir /*= QString()*/, const QString &logVer = QStr
           "\r\n    +---------------------------------+",
           qPrintable(logName), qPrintable(logVer));
 
-    qDebug() << "Qt version: " << qVersion();
+    qInfo() << "Qt version: " << qVersion();
+}
+
+void setLogLevel(int level)
+{
+    s_logLevel = level;
 }
 
 #endif // LOG_H

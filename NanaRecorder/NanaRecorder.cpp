@@ -2,17 +2,132 @@
 #include "Recorder.h"
 #include "FFmpegHeader.h"
 
+#include <AppData.h>
+#include <util.h>
+
 #include <QTimer>
 #include <QDateTime>
 #include <QDebug>
+#include <QFileDialog>
+#include <QDesktopServices>
 
 NanaRecorder::NanaRecorder(QWidget *parent)
     : QMainWindow(parent)
 {
+    initUI();
+    ui.pauseBtn->hide();
+}
+
+void NanaRecorder::startBtnClicked() {
+    // ÔÝÍ£ºó»Ö¸´
+    if (m_paused) {
+        m_paused = false;
+        m_recordTimer->start();
+        m_recorder->resumeRecord();
+        qInfo() << "Resume record";
+        return;
+    }
+    if (m_started) {
+        return;
+    }
+    m_started = true;
+
+    ui.pauseBtn->show();
+    ui.startBtn->hide();
+    ui.infoFrame->setEnabled(false);
+
+    m_totalTimeSec = 0;
+    ui.durationLabel->setText("00:00:00");
+    m_recordTimer->start(1000);
+    if (!m_recorder) {
+        QString     c = ui.channelComboBox->currentText();
+        QVariantMap info;
+        QString     resolution = ui.resolutionComboBox->currentText();
+        QStringList sl         = resolution.split('x');
+        if (2 != sl.length()) {
+            return;
+        }
+        info.insert("outWidth", sl.first());
+        info.insert("outHeight", sl.last());
+        info.insert("fps", ui.fpsComboBox->currentText());
+
+        bool enableAudio = ui.audioCheckBox->isChecked();
+        info.insert("enableAudio", enableAudio);
+        if (enableAudio) {
+            info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
+            info.insert("channel", ui.channelComboBox->currentText());
+        }
+
+        QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
+        APPDATA->set(AppDataRole::RecordPath, path);
+        info.insert("recordPath", path);
+        m_recorder = new Recorder(info);
+    }
+    m_recorder->startRecord();
+    qInfo() << "Start record";
+}
+
+void NanaRecorder::pauseBtnClicked() {
+    if (!m_started || m_paused) {
+        return;
+    }
+    m_paused = true;
+
+    ui.startBtn->show();
+    ui.pauseBtn->hide();
+    m_recordTimer->stop();
+    if (m_recorder) {
+        m_recorder->pauseRecord();
+    }
+    qInfo() << "Pause record";
+}
+
+void NanaRecorder::stopBtnClicked() {
+    if (!m_started) {
+        return;
+    }
+    m_started = false;
+
+    ui.startBtn->show();
+    ui.pauseBtn->hide();
+    m_recordTimer->stop();
+    m_recorder->stopRecord();
+    if (m_recorder) {
+        delete m_recorder;
+        m_recorder = nullptr;
+    }
+    ui.infoFrame->setEnabled(true);
+
+    bool ok = QDesktopServices::openUrl(QUrl::fromLocalFile(APPDATA->get(AppDataRole::RecordPath).toString()));
+    if (!ok) {
+        qDebug() << "QDesktopServices::openUrl failed";
+    }
+    qInfo() << "Stop record";
+}
+
+//void NanaRecorder::updateTime()
+//{
+//    static QDateTime dt;
+//    dt = QDateTime::currentDateTime();
+//    ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
+//}
+
+void NanaRecorder::updateRecordTime() {
+    m_totalTimeSec += 1;
+    int     hour         = m_totalTimeSec / 3600;
+    QString hourString   = hour < 10 ? QString("0%1").arg(hour) : QString::number(hour);
+    int     min          = m_totalTimeSec % 3600 / 60;
+    QString minString    = min < 10 ? QString("0%1").arg(min) : QString::number(min);
+    int     second       = m_totalTimeSec % 60;
+    QString secondString = second < 10 ? QString("0%1").arg(second) : QString::number(second);
+    ui.durationLabel->setText(QString("%1:%2:%3").arg(hourString).arg(minString).arg(secondString));
+}
+
+void NanaRecorder::initUI() {
     ui.setupUi(this);
 
-
     connect(ui.startBtn, &QPushButton::clicked, this, &NanaRecorder::startBtnClicked);
+    connect(ui.pauseBtn, &QPushButton::clicked, this, &NanaRecorder::pauseBtnClicked);
     connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
 
     //m_timer = new QTimer(this);
@@ -32,62 +147,24 @@ NanaRecorder::NanaRecorder(QWidget *parent)
         ui.audioComboBox->setEnabled(checked);
         ui.channelComboBox->setEnabled(checked);
     });
-}
 
-void NanaRecorder::startBtnClicked()
-{
-    ui.infoFrame->setEnabled(false);
-    m_totalTimeSec = 0;
-    ui.durationLabel->setText("00:00:00");
-    m_recordTimer->start(1000);
-    if (!m_recorder) {
-        QString     c = ui.channelComboBox->currentText();
-        QVariantMap info;
-        QString resolution = ui.resolutionComboBox->currentText();
-        QStringList sl = resolution.split('x');
-        if (2 != sl.length()) {
+    QString dir = APPDATA->get(AppDataRole::RecordDir).toString();
+    ui.recordEdit->setText(dir);
+    connect(ui.recordPathBtn, &QPushButton::clicked, [this, dir]() {
+        QFileDialog fileDialog;
+        fileDialog.setWindowTitle(QStringLiteral("ÉèÖÃÊÓÆµ±£´æÂ·¾¶"));
+        fileDialog.setDirectory(dir);
+        fileDialog.setFileMode(QFileDialog::Directory);
+        fileDialog.setViewMode(QFileDialog::Detail);
+        if (!fileDialog.exec()) {
             return;
         }
-        info.insert("outWidth", sl.first());
-        info.insert("outHeight", sl.last());
-        info.insert("fps", ui.fpsComboBox->currentText());
-        
-        bool        enableAudio = ui.audioCheckBox->isChecked();
-        info.insert("enableAudio", enableAudio);
-        if (enableAudio) {
-            info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
-            info.insert("channel", ui.channelComboBox->currentText());
+        QStringList sl = fileDialog.selectedFiles();
+        if (!sl.empty()) {
+            QString newDir = sl.first();
+            ui.recordEdit->setText(newDir);
+            ui.recordEdit->setToolTip(newDir);
+            APPDATA->set(AppDataRole::RecordDir, newDir);
         }
-        m_recorder = new Recorder(info);
-    }
-    m_recorder->startRecord();
-}
-
-void NanaRecorder::stopBtnClicked()
-{
-    m_recordTimer->stop();
-    m_recorder->stopRecord();
-    if (m_recorder) {
-        delete m_recorder;
-        m_recorder = nullptr;
-    }
-    ui.infoFrame->setEnabled(true);
-}
-
-//void NanaRecorder::updateTime()
-//{
-//    static QDateTime dt;
-//    dt = QDateTime::currentDateTime();
-//    ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
-//}
-
-void NanaRecorder::updateRecordTime() {
-    m_totalTimeSec += 1;
-    int     hour         = m_totalTimeSec / 3600;
-    QString hourString   = hour < 10 ? QString("0%1").arg(hour) : QString::number(hour);
-    int     min          = m_totalTimeSec % 3600 / 60;
-    QString minString    = min < 10 ? QString("0%1").arg(min) : QString::number(min);
-    int     second       = m_totalTimeSec % 60;
-    QString secondString = second < 10 ? QString("0%1").arg(second) : QString::number(second);
-    ui.durationLabel->setText(QString("%1:%2:%3").arg(hourString).arg(minString).arg(secondString));
+    });
 }

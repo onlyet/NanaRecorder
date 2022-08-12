@@ -28,15 +28,15 @@ struct AudioCaptureInfo {
 struct RecordConfig {
     friend Singleton<RecordConfig>;
 
-    int inWidth; // 输入宽高
+    int inWidth;  // 输入宽高
     int inHeight;
 
     bool enableAudio;
-    int  audioDeviceIndex; // 0：扬声器，1：麦克风
+    int  audioDeviceIndex;  // 0：扬声器，1：麦克风
     int  channel;
 
-    QString filePath;
-    int     outWidth; // 输出宽高
+    QString filePath;  // 录制文件保存路径
+    int     outWidth;  // 输出宽高
     int     outHeight;
     int     fps;
     int     audioBitrate;

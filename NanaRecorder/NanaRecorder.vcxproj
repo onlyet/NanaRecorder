@@ -50,22 +50,22 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
     <QtInstall>5.12.9_x86</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;network;gui;widgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="QtSettings">
     <QtInstall>5.12.9_x86</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;network;gui;widgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="QtSettings">
     <QtInstall>5.12.9_x86</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;network;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="QtSettings">
     <QtInstall>5.12.9_x86</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;network;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -91,7 +91,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -101,7 +101,7 @@
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ffmpeg\x86\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)ffmpeg\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -188,18 +188,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\dump\dump.cpp" />
+    <ClCompile Include="..\common\setting\CSetting.cpp" />
     <ClCompile Include="..\common\util\util.cpp" />
     <ClCompile Include="AudioCapture.cpp" />
     <ClCompile Include="AudioEncoder.cpp" />
     <ClCompile Include="AudioFrameQueue.cpp" />
     <ClCompile Include="FFmpegHelper.cpp" />
     <ClCompile Include="FileOutputer.cpp" />
+    <ClCompile Include="model\AppConfig.cpp" />
+    <ClCompile Include="model\AppData.cpp" />
+    <ClCompile Include="model\UserConfig.cpp" />
     <ClCompile Include="mux.cpp" />
     <ClCompile Include="Recorder.cpp" />
     <ClCompile Include="VideoCapture.cpp" />
     <ClCompile Include="VideoEncoder.cpp" />
     <ClCompile Include="VideoFrameQueue.cpp" />
-    <QtRcc Include="NanaRecorder.qrc" />
     <QtUic Include="NanaRecorder.ui" />
     <QtMoc Include="NanaRecorder.h" />
     <ClCompile Include="NanaRecorder.cpp" />
@@ -208,6 +211,8 @@
   <ItemGroup>
     <ClInclude Include="..\common\dump\dump.h" />
     <ClInclude Include="..\common\log\log.h" />
+    <ClInclude Include="..\common\setting\CSetting.h" />
+    <ClInclude Include="..\common\timer.h" />
     <ClInclude Include="..\common\util\util.h" />
     <ClInclude Include="AudioCapture.h" />
     <ClInclude Include="AudioEncoder.h" />
@@ -215,6 +220,9 @@
     <ClInclude Include="FFmpegHeader.h" />
     <ClInclude Include="FFmpegHelper.h" />
     <ClInclude Include="FileOutputer.h" />
+    <ClInclude Include="model\AppConfig.h" />
+    <ClInclude Include="model\AppData.h" />
+    <ClInclude Include="model\UserConfig.h" />
     <ClInclude Include="mux.h" />
     <ClInclude Include="RecordConfig.h" />
     <ClInclude Include="VideoEncoder.h" />
@@ -222,6 +230,9 @@
     <QtMoc Include="singleton.h" />
     <ClInclude Include="Recorder.h" />
     <ClInclude Include="VideoCapture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\res\NanaRecorder.qrc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

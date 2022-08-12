@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="/NanaRecorder">
+    <file>image/record/pause_focus.png</file>
+    <file>image/record/start_focus.png</file>
+    <file>image/record/stop_focus.png</file>
+    <file>image/record/pause_normal.png</file>
+    <file>image/record/start_normal.png</file>
+    <file>image/record/stop_normal.png</file>
+    <file>image/record/pause_black.png</file>
+    <file>image/record/start_black.png</file>
+    <file>image/record/stop_black.png</file>
+    <file>image/downArrow.png</file>
+    <file>image/972438.png</file>
+  </qresource>
+</RCC>
