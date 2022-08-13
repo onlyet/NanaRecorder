@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include <string>
+#include <thread>
 
 #include <Windows.h>
 
@@ -105,10 +106,18 @@ void AudioCapture::audioCaptureThreadProc() {
     AVFrame* oldFrame = av_frame_alloc();
 
     while (m_isRunning) {
+        /// <summary>
+        /// 暂停后不读音频帧会导致几秒报错：
+        /// real-time buffer [virtual-audio-capturer] [audio input]
+        /// too full or near too full(84 % of size : 3041280 [rtbufsize parameter]) !frame dropped !
+        /// 最终录制出来的视频会在暂停位置卡住
+        /// </summary>
+#if 0
         if (g_record.status == RecordStatus::Paused) {
             unique_lock<mutex> lk(g_record.mtxPause);
             g_record.cvNotPause.wait(lk, [this] { return g_record.status != RecordStatus::Paused; });
         }
+#endif
 
         if (!m_aFmtCtx || !m_aDecodeCtx) {
             qDebug() << "m_aFmtCtx or m_aDecodeCtx nullptr";
@@ -120,6 +129,13 @@ void AudioCapture::audioCaptureThreadProc() {
             qDebug() << "Audio av_read_frame < 0";
             continue;
         }
+        // 暂停后读packet但不处理
+        if (g_record.status != RecordStatus::Running) {
+            av_packet_unref(&pkt);
+            this_thread::sleep_for(1ms);
+            continue;
+        }
+
         //qDebug() << "audio pkt: " << pkt.pts << "," << pkt.dts;
         //qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 

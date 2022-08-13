@@ -239,6 +239,9 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
             <property name="text">
              <string>录制音频</string>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
