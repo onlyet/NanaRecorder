@@ -21,9 +21,16 @@ NanaRecorder::NanaRecorder(QWidget *parent)
 void NanaRecorder::startBtnClicked() {
     // ÔÝÍ£ºó»Ö¸´
     if (m_paused) {
+        if (!m_recorder) return;
+
         m_paused = false;
-        m_recordTimer->start();
         m_recorder->resumeRecord();
+
+        m_recordTimer->start(1000);
+        ui.pauseBtn->show();
+        ui.startBtn->hide();
+        //ui.infoFrame->setEnabled(false);
+
         qInfo() << "Resume record";
         return;
     }
@@ -32,13 +39,6 @@ void NanaRecorder::startBtnClicked() {
     }
     m_started = true;
 
-    ui.pauseBtn->show();
-    ui.startBtn->hide();
-    ui.infoFrame->setEnabled(false);
-
-    m_totalTimeSec = 0;
-    ui.durationLabel->setText("00:00:00");
-    m_recordTimer->start(1000);
     if (!m_recorder) {
         QString     c = ui.channelComboBox->currentText();
         QVariantMap info;
@@ -64,34 +64,43 @@ void NanaRecorder::startBtnClicked() {
         m_recorder = new Recorder(info);
     }
     m_recorder->startRecord();
+
+    m_totalTimeSec = 0;
+    ui.durationLabel->setText("00:00:00");
+    m_recordTimer->start(1000);
+    ui.pauseBtn->show();
+    ui.startBtn->hide();
+    ui.infoFrame->setEnabled(false);
+
     qInfo() << "Start record";
 }
 
 void NanaRecorder::pauseBtnClicked() {
-    if (!m_started || m_paused) {
+    if (!m_started || m_paused || !m_recorder) {
         return;
     }
     m_paused = true;
 
-    ui.startBtn->show();
-    ui.pauseBtn->hide();
-    m_recordTimer->stop();
     if (m_recorder) {
         m_recorder->pauseRecord();
     }
+    ui.startBtn->show();
+    ui.pauseBtn->hide();
+    m_recordTimer->stop();
+
     qInfo() << "Pause record";
 }
 
 void NanaRecorder::stopBtnClicked() {
-    if (!m_started) {
+    if (!m_started || !m_recorder) {
         return;
     }
     m_started = false;
 
+    m_recorder->stopRecord();
     ui.startBtn->show();
     ui.pauseBtn->hide();
     m_recordTimer->stop();
-    m_recorder->stopRecord();
     if (m_recorder) {
         delete m_recorder;
         m_recorder = nullptr;
@@ -137,11 +146,11 @@ void NanaRecorder::initUI() {
     m_recordTimer = new QTimer(this);
     connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
     ui.durationLabel->setText("00:00:00");
-    qDebug() << "av_version_info:" << av_version_info();
+    qInfo() << "av_version_info:" << av_version_info();
 
     ui.videoCheckBox->setEnabled(false);
-    ui.audioComboBox->setEnabled(false);
-    ui.channelComboBox->setEnabled(false);
+    //ui.audioComboBox->setEnabled(false);
+    //ui.channelComboBox->setEnabled(false);
     connect(ui.audioCheckBox, &QCheckBox::stateChanged, [this](int state) {
         bool checked = ui.audioCheckBox->isChecked();
         ui.audioComboBox->setEnabled(checked);

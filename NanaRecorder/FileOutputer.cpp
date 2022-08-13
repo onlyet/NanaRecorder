@@ -183,7 +183,7 @@ void FileOutputer::encodeAudioAndMux() {
         int64_t now         = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t pauseDuration = m_pauseCb();
         int64_t captureTime   = now - m_startTime - pauseDuration;  // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
-
+        //qDebug() << QString("Audio captureTime:%1,pauseDuration:%2").arg(captureTime).arg(pauseDuration);
         for_each(m_audioPackets.cbegin(), m_audioPackets.cend(), [this, &captureTime](AVPacket* packet) {
             m_mux->writePacket(packet, captureTime);
         });
