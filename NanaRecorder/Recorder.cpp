@@ -53,6 +53,14 @@ Recorder::~Recorder()
 		delete m_videoFrameQueue;
 		m_videoFrameQueue = nullptr;
 	}
+    if (m_audioCap) {
+        delete m_audioCap;
+        m_audioCap = nullptr;
+    }
+    if (m_audioFrameQueue) {
+        delete m_audioFrameQueue;
+        m_audioFrameQueue = nullptr;
+    }
 	if (m_outputer) {
 		delete m_outputer;
 		m_outputer = nullptr;
@@ -112,7 +120,7 @@ int Recorder::startRecord()
 
 	// start
     m_startTime = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-    qDebug() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime / 1000).toString("yyyy-MM-dd hh:mm:ss.zzz");
+    qInfo() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime / 1000).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
 	g_record.status = Running;

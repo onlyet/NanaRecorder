@@ -15,7 +15,7 @@ int Mux::init(const std::string& filename)
     int ret = avformat_alloc_output_context2(&m_oFmtCtx, nullptr, nullptr, outFileName);
     if (ret < 0)
     {
-        qDebug() << "avformat_alloc_output_context2 failed";
+        qCritical() << "avformat_alloc_output_context2 failed";
         return -1;
     }
     m_isInit = true;
@@ -46,14 +46,14 @@ int Mux::writeHeader()
         const char* outFileName = m_filename.c_str();
         if (avio_open(&m_oFmtCtx->pb, outFileName, AVIO_FLAG_WRITE) < 0)
         {
-            qDebug() << "can not open output file handle!";
+            qCritical() << "can not open output file handle!";
             return -1;
         }
     }
     //Ð´ÎÄ¼þÍ·
     if (avformat_write_header(m_oFmtCtx, nullptr) < 0)
     {
-        qDebug() << "can not write the header of the output file!";
+        qCritical() << "can not write the header of the output file!";
         return -1;
     }
 
@@ -63,7 +63,7 @@ int Mux::writeHeader()
 int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 {
     if (!packet || packet->size <= 0 || !packet->data) {
-        qDebug() << "packet is null";
+        qCritical() << "packet is null";
         if (packet) av_packet_free(&packet);
 
         return -1;
@@ -117,8 +117,8 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime)
 
     av_packet_free(&packet);
     if (ret != 0) {
-		//qDebug() << "av_interleaved_write_frame failed, ret:" << ret;
-        qDebug() << QString("stream_index=%1, av_interleaved_write_frame failed: %2").arg(stream_index).arg(FFmpegHelper::err2Str(ret));
+		//qCritical() << "av_interleaved_write_frame failed, ret:" << ret;
+        qCritical() << QString("stream_index=%1, av_interleaved_write_frame failed: %2").arg(stream_index).arg(FFmpegHelper::err2Str(ret));
         return -1;
     }
 #if 0
@@ -143,7 +143,7 @@ int Mux::addStream(AVCodecContext* encodeCtx)
     AVStream* stream = avformat_new_stream(m_oFmtCtx, nullptr);
 	if (!stream)
 	{
-        qDebug() << "avformat_new_stream failed";
+        qCritical() << "avformat_new_stream failed";
 		return -1;
 	}
 
@@ -151,7 +151,7 @@ int Mux::addStream(AVCodecContext* encodeCtx)
 	int ret = avcodec_parameters_from_context(stream->codecpar, encodeCtx);
 	if (ret < 0)
 	{
-		qDebug() << "Output avcodec_parameters_from_context,error code:" << ret;
+		qCritical() << "Output avcodec_parameters_from_context,error code:" << ret;
 		return -1;
 	}
 
@@ -160,13 +160,13 @@ int Mux::addStream(AVCodecContext* encodeCtx)
         m_vEncodeCtx = encodeCtx;
         m_vStream = stream;
         m_vIndex = stream->index;
-        qDebug() << "Video stream index" << m_vIndex;
+        qInfo() << "Video stream index" << m_vIndex;
     }
     else if (encodeCtx->codec_type == AVMEDIA_TYPE_AUDIO) {
         m_aEncodeCtx = encodeCtx;
         m_aStream = stream;
         m_aIndex = stream->index;
-        qDebug() << "Audio stream index" << m_aIndex;
+        qInfo() << "Audio stream index" << m_aIndex;
     }
 
     return 0;

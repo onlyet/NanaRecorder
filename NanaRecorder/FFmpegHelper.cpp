@@ -124,7 +124,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
 #else
                         // 包含中文需要转UTF8编码
                         tmpName = AnsiToUTF8(tmpName.c_str(), tmpName.length());
-                        qDebug() << "Audio device:" << QString::fromStdString(tmpName);
+                        qInfo() << "Audio device:" << QString::fromStdString(tmpName);
 #endif
                         ret     = tmpName;
                         isFound = true;
@@ -150,6 +150,6 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
 QString FFmpegHelper::err2Str(int err) {
     char errbuf[1024] = {0};
     av_strerror(err, errbuf, sizeof(errbuf) - 1);
-    qDebug() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
+    qCritical() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
     return QString(errbuf);
 }

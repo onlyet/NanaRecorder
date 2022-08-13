@@ -71,12 +71,12 @@ int VideoCapture::initCapture()
     {
         char errbuf[1024] = { 0 };
         av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qDebug() << "video avformat_open_input failed:" << errbuf;
+        qCritical() << "video avformat_open_input failed:" << errbuf;
         return -1;
     }
     if (avformat_find_stream_info(m_vFmtCtx, nullptr) < 0)
     {
-        qDebug() << "Couldn't find stream information";
+        qCritical() << "Couldn't find stream information";
         return -1;
     }
     for (int i = 0; i < m_vFmtCtx->nb_streams; ++i)
@@ -87,14 +87,14 @@ int VideoCapture::initCapture()
             decoder = avcodec_find_decoder(stream->codecpar->codec_id);
             if (decoder == nullptr)
             {
-                qDebug() << "can not find decoder";
+                qCritical() << "can not find decoder";
                 return -1;
             }
             //从视频流中拷贝参数到codecCtx
             m_vDecodeCtx = avcodec_alloc_context3(decoder);
             if ((ret = avcodec_parameters_to_context(m_vDecodeCtx, stream->codecpar)) < 0)
             {
-                qDebug() << "Video avcodec_parameters_to_context failed,error code: " << ret;
+                qCritical() << "Video avcodec_parameters_to_context failed,error code: " << ret;
                 return -1;
             }
             m_vIndex = i;
@@ -103,7 +103,7 @@ int VideoCapture::initCapture()
     }
     if (avcodec_open2(m_vDecodeCtx, decoder, nullptr) < 0)
     {
-        qDebug() << "Could not open codec";
+        qCritical() << "Could not open codec";
         return -1;
     }
 
@@ -126,7 +126,7 @@ void VideoCapture::deinit()
 void VideoCapture::videoCaptureThreadProc()
 {
     if (!m_frameCb) {
-        qDebug() << "m_frameCb empty, thread exit";
+        qCritical() << "m_frameCb empty, thread exit";
         return;
     }
 
@@ -149,14 +149,14 @@ void VideoCapture::videoCaptureThreadProc()
         }
 
         if (!m_vFmtCtx || !m_vDecodeCtx) {
-            qDebug() << "m_vFmtCtx or m_vDecodeCtx nullptr";
+            qCritical() << "m_vFmtCtx or m_vDecodeCtx nullptr";
             break;
         }
         //static int s_cnt = 1;
         //QTime t = QTime::currentTime();
         if (av_read_frame(m_vFmtCtx, &pkt) < 0)
         {
-            qDebug() << "video av_read_frame < 0";
+            qCritical() << "video av_read_frame < 0";
             continue;
         }
         //qDebug() << "video pkt: " << pkt.pts << "," << pkt.dts;
@@ -164,21 +164,21 @@ void VideoCapture::videoCaptureThreadProc()
 
         if (pkt.stream_index != m_vIndex)
         {
-            qDebug() << "not a video packet from video input";
+            qCritical() << "not a video packet from video input";
             av_packet_unref(&pkt);
             continue;
         }
         ret = avcodec_send_packet(m_vDecodeCtx, &pkt);
         if (ret != 0)
         {
-            qDebug() << "video avcodec_send_packet failed, ret:" << ret;
+            qCritical() << "video avcodec_send_packet failed, ret:" << ret;
             av_packet_unref(&pkt);
             continue;
         }
         ret = avcodec_receive_frame(m_vDecodeCtx, oldFrame);
         if (ret != 0)
         {
-            qDebug() << "video avcodec_receive_frame failed, ret:" << ret;
+            qCritical() << "video avcodec_receive_frame failed, ret:" << ret;
             av_packet_unref(&pkt);
             continue;
         }
@@ -189,5 +189,5 @@ void VideoCapture::videoCaptureThreadProc()
     //FlushVideoDecoder();
 
     av_frame_free(&oldFrame);
-    qDebug() << "videoCaptureThreadProc thread exit";
+    qInfo() << "videoCaptureThreadProc thread exit";
 }

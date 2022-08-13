@@ -109,7 +109,7 @@ void NanaRecorder::stopBtnClicked() {
 
     bool ok = QDesktopServices::openUrl(QUrl::fromLocalFile(APPDATA->get(AppDataRole::RecordPath).toString()));
     if (!ok) {
-        qDebug() << "QDesktopServices::openUrl failed";
+        qCritical() << "QDesktopServices::openUrl failed";
     }
     qInfo() << "Stop record";
 }

@@ -37,7 +37,7 @@ int VideoFrameQueue::initBuf(int width, int height, AVPixelFormat format)
     m_vFrameItemSize = m_vFrameSize + sizeof(int64_t);
     m_vFifoBuf = av_fifo_alloc(30 * m_vFrameItemSize);
     if (!m_vFifoBuf) {
-        qDebug() << "av_fifo_alloc_array failed";
+        qCritical() << "av_fifo_alloc_array failed";
         return -1;
     }
 

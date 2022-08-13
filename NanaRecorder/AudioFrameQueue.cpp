@@ -22,14 +22,14 @@ int AudioFrameQueue::initBuf(AVCodecContext* encodeCtx) {
 
     int ret = av_frame_get_buffer(m_aOutFrame, 0);
     if (ret < 0) {
-        qDebug() << "av_frame_get_buffer failed";
+        qCritical() << "av_frame_get_buffer failed";
         return -1;
     }
     // Ò»Ö¡16K£¬·ÖÅä100Ö¡Ôò1.6M
     m_aFifoBuf = av_audio_fifo_alloc(encodeCtx->sample_fmt, encodeCtx->channels, 
         100 * encodeCtx->frame_size);
     if (!m_aFifoBuf) {
-        qDebug() << "av_audio_fifo_alloc failed";
+        qCritical() << "av_audio_fifo_alloc failed";
         return -1;
     }
 
@@ -75,7 +75,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
         av_opt_set_sample_fmt(m_swrCtx, "out_sample_fmt", m_format, 0);
         swr_init(m_swrCtx);
         if ((ret = swr_init(m_swrCtx)) < 0) {
-            qDebug() << "swr_init failed";
+            qCritical() << "swr_init failed";
             return -1;
         }
     }
@@ -83,7 +83,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
     int dst_nb_samples = av_rescale_rnd(oldFrame->nb_samples + swr_get_delay(m_swrCtx, info.sampleRate), 
         m_sampleRate, info.sampleRate, AV_ROUND_UP);
     if (dst_nb_samples <= 0) {
-        qDebug() << "av_rescale_rnd failed";
+        qCritical() << "av_rescale_rnd failed";
         return -1;
     }
 
@@ -106,7 +106,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
         
         ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
         if (ret < 0) {
-            qDebug() << "av_samples_alloc failed";
+            qCritical() << "av_samples_alloc failed";
             return -1;
         }
         m_resampleBufSize = dst_nb_samples;
@@ -114,7 +114,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
     int outSampleNum = swr_convert(m_swrCtx, m_resampleBuf, dst_nb_samples, (const uint8_t**)oldFrame->data, oldFrame->nb_samples);
     if (outSampleNum <= 0) {
-        qDebug() << "swr_convert failed";
+        qCritical() << "swr_convert failed";
         return -1;
     }
     
@@ -140,7 +140,7 @@ AVFrame* AudioFrameQueue::readFrame() {
         unique_lock<mutex> lk(m_mtxABuf);
         bool               notTimeout = m_cvABufNotEmpty.wait_for(lk, 100ms, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_aOutFrame->nb_samples; });
         if (!notTimeout) {
-            //qDebug() << "Audio wait timeout";
+            //qCritical() << "Audio wait timeout";
             return nullptr;
         }
     }

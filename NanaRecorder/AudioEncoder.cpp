@@ -8,7 +8,7 @@ int AudioEncoder::initAAC() {
 
     m_aEncodeCtx = avcodec_alloc_context3(NULL);
     if (nullptr == m_aEncodeCtx) {
-        qDebug() << "avcodec_alloc_context3 failed";
+        qCritical() << "avcodec_alloc_context3 failed";
         return -1;
     }
     // 为什么音频不需要设置timebase
@@ -36,13 +36,13 @@ int AudioEncoder::initAAC() {
     AVCodec* encoder;
     encoder = avcodec_find_encoder(m_aEncodeCtx->codec_id);
     if (!encoder) {
-        qDebug() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;
+        qCritical() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;
         return -1;
     }
     //打开音频编码器
     int ret = avcodec_open2(m_aEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
-        qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
+        qCritical() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
         return -1;
     }
     return 0;
@@ -67,7 +67,7 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
     if (ret != 0) {
         char errbuf[1024] = {0};
         av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qDebug() << "video avcodec_send_frame failed:" << errbuf;
+        qCritical() << "video avcodec_send_frame failed:" << errbuf;
         return -1;
     }
 
@@ -82,7 +82,7 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
         } else if (ret < 0) {
             char errbuf[1024] = {0};
             av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-            qDebug() << "avcodec_receive_packet failed:" << errbuf;
+            qCritical() << "avcodec_receive_packet failed:" << errbuf;
             av_packet_free(&packet);
             ret = -1;
             break;
