@@ -10,13 +10,10 @@ class VideoCapture;
 class VideoFrameQueue;
 class FrameItem;
 class VideoCaptureInfo;
-
 class AudioCapture;
 class AudioFrameQueue;
 class AudioCaptureInfo;
-
 class FileOutputer;
-
 
 class Recorder
 {
@@ -51,6 +48,6 @@ private:
     FileOutputer*    m_outputer        = nullptr;
     int64_t          m_startTime       = -1;  // 录制开始时间戳（微秒）
     int64_t          m_pauseDuration   = 0;   // 暂停持续时间
-    Timer<>          m_pauseStopwatch; // 暂停秒表
+    Timer<>          m_pauseStopwatch;        // 暂停秒表
 };
 

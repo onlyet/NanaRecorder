@@ -65,7 +65,7 @@ void NanaRecorder::startBtnClicked() {
     }
     m_recorder->startRecord();
 
-    m_totalTimeSec = 0;
+    m_recordDuration = 0;
     ui.durationLabel->setText("00:00:00");
     m_recordTimer->start(1000);
     ui.pauseBtn->show();
@@ -122,12 +122,12 @@ void NanaRecorder::stopBtnClicked() {
 //}
 
 void NanaRecorder::updateRecordTime() {
-    m_totalTimeSec += 1;
-    int     hour         = m_totalTimeSec / 3600;
+    m_recordDuration += 1;
+    int     hour         = m_recordDuration / 3600;
     QString hourString   = hour < 10 ? QString("0%1").arg(hour) : QString::number(hour);
-    int     min          = m_totalTimeSec % 3600 / 60;
+    int     min          = m_recordDuration % 3600 / 60;
     QString minString    = min < 10 ? QString("0%1").arg(min) : QString::number(min);
-    int     second       = m_totalTimeSec % 60;
+    int     second       = m_recordDuration % 60;
     QString secondString = second < 10 ? QString("0%1").arg(second) : QString::number(second);
     ui.durationLabel->setText(QString("%1:%2:%3").arg(hourString).arg(minString).arg(secondString));
 }

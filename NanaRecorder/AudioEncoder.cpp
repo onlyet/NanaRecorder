@@ -53,6 +53,7 @@ void AudioEncoder::deinit() {
         avcodec_free_context(&m_aEncodeCtx);
         m_aEncodeCtx = nullptr;
     }
+    av_dict_free(&m_dict);
 }
 
 int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t time_base, std::vector<AVPacket*>& packets) {

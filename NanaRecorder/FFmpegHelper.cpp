@@ -15,9 +15,13 @@ using namespace std;
 
 void FFmpegHelper::registerAll()
 {
-    //av_register_all();
-    avdevice_register_all();
-    //avcodec_register_all();
+    static bool s_init = false;
+    if (!s_init) {
+        s_init = true;
+        //av_register_all();
+        avdevice_register_all();
+        //avcodec_register_all();
+    }
 }
 
 static std::string AnsiToUTF8(const char* _ansi, int _ansi_len) {

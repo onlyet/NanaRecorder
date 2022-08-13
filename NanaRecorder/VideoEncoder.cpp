@@ -70,6 +70,7 @@ void VideoEncoder::deinit()
         avcodec_free_context(&m_vEncodeCtx);
         m_vEncodeCtx = nullptr;
     }
+    av_dict_free(&m_dict);
 }
 
 int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t time_base, std::vector<AVPacket*>& packets)
