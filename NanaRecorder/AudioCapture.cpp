@@ -129,9 +129,8 @@ void AudioCapture::audioCaptureThreadProc() {
             qDebug() << "Audio av_read_frame < 0";
             continue;
         }
-
+        // 暂停后读packet但不处理
         if (g_record.status != RecordStatus::Running) {
-            int s = g_record.status;
             av_packet_unref(&pkt);
             this_thread::sleep_for(1ms);
             continue;
