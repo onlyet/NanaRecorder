@@ -1,5 +1,6 @@
 #include "VideoCapture.h"
 #include "FFmpegHeader.h"
+#include "FFmpegHelper.h"
 #include "RecordConfig.h"
 
 #include <QString>
@@ -64,14 +65,16 @@ int VideoCapture::initCapture()
     AVInputFormat* ifmt       = av_find_input_format(VIDEO_DEVICE_FORMAT);
     string         resolution = QString("%1x%2").arg(inWidth).arg(inHeight).toStdString();
 
-    av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str(), NULL);
-    av_dict_set(&options, "video_size", resolution.c_str(), 0);
+    //const char* tt = QString::number(fps).toStdString().c_str();
+    av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str() , NULL);
+    av_dict_set(&options, "video_size", /*resolution.c_str()*/ QString("%1x%2").arg(inWidth).arg(inHeight).toStdString().c_str(), 0);
+#ifdef USE_DSHOW
+    av_dict_set(&options, "pixel_format", "yuv420p", 0);
+#endif
 
-    if (avformat_open_input(&m_vFmtCtx, VIDEO_DEVICE_NAME, ifmt, &options) != 0)
+    if ((ret = avformat_open_input(&m_vFmtCtx, VIDEO_DEVICE_NAME, ifmt, &options)) < 0)
     {
-        char errbuf[1024] = { 0 };
-        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qCritical() << "video avformat_open_input failed:" << errbuf;
+        qCritical() << "video avformat_open_input failed:" << FFmpegHelper::err2Str(ret);
         return -1;
     }
     if (avformat_find_stream_info(m_vFmtCtx, nullptr) < 0)

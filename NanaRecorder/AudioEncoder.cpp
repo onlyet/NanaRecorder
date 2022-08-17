@@ -1,5 +1,6 @@
 #include "AudioEncoder.h"
 #include "RecordConfig.h"
+#include "FFmpegHelper.h"
 
 #include <QDebug>
 
@@ -66,9 +67,7 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
     ret = avcodec_send_frame(m_aEncodeCtx, frame);
     //qDebug() << "avcodec_send_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
     if (ret != 0) {
-        char errbuf[1024] = {0};
-        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qCritical() << "video avcodec_send_frame failed:" << errbuf;
+        qCritical() << "video avcodec_send_frame failed:" << FFmpegHelper::err2Str(ret);
         return -1;
     }
 
@@ -81,9 +80,7 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
             av_packet_free(&packet);
             break;
         } else if (ret < 0) {
-            char errbuf[1024] = {0};
-            av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-            qCritical() << "avcodec_receive_packet failed:" << errbuf;
+            qCritical() << "avcodec_receive_packet failed:" << FFmpegHelper::err2Str(ret);
             av_packet_free(&packet);
             ret = -1;
             break;

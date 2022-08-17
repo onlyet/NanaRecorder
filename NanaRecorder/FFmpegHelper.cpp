@@ -155,5 +155,5 @@ QString FFmpegHelper::err2Str(int err) {
     char errbuf[1024] = {0};
     av_strerror(err, errbuf, sizeof(errbuf) - 1);
     qCritical() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
-    return QString(errbuf);
+    return QString("%1(%2)").arg(errbuf).arg(err);
 }
