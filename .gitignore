@@ -219,3 +219,6 @@ ModelManifest.xml
 *.bgra
 
 *.mp3
+
+Win32
+ffmpeg_debug

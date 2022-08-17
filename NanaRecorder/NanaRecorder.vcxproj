@@ -127,8 +127,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <IncludePath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\lib\$(PlatformTarget);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)3rd\ffmpeg\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)3rd\ffmpeg\lib\$(PlatformTarget);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -139,8 +139,8 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\lib\$(PlatformTarget);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)3rd\ffmpeg\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)3rd\ffmpeg\lib\$(PlatformTarget);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ffmpeg_debug|x64'">
     <IncludePath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
