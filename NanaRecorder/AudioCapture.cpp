@@ -38,8 +38,8 @@ int AudioCapture::stopCapture() {
 int AudioCapture::initCapture() {
     int            ret     = -1;
     AVDictionary*  options = nullptr;
-    AVCodec*       decoder = nullptr;
-    AVInputFormat* ifmt    = av_find_input_format("dshow");
+    const AVCodec*        decoder = nullptr;
+    const AVInputFormat* ifmt    = av_find_input_format("dshow");
 
 #if 1
     string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));

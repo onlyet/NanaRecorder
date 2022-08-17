@@ -34,7 +34,7 @@ int AudioEncoder::initAAC() {
 #endif
 
     //²éÕÒÒôÆµ±àÂëÆ÷
-    AVCodec* encoder;
+    const AVCodec* encoder;
     encoder = avcodec_find_encoder(m_aEncodeCtx->codec_id);
     if (!encoder) {
         qCritical() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;

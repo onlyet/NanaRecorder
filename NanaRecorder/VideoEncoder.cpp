@@ -50,7 +50,7 @@ int VideoEncoder::initH264(int width, int height, int fps)
 #endif
 
     //²éÕÒÊÓÆµ±àÂëÆ÷
-    AVCodec* encoder;
+    const AVCodec* encoder;
     encoder = avcodec_find_encoder(m_vEncodeCtx->codec_id);
     if (!encoder) {
         qCritical() << "Can not find the encoder, id: " << m_vEncodeCtx->codec_id;

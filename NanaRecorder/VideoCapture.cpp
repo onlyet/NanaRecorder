@@ -60,14 +60,13 @@ int VideoCapture::initCapture()
     int inHeight = g_record.inHeight;
 
     int ret = -1;
-    AVDictionary* options = nullptr;
-    AVCodec* decoder = nullptr;
-    AVInputFormat* ifmt       = av_find_input_format(VIDEO_DEVICE_FORMAT);
-    string         resolution = QString("%1x%2").arg(inWidth).arg(inHeight).toStdString();
+    AVDictionary*        options = nullptr;
+    const AVCodec*       decoder = nullptr;
+    const AVInputFormat* ifmt    = av_find_input_format(VIDEO_DEVICE_FORMAT);
+    //string         resolution = QString("%1x%2").arg(inWidth).arg(inHeight).toStdString();
 
-    //const char* tt = QString::number(fps).toStdString().c_str();
-    av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str() , NULL);
-    av_dict_set(&options, "video_size", /*resolution.c_str()*/ QString("%1x%2").arg(inWidth).arg(inHeight).toStdString().c_str(), 0);
+    av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str(), 0);
+    av_dict_set(&options, "video_size", QString("%1x%2").arg(inWidth).arg(inHeight).toStdString().c_str(), 0);
 #ifdef USE_DSHOW
     av_dict_set(&options, "pixel_format", "yuv420p", 0);
 #endif

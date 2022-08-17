@@ -13,6 +13,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		ffmpeg_debug|Win32 = ffmpeg_debug|Win32
+		ffmpeg_debug|x64 = ffmpeg_debug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -21,6 +23,10 @@ Global
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|Win32.Build.0 = Debug|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.ffmpeg_debug|Win32.ActiveCfg = ffmpeg_debug|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.ffmpeg_debug|Win32.Build.0 = ffmpeg_debug|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.ffmpeg_debug|x64.ActiveCfg = ffmpeg_debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.ffmpeg_debug|x64.Build.0 = ffmpeg_debug|x64
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.ActiveCfg = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.Build.0 = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
@@ -28,12 +34,16 @@ Global
 		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.Debug|Win32.ActiveCfg = Debug|Win32
 		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.Debug|Win32.Build.0 = Debug|Win32
 		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.Debug|x64.ActiveCfg = Debug|x64
+		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.ffmpeg_debug|Win32.ActiveCfg = ffmpeg_debug|Win32
+		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.ffmpeg_debug|x64.ActiveCfg = ffmpeg_debug|x64
 		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.Release|Win32.ActiveCfg = Release|Win32
 		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.Release|Win32.Build.0 = Release|Win32
 		{884BCF69-CD05-4CBE-A5F6-A6D982840833}.Release|x64.ActiveCfg = Release|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Debug|Win32.ActiveCfg = Debug|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Debug|Win32.Build.0 = Debug|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Debug|x64.ActiveCfg = Debug|Win32
+		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.ffmpeg_debug|Win32.ActiveCfg = ffmpeg_debug|Win32
+		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.ffmpeg_debug|x64.ActiveCfg = ffmpeg_debug|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Release|Win32.ActiveCfg = Release|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Release|Win32.Build.0 = Release|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Release|x64.ActiveCfg = Release|Win32
