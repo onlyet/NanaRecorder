@@ -12,7 +12,7 @@
 
 #include <Windows.h>
 
-//#define USE_DSHOW
+#define USE_DSHOW
 
 #ifdef USE_DSHOW
 #define VIDEO_DEVICE_FORMAT "dshow"
