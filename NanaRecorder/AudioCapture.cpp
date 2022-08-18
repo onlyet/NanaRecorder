@@ -1,6 +1,7 @@
 ﻿#include "AudioCapture.h"
-#include "RecordConfig.h"
+#include "FFmpegHeader.h"
 #include "FFmpegHelper.h"
+#include "RecordConfig.h"
 
 #include <QDebug>
 
@@ -36,9 +37,9 @@ int AudioCapture::stopCapture() {
 }
 
 int AudioCapture::initCapture() {
-    int            ret     = -1;
-    AVDictionary*  options = nullptr;
-    const AVCodec*        decoder = nullptr;
+    int                  ret     = -1;
+    AVDictionary*        options = nullptr;
+    const AVCodec*       decoder = nullptr;
     const AVInputFormat* ifmt    = av_find_input_format("dshow");
 
 #if 1

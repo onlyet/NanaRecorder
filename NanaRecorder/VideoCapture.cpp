@@ -59,11 +59,10 @@ int VideoCapture::initCapture()
     int inWidth = g_record.inWidth;
     int inHeight = g_record.inHeight;
 
-    int ret = -1;
+    int                  ret     = -1;
     AVDictionary*        options = nullptr;
     const AVCodec*       decoder = nullptr;
     const AVInputFormat* ifmt    = av_find_input_format(VIDEO_DEVICE_FORMAT);
-    //string         resolution = QString("%1x%2").arg(inWidth).arg(inHeight).toStdString();
 
     av_dict_set(&options, "framerate", QString::number(fps).toStdString().c_str(), 0);
     av_dict_set(&options, "video_size", QString("%1x%2").arg(inWidth).arg(inHeight).toStdString().c_str(), 0);
