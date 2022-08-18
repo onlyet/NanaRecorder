@@ -15,14 +15,16 @@
 
 - VS2019
 - Qt5.12.9 
-- FFmpeg4.1（项目已包含）
+- FFmpeg5.1 64位（项目已包含）  
+  
+解决方案选择Debug和x64，项目只包含了64位的FFmpeg，Release模式头文件和dll未配置。
 
 ### UI
 ![image](https://user-images.githubusercontent.com/19988547/184412993-248cb2d1-b0b5-428f-be1b-8329d8bb837a.png)
 
 ### TODO
 - [ ] 平衡高画质高帧率低码率  
-- [ ] 使用dshow替代gdigrab录制桌面  
+- [X] 使用dshow替代gdigrab录制桌面  
 - [ ] flush编码器  
 - [ ] 支持同时录制扬声器和麦克风  
 - [ ] 支持硬编码
