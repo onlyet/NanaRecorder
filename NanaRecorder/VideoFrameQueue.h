@@ -34,5 +34,6 @@ private:
     FrameItem               m_vFrameItem;
     SwsContext*             m_swsCtx = nullptr;
     VideoCaptureInfo        m_videoCapInfo;  // 解码获取到的视频信息
+    bool                    m_needScale = false;
 };
 

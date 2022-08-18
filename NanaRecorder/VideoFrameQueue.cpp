@@ -84,7 +84,8 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
         || info.format != m_videoCapInfo.format) {
         m_videoCapInfo = info;
 
-        if (/*m_videoCapInfo.width != m_width || m_videoCapInfo.height != m_height || m_videoCapInfo.format != m_format*/1) {
+        if (m_videoCapInfo.width != m_width || m_videoCapInfo.height != m_height || m_videoCapInfo.format != m_format) {
+            m_needScale = true;
             m_swsCtx = sws_getContext(m_videoCapInfo.width, m_videoCapInfo.height, m_videoCapInfo.format,
                                       m_width, m_height, m_format,
                                       SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
@@ -92,7 +93,7 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
 
     }
     
-    if (m_swsCtx) {
+    if (m_needScale && m_swsCtx) {
         // srcSliceH应该是输入高度，return输出高度
         int h = sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
                           m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
@@ -107,7 +108,11 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
     //qDebug() << "m_cvVBufNotFull.wait duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
     av_fifo_generic_write(m_vFifoBuf, &captureTime, sizeof(int64_t), NULL);
-    av_fifo_generic_write(m_vFifoBuf, m_vInFrameBuf, m_vFrameSize, NULL);
+    if (m_needScale) {
+        av_fifo_generic_write(m_vFifoBuf, m_vInFrameBuf, m_vFrameSize, NULL);
+    } else {
+        av_fifo_generic_write(m_vFifoBuf, oldFrame->data[0], m_vFrameSize, NULL);
+    }
     //qDebug() << "av_fifo_generic_write 2";
     m_cvVBufNotEmpty.notify_one();
     //qDebug() << "av_fifo_generic_write time:" << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << "capture time:" << captureTime;
