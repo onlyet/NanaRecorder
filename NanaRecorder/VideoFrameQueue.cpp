@@ -83,13 +83,20 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
     if (info.width != m_videoCapInfo.width || info.height != m_videoCapInfo.height
         || info.format != m_videoCapInfo.format) {
         m_videoCapInfo = info;
-        m_swsCtx = sws_getContext(m_videoCapInfo.width, m_videoCapInfo.height, m_videoCapInfo.format,
-            m_width, m_height, m_format,
-            SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+
+        if (/*m_videoCapInfo.width != m_width || m_videoCapInfo.height != m_height || m_videoCapInfo.format != m_format*/1) {
+            m_swsCtx = sws_getContext(m_videoCapInfo.width, m_videoCapInfo.height, m_videoCapInfo.format,
+                                      m_width, m_height, m_format,
+                                      SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+        }
+
     }
-    // srcSliceH应该是输入高度，return输出高度
-    int h = sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
-        m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
+    
+    if (m_swsCtx) {
+        // srcSliceH应该是输入高度，return输出高度
+        int h = sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
+                          m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
+    }
 
     //static int s_cnt = 1;
     //QTime t = QTime::currentTime();
