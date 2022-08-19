@@ -15,9 +15,13 @@ using namespace std;
 
 void FFmpegHelper::registerAll()
 {
-    //av_register_all();
-    avdevice_register_all();
-    //avcodec_register_all();
+    static bool s_init = false;
+    if (!s_init) {
+        s_init = true;
+        //av_register_all();
+        avdevice_register_all();
+        //avcodec_register_all();
+    }
 }
 
 static std::string AnsiToUTF8(const char* _ansi, int _ansi_len) {
@@ -124,7 +128,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
 #else
                         // 包含中文需要转UTF8编码
                         tmpName = AnsiToUTF8(tmpName.c_str(), tmpName.length());
-                        qDebug() << "Audio device:" << QString::fromStdString(tmpName);
+                        qInfo() << "Audio device:" << QString::fromStdString(tmpName);
 #endif
                         ret     = tmpName;
                         isFound = true;
@@ -150,6 +154,6 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
 QString FFmpegHelper::err2Str(int err) {
     char errbuf[1024] = {0};
     av_strerror(err, errbuf, sizeof(errbuf) - 1);
-    qDebug() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
-    return QString(errbuf);
+    qCritical() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
+    return QString("%1(%2)").arg(errbuf).arg(err);
 }

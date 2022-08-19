@@ -1,4 +1,5 @@
 #include "VideoEncoder.h"
+#include "FFmpegHelper.h"
 
 #include <QDebug>
 #include <QTime>
@@ -10,7 +11,7 @@ int VideoEncoder::initH264(int width, int height, int fps)
 
     m_vEncodeCtx = avcodec_alloc_context3(NULL);
     if (nullptr == m_vEncodeCtx) {
-        qDebug() << "avcodec_alloc_context3 failed";
+        qCritical() << "avcodec_alloc_context3 failed";
         return -1;
     }
     m_vEncodeCtx->width = width;
@@ -49,16 +50,16 @@ int VideoEncoder::initH264(int width, int height, int fps)
 #endif
 
     //²éÕÒÊÓÆµ±àÂëÆ÷
-    AVCodec* encoder;
+    const AVCodec* encoder;
     encoder = avcodec_find_encoder(m_vEncodeCtx->codec_id);
     if (!encoder) {
-        qDebug() << "Can not find the encoder, id: " << m_vEncodeCtx->codec_id;
+        qCritical() << "Can not find the encoder, id: " << m_vEncodeCtx->codec_id;
         return -1;
     }
     //´ò¿ªÊÓÆµ±àÂëÆ÷
     ret = avcodec_open2(m_vEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
-        qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
+        qCritical() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
         return -1;
     }
     return 0;
@@ -70,6 +71,7 @@ void VideoEncoder::deinit()
         avcodec_free_context(&m_vEncodeCtx);
         m_vEncodeCtx = nullptr;
     }
+    av_dict_free(&m_dict);
 }
 
 int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t time_base, std::vector<AVPacket*>& packets)
@@ -88,9 +90,7 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
     ret = avcodec_send_frame(m_vEncodeCtx, frame);
     //qDebug() << "avcodec_send_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
     if (ret != 0) {
-        char errbuf[1024] = { 0 };
-        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qDebug() << "video avcodec_send_frame failed:" << errbuf;
+        qCritical() << "video avcodec_send_frame failed:" << FFmpegHelper::err2Str(ret);
         return -1;
     }
 
@@ -105,9 +105,7 @@ int VideoEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
             break;
         }
         else if (ret < 0) {
-            char errbuf[1024] = { 0 };
-            av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-            qDebug() << "avcodec_receive_packet failed:" << errbuf;
+            qCritical() << "avcodec_receive_packet failed:" << FFmpegHelper::err2Str(ret);
             av_packet_free(&packet);
             ret = -1;
             break;

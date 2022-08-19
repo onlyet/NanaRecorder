@@ -1,9 +1,12 @@
 #pragma once
-#include "FFmpegHeader.h"
 
 #include <atomic>
 #include <functional>
 #include <thread>
+
+struct AVFormatContext;
+struct AVCodecContext;
+struct AVFrame;
 
 class AudioCaptureInfo;
 

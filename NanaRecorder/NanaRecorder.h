@@ -31,7 +31,7 @@ private:
     Recorder*             m_recorder = nullptr;
     //QTimer*               m_timer    = nullptr;
     QTimer*               m_recordTimer = nullptr;
-    int                   m_totalTimeSec = 0;
+    int                   m_recordDuration = 0;
     bool                  m_started      = false;
     bool                  m_paused       = false;
 };

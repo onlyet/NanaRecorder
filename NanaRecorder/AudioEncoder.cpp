@@ -1,5 +1,6 @@
 #include "AudioEncoder.h"
 #include "RecordConfig.h"
+#include "FFmpegHelper.h"
 
 #include <QDebug>
 
@@ -8,7 +9,7 @@ int AudioEncoder::initAAC() {
 
     m_aEncodeCtx = avcodec_alloc_context3(NULL);
     if (nullptr == m_aEncodeCtx) {
-        qDebug() << "avcodec_alloc_context3 failed";
+        qCritical() << "avcodec_alloc_context3 failed";
         return -1;
     }
     // 为什么音频不需要设置timebase
@@ -33,16 +34,16 @@ int AudioEncoder::initAAC() {
 #endif
 
     //查找音频编码器
-    AVCodec* encoder;
+    const AVCodec* encoder;
     encoder = avcodec_find_encoder(m_aEncodeCtx->codec_id);
     if (!encoder) {
-        qDebug() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;
+        qCritical() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;
         return -1;
     }
     //打开音频编码器
     int ret = avcodec_open2(m_aEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
-        qDebug() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
+        qCritical() << "Can not open encoder id: " << encoder->id << "error code: " << ret;
         return -1;
     }
     return 0;
@@ -53,6 +54,7 @@ void AudioEncoder::deinit() {
         avcodec_free_context(&m_aEncodeCtx);
         m_aEncodeCtx = nullptr;
     }
+    av_dict_free(&m_dict);
 }
 
 int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t time_base, std::vector<AVPacket*>& packets) {
@@ -65,9 +67,7 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
     ret = avcodec_send_frame(m_aEncodeCtx, frame);
     //qDebug() << "avcodec_send_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
     if (ret != 0) {
-        char errbuf[1024] = {0};
-        av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-        qDebug() << "video avcodec_send_frame failed:" << errbuf;
+        qCritical() << "video avcodec_send_frame failed:" << FFmpegHelper::err2Str(ret);
         return -1;
     }
 
@@ -80,9 +80,7 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
             av_packet_free(&packet);
             break;
         } else if (ret < 0) {
-            char errbuf[1024] = {0};
-            av_strerror(ret, errbuf, sizeof(errbuf) - 1);
-            qDebug() << "avcodec_receive_packet failed:" << errbuf;
+            qCritical() << "avcodec_receive_packet failed:" << FFmpegHelper::err2Str(ret);
             av_packet_free(&packet);
             ret = -1;
             break;

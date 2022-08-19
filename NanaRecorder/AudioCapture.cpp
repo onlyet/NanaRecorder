@@ -1,6 +1,7 @@
 ﻿#include "AudioCapture.h"
-#include "RecordConfig.h"
+#include "FFmpegHeader.h"
 #include "FFmpegHelper.h"
+#include "RecordConfig.h"
 
 #include <QDebug>
 
@@ -36,10 +37,10 @@ int AudioCapture::stopCapture() {
 }
 
 int AudioCapture::initCapture() {
-    int            ret     = -1;
-    AVDictionary*  options = nullptr;
-    AVCodec*       decoder = nullptr;
-    AVInputFormat* ifmt    = av_find_input_format("dshow");
+    int                  ret     = -1;
+    AVDictionary*        options = nullptr;
+    const AVCodec*       decoder = nullptr;
+    const AVInputFormat* ifmt    = av_find_input_format("dshow");
 
 #if 1
     string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));
@@ -50,11 +51,11 @@ int AudioCapture::initCapture() {
         return -1;
     }
     if ((ret = avformat_open_input(&m_aFmtCtx, audioDeviceName.c_str(), ifmt, &options)) != 0) {
-        qDebug() << "Auido avformat_open_input failed:" << FFmpegHelper::err2Str(ret);
+        qCritical() << "Auido avformat_open_input failed:" << FFmpegHelper::err2Str(ret);
         return -1;
     }
     if (avformat_find_stream_info(m_aFmtCtx, nullptr) < 0) {
-        qDebug() << "Couldn't find stream information";
+        qCritical() << "Couldn't find stream information";
         return -1;
     }
     for (int i = 0; i < m_aFmtCtx->nb_streams; ++i) {
@@ -62,13 +63,13 @@ int AudioCapture::initCapture() {
         if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             decoder = avcodec_find_decoder(stream->codecpar->codec_id);
             if (decoder == nullptr) {
-                qDebug() << "can not find decoder";
+                qCritical() << "can not find decoder";
                 return -1;
             }
             //从音频流中拷贝参数到codecCtx
             m_aDecodeCtx = avcodec_alloc_context3(decoder);
             if ((ret = avcodec_parameters_to_context(m_aDecodeCtx, stream->codecpar)) < 0) {
-                qDebug() << "Audio avcodec_parameters_to_context failed,error code: " << ret;
+                qCritical() << "Audio avcodec_parameters_to_context failed,error code: " << ret;
                 return -1;
             }
             m_aIndex = i;
@@ -76,7 +77,7 @@ int AudioCapture::initCapture() {
         }
     }
     if (avcodec_open2(m_aDecodeCtx, decoder, nullptr) < 0) {
-        qDebug() << "Could not open codec";
+        qCritical() << "Could not open codec";
         return -1;
     }
 
@@ -96,7 +97,7 @@ void AudioCapture::deinit() {
 
 void AudioCapture::audioCaptureThreadProc() {
     if (!m_frameCb) {
-        qDebug() << "m_frameCb empty, thread exit";
+        qCritical() << "m_frameCb empty, thread exit";
         return;
     }
 
@@ -120,13 +121,13 @@ void AudioCapture::audioCaptureThreadProc() {
 #endif
 
         if (!m_aFmtCtx || !m_aDecodeCtx) {
-            qDebug() << "m_aFmtCtx or m_aDecodeCtx nullptr";
+            qCritical() << "m_aFmtCtx or m_aDecodeCtx nullptr";
             break;
         }
         //static int s_cnt = 1;
         //QTime      t     = QTime::currentTime();
         if (av_read_frame(m_aFmtCtx, &pkt) < 0) {
-            qDebug() << "Audio av_read_frame < 0";
+            qCritical() << "Audio av_read_frame < 0";
             continue;
         }
         // 暂停后读packet但不处理
@@ -136,23 +137,23 @@ void AudioCapture::audioCaptureThreadProc() {
             continue;
         }
 
-        //qDebug() << "audio pkt: " << pkt.pts << "," << pkt.dts;
-        //qDebug() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
+        //qCritical() << "audio pkt: " << pkt.pts << "," << pkt.dts;
+        //qCritical() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_aIndex) {
-            qDebug() << "not a Audio packet from Audio input";
+            qCritical() << "not a Audio packet from Audio input";
             av_packet_unref(&pkt);
             continue;
         }
         ret = avcodec_send_packet(m_aDecodeCtx, &pkt);
         if (ret != 0) {
-            qDebug() << "Audio avcodec_send_packet failed, ret:" << ret;
+            qCritical() << "Audio avcodec_send_packet failed, ret:" << ret;
             av_packet_unref(&pkt);
             continue;
         }
         ret = avcodec_receive_frame(m_aDecodeCtx, oldFrame);
         if (ret != 0) {
-            qDebug() << "Audio avcodec_receive_frame failed, ret:" << ret;
+            qCritical() << "Audio avcodec_receive_frame failed, ret:" << ret;
             av_packet_unref(&pkt);
             continue;
         }
@@ -168,5 +169,5 @@ void AudioCapture::audioCaptureThreadProc() {
     //FlushAudioDecoder();
 
     av_frame_free(&oldFrame);
-    qDebug() << "audioCaptureThreadProc thread exit";
+    qInfo() << "audioCaptureThreadProc thread exit";
 }

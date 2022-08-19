@@ -120,7 +120,7 @@ void FileOutputer::outputVideoThreadProc()
     while (m_isRunning) {
         encodeVideoAndMux();
     }
-    qDebug() << "outputVideoThreadProc thread exit";
+    qInfo() << "outputVideoThreadProc thread exit";
 }
 
 void FileOutputer::encodeVideoAndMux()
@@ -159,7 +159,7 @@ void FileOutputer::outputAudioThreadProc() {
     while (m_isRunning) {
         encodeAudioAndMux();
     }
-    qDebug() << "outputAudioThreadProc thread exit";
+    qInfo() << "outputAudioThreadProc thread exit";
 }
 
 void FileOutputer::encodeAudioAndMux() {
