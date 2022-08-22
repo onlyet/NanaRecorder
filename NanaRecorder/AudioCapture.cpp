@@ -20,8 +20,7 @@ int AudioCapture::startCapture() {
     if (0 != ret) {
         return -1;
     }
-    std::thread t(std::bind(&AudioCapture::audioCaptureThreadProc, this));
-    m_captureThread.swap(t);
+    m_captureThread = thread(bind(&AudioCapture::audioCaptureThreadProc, this));
     return 0;
 }
 

@@ -72,12 +72,10 @@ int FileOutputer::start(int64_t startTime) {
     m_isRunning = true;
     m_startTime = startTime;
 
-    thread vt(bind(&FileOutputer::outputVideoThreadProc, this));
-    m_outputVideoThread.swap(vt);
+    m_outputVideoThread = thread(bind(&FileOutputer::outputVideoThreadProc, this));
 
     if (m_enableAudio) {
-        thread at(bind(&FileOutputer::outputAudioThreadProc, this));
-        m_outputAudioThread.swap(at);
+        m_outputAudioThread = thread(bind(&FileOutputer::outputAudioThreadProc, this));
     }
    return 0;
 }
