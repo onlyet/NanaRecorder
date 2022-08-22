@@ -228,3 +228,4 @@ ffmpeg_debug
 
 vcpkg.json
 vcpkg_installed
+/RecordCore/lib/RecordCore.lib
