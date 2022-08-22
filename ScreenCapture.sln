@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NanaRecorder", "NanaRecorde
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{ADD217D6-6BE8-4D6B-82A1-0846FF860795}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RecordCore", "RecordCore\RecordCore.vcxproj", "{59882A57-745F-4F36-B985-17E44C3F7D73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -47,6 +49,16 @@ Global
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Release|Win32.ActiveCfg = Release|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Release|Win32.Build.0 = Release|Win32
 		{ADD217D6-6BE8-4D6B-82A1-0846FF860795}.Release|x64.ActiveCfg = Release|Win32
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.Debug|Win32.ActiveCfg = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.Debug|x64.ActiveCfg = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.Debug|x64.Build.0 = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.ffmpeg_debug|Win32.ActiveCfg = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.ffmpeg_debug|Win32.Build.0 = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.ffmpeg_debug|x64.ActiveCfg = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.ffmpeg_debug|x64.Build.0 = Debug|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.Release|Win32.ActiveCfg = Release|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.Release|x64.ActiveCfg = Release|x64
+		{59882A57-745F-4F36-B985-17E44C3F7D73}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

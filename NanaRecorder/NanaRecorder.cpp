@@ -1,6 +1,6 @@
 #include "NanaRecorder.h"
-#include "Recorder.h"
-#include "FFmpegHeader.h"
+#include <Recorder.h>
+//#include "FFmpegHeader.h"
 
 #include <AppData.h>
 #include <util.h>
@@ -146,7 +146,7 @@ void NanaRecorder::initUI() {
     m_recordTimer = new QTimer(this);
     connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
     ui.durationLabel->setText("00:00:00");
-    qInfo() << "av_version_info:" << av_version_info();
+    //qInfo() << "av_version_info:" << av_version_info();
 
     ui.videoCheckBox->setEnabled(false);
     //ui.audioComboBox->setEnabled(false);
