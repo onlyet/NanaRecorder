@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <ratio>
+#include <iostream>
 
 using namespace std::chrono;
 
@@ -20,6 +21,7 @@ public:
 
 public:
 	Timer() : tpStart(clock_type::now()), tpStop(tpStart) {}
+    ~Timer() {}
 
 public:
 	void start() { tpStart = clock_type::now(); }

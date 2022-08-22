@@ -24,7 +24,7 @@ using namespace std::chrono;
 
 Recorder::Recorder(const QVariantMap& recordInfo) {
 
-    m_pauseStopwatch = new Timer<>;
+    m_pauseStopwatch = make_unique<Timer<std::chrono::system_clock>>();
 
 	setRecordInfo(recordInfo);
 

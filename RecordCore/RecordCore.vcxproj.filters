@@ -11,7 +11,7 @@
     <Filter Include="common\util">
       <UniqueIdentifier>{9b9604ce-6b8d-4f0d-bccd-35cc82724b4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include">
+    <Filter Include="interface">
       <UniqueIdentifier>{871ff259-0e08-4b70-bcdb-a55213af8566}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -91,7 +91,7 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="include\Recorder.h">
-      <Filter>include</Filter>
+      <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
