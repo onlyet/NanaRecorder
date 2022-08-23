@@ -17,6 +17,10 @@ NanaRecorder::NanaRecorder(QWidget *parent)
     ui.pauseBtn->hide();
 }
 
+NanaRecorder::~NanaRecorder() {
+    qDebug() << "~NanaRecorder()";
+}
+
 void NanaRecorder::startBtnClicked() {
     // ÔÝÍ£ºó»Ö¸´
     if (m_paused) {
@@ -72,10 +76,6 @@ void NanaRecorder::startBtnClicked() {
     ui.infoFrame->setEnabled(false);
 
     qInfo() << "Start record";
-}
-
-NanaRecorder::~NanaRecorder() {
-
 }
 
 void NanaRecorder::pauseBtnClicked() {

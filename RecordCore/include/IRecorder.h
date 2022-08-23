@@ -7,13 +7,13 @@
 #endif  // RECORDER_EXPORT
 
 #include <QVariant>
-
+#include <qdebug.h>
 #include <memory>
 
 class RECORDAPI IRecorder {
 public:
-    IRecorder(){}
-    ~IRecorder() {}
+    //IRecorder(){}
+    virtual ~IRecorder() {}
 
     virtual void setRecordInfo(const QVariantMap& recordInfo) = 0;
     virtual int  startRecord()                                = 0;

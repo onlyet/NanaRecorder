@@ -29,7 +29,7 @@ private slots:
 
 private:
     Ui::NanaRecorderClass      ui;
-    std::unique_ptr<IRecorder> m_recorder       = nullptr;
+    std::unique_ptr<IRecorder> m_recorder;
     QTimer*                    m_recordTimer    = nullptr;
     int                        m_recordDuration = 0;
     bool                       m_started        = false;
