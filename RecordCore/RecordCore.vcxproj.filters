@@ -14,17 +14,14 @@
     <Filter Include="interface">
       <UniqueIdentifier>{871ff259-0e08-4b70-bcdb-a55213af8566}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\video">
+      <UniqueIdentifier>{5dbbf540-d492-4f07-ab93-89dc23059dd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\audio">
+      <UniqueIdentifier>{abfee6ce-39a7-4b96-9558-9cd29c6161e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\AudioCapture.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AudioEncoder.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AudioFrameQueue.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\FFmpegHelper.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -37,29 +34,29 @@
     <ClCompile Include="src\Recorder.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\VideoCapture.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VideoEncoder.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VideoFrameQueue.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="common\util\util.cpp">
       <Filter>common\util</Filter>
     </ClCompile>
+    <ClCompile Include="src\VideoCapture.cpp">
+      <Filter>src\video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoEncoder.cpp">
+      <Filter>src\video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoFrameQueue.cpp">
+      <Filter>src\video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioCapture.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioEncoder.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioFrameQueue.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\AudioCapture.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AudioEncoder.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AudioFrameQueue.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\FFmpegHeader.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -75,23 +72,35 @@
     <ClInclude Include="src\RecordConfig.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\VideoCapture.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VideoEncoder.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VideoFrameQueue.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="common\util\util.h">
       <Filter>common\util</Filter>
     </ClInclude>
     <ClInclude Include="common\timer.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="include\Recorder.h">
+    <ClInclude Include="src\VideoCapture.h">
+      <Filter>src\video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoEncoder.h">
+      <Filter>src\video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoFrameQueue.h">
+      <Filter>src\video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioCapture.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioEncoder.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioFrameQueue.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IRecorder.h">
       <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Recorder.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

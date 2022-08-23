@@ -22,6 +22,13 @@ using namespace std;
 using namespace std::placeholders;
 using namespace std::chrono;
 
+RECORDAPI std::unique_ptr<IRecorder> createRecorder(const QVariantMap& recordInfo) {
+    return make_unique<Recorder>(recordInfo);
+}
+//RECORDAPI IRecorder* freeRecorder() {
+//
+//}
+
 Recorder::Recorder(const QVariantMap& recordInfo) {
 
     m_pauseStopwatch = make_unique<Timer<std::chrono::system_clock>>();

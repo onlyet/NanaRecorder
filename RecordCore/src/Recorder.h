@@ -1,14 +1,6 @@
 #pragma once
 
-//#include <FFmpegHeader.h>
-//#include <timer.h>
-
-#ifdef RECORDER_EXPORT
-#define RECORDAPI __declspec(dllexport)
-#else
-#define RECORDAPI __declspec(dllimport)
-#endif  // RECORDER_EXPORT
-
+#include "IRecorder.h"
 
 #include <QVariant>
 
@@ -30,16 +22,16 @@ class FileOutputer;
 template <typename clock_type>
 class Timer;
 
-class RECORDAPI Recorder {
+class Recorder : public IRecorder {
 public:
     Recorder(const QVariantMap& recordInfo);
 	~Recorder();
 
-	void setRecordInfo(const QVariantMap& recordInfo);
-    int  startRecord();
-    int  pauseRecord();
-    int  resumeRecord();
-    int  stopRecord();
+    void setRecordInfo(const QVariantMap& recordInfo) override;
+    int  startRecord() override;
+    int  pauseRecord() override;
+    int  resumeRecord() override;
+    int  stopRecord() override;
 
 private:
 	void startCapture();

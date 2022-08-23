@@ -1,6 +1,5 @@
 #include "NanaRecorder.h"
-#include <Recorder.h>
-//#include "FFmpegHeader.h"
+#include <IRecorder.h>
 
 #include <AppData.h>
 #include <util.h>
@@ -61,7 +60,7 @@ void NanaRecorder::startBtnClicked() {
         QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
         APPDATA->set(AppDataRole::RecordPath, path);
         info.insert("recordPath", path);
-        m_recorder = new Recorder(info);
+        m_recorder = createRecorder(info);
     }
     m_recorder->startRecord();
 
@@ -73,6 +72,10 @@ void NanaRecorder::startBtnClicked() {
     ui.infoFrame->setEnabled(false);
 
     qInfo() << "Start record";
+}
+
+NanaRecorder::~NanaRecorder() {
+
 }
 
 void NanaRecorder::pauseBtnClicked() {
@@ -102,8 +105,9 @@ void NanaRecorder::stopBtnClicked() {
     ui.pauseBtn->hide();
     m_recordTimer->stop();
     if (m_recorder) {
-        delete m_recorder;
-        m_recorder = nullptr;
+        //delete m_recorder;
+        //m_recorder = nullptr;
+        m_recorder.reset();
     }
     ui.infoFrame->setEnabled(true);
 

@@ -125,7 +125,7 @@
   <ItemGroup>
     <ClInclude Include="common\timer.h" />
     <ClInclude Include="common\util\util.h" />
-    <ClInclude Include="include\Recorder.h" />
+    <ClInclude Include="include\IRecorder.h" />
     <ClInclude Include="src\AudioCapture.h" />
     <ClInclude Include="src\AudioEncoder.h" />
     <ClInclude Include="src\AudioFrameQueue.h" />
@@ -134,6 +134,7 @@
     <ClInclude Include="src\FileOutputer.h" />
     <ClInclude Include="src\mux.h" />
     <ClInclude Include="src\RecordConfig.h" />
+    <ClInclude Include="src\Recorder.h" />
     <ClInclude Include="src\VideoCapture.h" />
     <ClInclude Include="src\VideoEncoder.h" />
     <ClInclude Include="src\VideoFrameQueue.h" />
