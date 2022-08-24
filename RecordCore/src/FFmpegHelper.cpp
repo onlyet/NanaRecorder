@@ -21,6 +21,7 @@ void FFmpegHelper::registerAll()
         //av_register_all();
         avdevice_register_all();
         //avcodec_register_all();
+        qInfo() << "av_version_info:" << av_version_info();
     }
 }
 

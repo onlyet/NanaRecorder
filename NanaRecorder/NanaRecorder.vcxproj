@@ -29,12 +29,12 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{884BCF69-CD05-4CBE-A5F6-A6D982840833}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='ffmpeg_debug|Win32'">10.0.18362.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='ffmpeg_debug|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">10.0.18362.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Release|x64'">10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='ffmpeg_debug|x64'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Release|x64'">10.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,8 +127,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <IncludePath>$(SolutionDir)3rd\ffmpeg\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd\ffmpeg\lib\$(PlatformTarget);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)RecordCore\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)RecordCore\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -139,8 +139,8 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rd\FFmpeg\FFmpeg-5.1\x64\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(SolutionDir)RecordCore\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd\FFmpeg\FFmpeg-5.1\x64\lib;$(SolutionDir)RecordCore\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)RecordCore\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)RecordCore\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ffmpeg_debug|x64'">
     <IncludePath>$(SolutionDir)3rd\ffmpeg\FFmpeg-4.5-r104625\x64\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
@@ -148,21 +148,21 @@
     <SourcePath>D:\Qt\Qt5.12.9\5.12.9\Src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <IncludePath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd\ffmpeg-4.5-r104625\lib\$(PlatformTarget);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)RecordCore\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)RecordCore\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rd\FFmpeg\FFmpeg-5.1\x64\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(SolutionDir)RecordCore\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd\FFmpeg\FFmpeg-5.1\x64\lib;$(SolutionDir)RecordCore\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)RecordCore\include;$(SolutionDir)common;$(SolutionDir)common\dump;$(SolutionDir)common\log;$(SolutionDir)common\util;$(SolutionDir)common\setting;$(ProjectDir)model;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)RecordCore\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnabled>false</VcpkgEnabled>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RecordCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -186,7 +186,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>RecordCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
@@ -195,6 +195,10 @@
     <Link>
       <AdditionalDependencies>RecordCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
     <ClCompile>
@@ -205,7 +209,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
