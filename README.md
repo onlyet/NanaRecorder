@@ -15,9 +15,9 @@
 
 - VS2019
 - Qt5.12.9 
-- FFmpeg5.1 64位（项目已包含）  
+- FFmpeg5.1（项目已包含）  
   
-解决方案选择Debug和x64，项目只包含了64位的FFmpeg，Release模式头文件和dll未配置。
+解决方案支持Debug/Release和win/x64
 
 ### UI
 ![image](https://user-images.githubusercontent.com/19988547/184412993-248cb2d1-b0b5-428f-be1b-8329d8bb837a.png)
