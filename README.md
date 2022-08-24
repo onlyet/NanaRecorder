@@ -1,7 +1,6 @@
 # NanaRecorder
 
 之前的录屏项目ScreenCapture存在音视频同步问题，所以重写了第二个版本：NanaRecorder。  
-录制桌面和系统声音（扬声器）。
 
 ### 录制流程
 ![image](https://user-images.githubusercontent.com/19988547/183014314-ab124ad5-4ee4-47ce-b19d-52d1c5f41ee1.png)  
