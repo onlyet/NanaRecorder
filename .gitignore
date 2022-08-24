@@ -229,3 +229,4 @@ ffmpeg_debug
 vcpkg.json
 vcpkg_installed
 /RecordCore/lib/RecordCore.lib
+/RecordCore/3rd/ffmpeg/FFmpeg-4.5-r104625

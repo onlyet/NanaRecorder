@@ -95,8 +95,8 @@
     <LibraryPath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-4.5-r104625\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rd\ffmpeg\FFmpeg-4.5-r104625\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -105,15 +105,15 @@
     <LibraryPath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-4.5-r104625\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rd\ffmpeg\FFmpeg-4.5-r104625\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(ProjectDir)lib\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>RECORDER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -125,18 +125,20 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
       <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>$(ProjectDir)lib\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>RECORDER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /dy  $(ProjectDir)3rd\ffmpeg\FFmpeg-4.5-r104625\bin\x86 $(TargetDir)</Command>
+      <Command>xcopy /dy  $(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\bin $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>RECORDER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -148,12 +150,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
       <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>RECORDER_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy /dy  $(ProjectDir)3rd\ffmpeg\FFmpeg-4.5-r104625\bin\x86 $(TargetDir)</Command>
+      <Command>xcopy /dy  $(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\bin $(TargetDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <PropertyGroup Label="Vcpkg">

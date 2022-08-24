@@ -26,6 +26,6 @@ private:
     AVFrame*                m_aOutFrame    = nullptr;
     SwrContext*             m_swrCtx       = nullptr;
     AudioCaptureInfo        m_audioCapInfo{};  // 解码获取到的音频信息
-    int                     m_resampleBufSize = 0;
+    int64_t                 m_resampleBufSize = 0;
     uint8_t*                m_resampleBuf[MAX_AV_PLANES];
 };

@@ -80,7 +80,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
         }
     }
     
-    int dst_nb_samples = av_rescale_rnd(oldFrame->nb_samples + swr_get_delay(m_swrCtx, info.sampleRate), 
+    int64_t dst_nb_samples = av_rescale_rnd(oldFrame->nb_samples + swr_get_delay(m_swrCtx, info.sampleRate), 
         m_sampleRate, info.sampleRate, AV_ROUND_UP);
     if (dst_nb_samples <= 0) {
         qCritical() << "av_rescale_rnd failed";
