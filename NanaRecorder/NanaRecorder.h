@@ -3,9 +3,9 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_NanaRecorder.h"
 
-//#include <QTime>
+#include <memory>
 
-class Recorder;
+class IRecorder;
 
 class QTimer;
 
@@ -15,6 +15,7 @@ class NanaRecorder : public QMainWindow
 
 public:
     NanaRecorder(QWidget *parent = Q_NULLPTR);
+    ~NanaRecorder();
 
 private slots:
     void startBtnClicked();
@@ -27,11 +28,10 @@ private slots:
     void initUI();
 
 private:
-    Ui::NanaRecorderClass ui;
-    Recorder*             m_recorder = nullptr;
-    //QTimer*               m_timer    = nullptr;
-    QTimer*               m_recordTimer = nullptr;
-    int                   m_recordDuration = 0;
-    bool                  m_started      = false;
-    bool                  m_paused       = false;
+    Ui::NanaRecorderClass      ui;
+    std::unique_ptr<IRecorder> m_recorder;
+    QTimer*                    m_recordTimer    = nullptr;
+    int                        m_recordDuration = 0;
+    bool                       m_started        = false;
+    bool                       m_paused         = false;
 };

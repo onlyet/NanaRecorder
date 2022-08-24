@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{73fe5350-66c7-4828-a58a-df65b4feb0ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\util">
+      <UniqueIdentifier>{9b9604ce-6b8d-4f0d-bccd-35cc82724b4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{871ff259-0e08-4b70-bcdb-a55213af8566}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\video">
+      <UniqueIdentifier>{5dbbf540-d492-4f07-ab93-89dc23059dd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\audio">
+      <UniqueIdentifier>{abfee6ce-39a7-4b96-9558-9cd29c6161e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\FFmpegHelper.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileOutputer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mux.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Recorder.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="common\util\util.cpp">
+      <Filter>common\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoCapture.cpp">
+      <Filter>src\video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoEncoder.cpp">
+      <Filter>src\video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoFrameQueue.cpp">
+      <Filter>src\video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioCapture.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioEncoder.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioFrameQueue.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\FFmpegHeader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FFmpegHelper.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileOutputer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mux.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RecordConfig.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="common\util\util.h">
+      <Filter>common\util</Filter>
+    </ClInclude>
+    <ClInclude Include="common\timer.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoCapture.h">
+      <Filter>src\video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoEncoder.h">
+      <Filter>src\video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoFrameQueue.h">
+      <Filter>src\video</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioCapture.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioEncoder.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioFrameQueue.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IRecorder.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Recorder.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\singleton.h">
+      <Filter>src</Filter>
+    </QtMoc>
+  </ItemGroup>
+</Project>
