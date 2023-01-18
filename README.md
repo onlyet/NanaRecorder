@@ -16,7 +16,7 @@
 - Qt5.12.9 
 - FFmpeg5.1（项目已包含）  
   
-解决方案支持Debug/Release和win/x64
+解决方案支持Debug/Release和Win32/x64
 
 ### UI
 ![image](https://user-images.githubusercontent.com/19988547/184412993-248cb2d1-b0b5-428f-be1b-8329d8bb837a.png)
