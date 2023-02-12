@@ -103,9 +103,4 @@
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="src\singleton.h">
-      <Filter>src</Filter>
-    </QtMoc>
-  </ItemGroup>
 </Project>

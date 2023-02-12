@@ -29,9 +29,6 @@
     <Filter Include="src\common\util">
       <UniqueIdentifier>{f32c67e7-af7a-4544-99cb-e6a633c67d52}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\common\setting">
-      <UniqueIdentifier>{a5345cfd-b753-4fe3-847a-5083229cd853}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\NanaRecorder">
       <UniqueIdentifier>{edae5389-4fcb-4e04-a01c-863d20e38f84}</UniqueIdentifier>
     </Filter>
@@ -55,17 +52,8 @@
     <ClCompile Include="main.cpp">
       <Filter>src\NanaRecorder</Filter>
     </ClCompile>
-    <ClCompile Include="model\AppConfig.cpp">
-      <Filter>src\NanaRecorder\model</Filter>
-    </ClCompile>
     <ClCompile Include="model\AppData.cpp">
       <Filter>src\NanaRecorder\model</Filter>
-    </ClCompile>
-    <ClCompile Include="model\UserConfig.cpp">
-      <Filter>src\NanaRecorder\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\setting\CSetting.cpp">
-      <Filter>src\common\setting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,17 +71,8 @@
     <ClInclude Include="..\common\util\util.h">
       <Filter>src\common\util</Filter>
     </ClInclude>
-    <ClInclude Include="model\AppConfig.h">
-      <Filter>src\NanaRecorder\model</Filter>
-    </ClInclude>
     <ClInclude Include="model\AppData.h">
       <Filter>src\NanaRecorder\model</Filter>
-    </ClInclude>
-    <ClInclude Include="model\UserConfig.h">
-      <Filter>src\NanaRecorder\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\setting\CSetting.h">
-      <Filter>src\common\setting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

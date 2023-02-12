@@ -280,11 +280,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\dump\dump.cpp" />
-    <ClCompile Include="..\common\setting\CSetting.cpp" />
     <ClCompile Include="..\common\util\util.cpp" />
-    <ClCompile Include="model\AppConfig.cpp" />
     <ClCompile Include="model\AppData.cpp" />
-    <ClCompile Include="model\UserConfig.cpp" />
     <QtUic Include="NanaRecorder.ui" />
     <QtMoc Include="NanaRecorder.h" />
     <ClCompile Include="NanaRecorder.cpp" />
@@ -293,11 +290,8 @@
   <ItemGroup>
     <ClInclude Include="..\common\dump\dump.h" />
     <ClInclude Include="..\common\log\log.h" />
-    <ClInclude Include="..\common\setting\CSetting.h" />
     <ClInclude Include="..\common\util\util.h" />
-    <ClInclude Include="model\AppConfig.h" />
     <ClInclude Include="model\AppData.h" />
-    <ClInclude Include="model\UserConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="..\res\NanaRecorder.qrc" />

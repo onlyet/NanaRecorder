@@ -245,7 +245,6 @@
     <ClInclude Include="src\VideoCapture.h" />
     <ClInclude Include="src\VideoEncoder.h" />
     <ClInclude Include="src\VideoFrameQueue.h" />
-    <QtMoc Include="src\singleton.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
