@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
 	// ³õÊ¼»¯ÅäÖÃÏî
 	APPCFG->init(QString("%1/%2.ini").arg(util::appDirPath(), util::getAppName(argv[0])));
 	USERCFG->init(QString("%1/user.ini").arg(tmppath));
-#endif
 
     a.setWindowIcon(QIcon(":/NanaRecorder/image/momo1.ico"));
+#endif
 
     NanaRecorder w;
     w.show();

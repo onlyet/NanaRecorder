@@ -95,6 +95,7 @@ LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
     // 这里做一些异常的过滤或提示
     if (IsDebuggerPresent())
     {
+		// 交给调试器处理，调试器显示异常窗口
         return EXCEPTION_CONTINUE_SEARCH;
     }
     auto ret = generateMiniDump(lpExceptionInfo);

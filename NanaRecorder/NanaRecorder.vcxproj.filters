@@ -105,8 +105,13 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="NanaRecorder.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
     <QtRcc Include="..\res\NanaRecorder.qrc">
-      <Filter>src\NanaRecorder\UI</Filter>
+      <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
 </Project>
