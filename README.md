@@ -15,16 +15,16 @@
 
 
 ## 环境依赖
-VS：推荐VS2017以后的版本
-Qt：推荐Qt5.12以后的版本
+VS：推荐VS2017以后的版本  
+Qt：推荐Qt5.12以后的版本  
 FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
 
 我的开发环境
 - VS2022
 - Qt5.12.9 
   
-解决方案支持Debug/Release和Win32/x64
-<b>
+解决方案支持Debug/Release和Win32/x64  
+</br>
 [VS+Qt开发环境配置](./VS%2BQt%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.pdf)
 
 ## TODO
