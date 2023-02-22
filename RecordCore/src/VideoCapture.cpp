@@ -13,6 +13,7 @@
 
 #include <Windows.h>
 
+#ifdef WIN32
 #define USE_DSHOW
 
 #ifdef USE_DSHOW
@@ -23,6 +24,12 @@
 #define VIDEO_DEVICE_NAME "desktop"
 #endif  // USE_DSHOW
 
+#elif __linux__
+#define VIDEO_DEVICE_FORMAT "x11grab"
+#define VIDEO_DEVICE_NAME "0.0"
+#else
+#error Unsupported platform
+#endif
 
 using namespace std;
 using namespace std::chrono;
