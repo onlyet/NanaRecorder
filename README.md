@@ -1,8 +1,12 @@
-# NanaRecorder
+# 基于Qt+FFmpeg的录屏软件NanaRecorder
 
-之前的录屏项目ScreenCapture存在音视频同步问题，所以重写了第二个版本：NanaRecorder。  
 
-### 录制流程
+
+## UI
+![QQ截图20230119022010](https://user-images.githubusercontent.com/19988547/213262749-ed8811aa-294a-44bc-8ed7-ad3c139540ac.png)
+
+
+## 录制流程
 ![image](https://user-images.githubusercontent.com/19988547/183014314-ab124ad5-4ee4-47ce-b19d-52d1c5f41ee1.png)  
 
 主线程：UI线程，调用Recorder接口  
@@ -10,18 +14,20 @@
 编码线程：循环从FIFO读取帧->编码->写进文件
 
 
-### 环境依赖
+## 环境依赖
+VS：推荐VS2017以后的版本  
+Qt：推荐Qt5.12以后的版本  
+FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
 
-- VS2019
+我的开发环境
+- VS2022
 - Qt5.12.9 
-- FFmpeg5.1（项目已包含）  
   
-解决方案支持Debug/Release和Win32/x64
+解决方案支持Debug/Release和Win32/x64  
+</br>
+[VS+Qt开发环境配置](./VS%2BQt%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.pdf)
 
-### UI
-![image](https://user-images.githubusercontent.com/19988547/184412993-248cb2d1-b0b5-428f-be1b-8329d8bb837a.png)
-
-### TODO
+## TODO
 - [ ] 平衡高画质高帧率低码率  
 - [X] 使用dshow替代gdigrab录制桌面  
 - [ ] flush编码器  

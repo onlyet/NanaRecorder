@@ -14,7 +14,7 @@
 #include <Windows.h>
 
 #ifdef WIN32
-#define USE_DSHOW
+//#define USE_DSHOW
 
 #ifdef USE_DSHOW
 #define VIDEO_DEVICE_FORMAT "dshow"

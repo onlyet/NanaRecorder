@@ -1,8 +1,8 @@
 /****************************************************************
- * 此文件用于生成log日志
- * 调用 LogInit 函数完成日志初始化
- * 在非windows的64位系统时, 需要在pro头文件里定义宏#M_OS_64
- * 生成日志在运行目录的log文件夹里, 单个日志文件最大为10MB, 最多保存10个历史日志
+ * ���ļ���������log��־
+ * ���� LogInit ���������־��ʼ��
+ * �ڷ�windows��64λϵͳʱ, ��Ҫ��proͷ�ļ��ﶨ���#M_OS_64
+ * ������־������Ŀ¼��log�ļ�����, ������־�ļ����Ϊ10MB, ��ౣ��10����ʷ��־
  ****************************************************************/
 
 #ifndef LOG_H
@@ -19,9 +19,9 @@
 
 #include <sstream>
 
-#define LogFileMaxCount 10      // 历史日志文件最大个数
-#define LogMaxBytes (10<<20)    // 单个历史日志文件最大字节数
-#define LogDirName "log"        // 日志文件存放目录
+#define LogFileMaxCount 10      // ��ʷ��־�ļ�������
+#define LogMaxBytes (10<<20)    // ������ʷ��־�ļ�����ֽ���
+#define LogDirName "log"        // ��־�ļ����Ŀ¼
 
 #if defined (M_OS_64) || defined (Q_OS_WIN64)
     typedef quint64 mhandle;
@@ -49,7 +49,7 @@ static void writeLog(const QString &msg, const QString &fileName = s_logName)
 {
     QFile sLogFile(getLogFileName(fileName));
 
-    // 日志文件上限为10M，最多10个历史日志，1是最新的历史日志，10是最旧的
+    // ��־�ļ�����Ϊ10M�����10����ʷ��־��1�����µ���ʷ��־��10����ɵ�
     static const qint64 maxSize = LogMaxBytes;
     if (sLogFile.size() > maxSize)
     {
@@ -107,7 +107,7 @@ static void outputMessage(QtMsgType type, const QMessageLogContext &context, con
         text = QString("[Crtcl]");
         break;
 
-    // 出现断言时，可以把断点定在这里
+    // ���ֶ���ʱ�����԰Ѷϵ㶨������
     case QtFatalMsg:
         text = QString("[Fatal]");
         break;
