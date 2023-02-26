@@ -17,17 +17,22 @@
 #include <QThread>
 #include <QCoreApplication>
 
+#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+#include <QRegExp>
+#endif
+
 #include <sstream>
+#include <thread>
 
 #define LogFileMaxCount 10      // 历史日志文件最大个数
 #define LogMaxBytes (10<<20)    // 单个历史日志文件最大字节数
 #define LogDirName "log"        // 日志文件存放目录
 
-#if defined (M_OS_64) || defined (Q_OS_WIN64)
-    typedef quint64 mhandle;
-#else
-    typedef quint32 mhandle;
-#endif
+//#if defined (M_OS_64) || defined (Q_OS_WIN64)
+//    typedef quint64 mhandle;
+//#else
+//    typedef quint32 mhandle;
+//#endif
 
 static QString s_LogDir = "";
 static QString s_logName = "";
@@ -42,7 +47,7 @@ static QString getLogFileName(const QString &fileName, quint32 idx = 0)
     {
         return QString("%1/%2.log").arg(s_LogDir, fileName);
     }
-    return QString("%1/%2_%3.log").arg(s_LogDir, fileName, QString(idx));
+    return QString("%1/%2_%3.log").arg(s_LogDir, fileName, QString::number(idx));
 }
 
 static void writeLog(const QString &msg, const QString &fileName = s_logName)
@@ -121,7 +126,11 @@ static void outputMessage(QtMsgType type, const QMessageLogContext &context, con
         fileText = QString(context.file);
         if (!fileText.isEmpty())
         {
-            fileText.replace(QRegExp(".+\\\\"), "");
+#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+			fileText.replace(QRegExp(".+\\\\"), "");
+#else
+			fileText.replace(QRegularExpression(".+\\\\"), "");
+#endif
             QStringList fl = fileText.split("/");
             fileText = fl.last();
         }

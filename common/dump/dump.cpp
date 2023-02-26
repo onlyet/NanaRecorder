@@ -1,8 +1,10 @@
 ﻿#include "dump.h"
 
+#ifdef WIN32
 #include <tchar.h>
 #include <Windows.h>
 #include <DbgHelp.h>
+#endif // WIN32
 
 #include <QDebug>
 #include <QProcess>
@@ -15,7 +17,8 @@ QString dirpath;
 Dump::Callback_Dump after = nullptr;
 }
 
-int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
+#ifdef WIN32
+static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
 {
 #ifdef DyLoad_
     // 定义函数指针
@@ -90,7 +93,7 @@ int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
+static LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 {
     // 这里做一些异常的过滤或提示
     if (IsDebuggerPresent())
@@ -104,7 +107,7 @@ LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 }
 
 // 此函数一旦成功调用，之后对 SetUnhandledExceptionFilter 的调用将无效
-void disableSetUnhandledExceptionFilter()
+static void disableSetUnhandledExceptionFilter()
 {
     void* addr = (void*)GetProcAddress(LoadLibrary(L"kernel32.dll"),
                                          "SetUnhandledExceptionFilter");
@@ -126,20 +129,26 @@ void disableSetUnhandledExceptionFilter()
         VirtualProtect(addr, size, dwOldFlag, &dwTempFlag);
     }
 }
+#endif
 
 void Dump::Init(const QString &dirpath_, Dump::Callback_Dump after_)
 {
-    dirpath = dirpath_;
-    after = after_;
+#ifdef WIN32
+	dirpath = dirpath_;
+	after = after_;
 
-    //bool useVectoredExceptionHandler = mSetting.value(UseVectoredExceptionHandler, false).toBool();
-    //if (useVectoredExceptionHandler)
-    {
-        //AddVectoredExceptionHandler(1, exceptionFilter);
-    }
-    //else
-    //{
-        SetUnhandledExceptionFilter(exceptionFilter);
-    //    //DisableSetUnhandledExceptionFilter();
-    //}
+	//bool useVectoredExceptionHandler = mSetting.value(UseVectoredExceptionHandler, false).toBool();
+	//if (useVectoredExceptionHandler)
+	//{
+		//AddVectoredExceptionHandler(1, exceptionFilter);
+	//}
+	//else
+	//{
+	SetUnhandledExceptionFilter(exceptionFilter);
+	//    //DisableSetUnhandledExceptionFilter();
+	//}
+#else
+
+#endif // !WIN32
+
 }

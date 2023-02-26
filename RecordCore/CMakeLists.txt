@@ -31,8 +31,12 @@ elseif (UNIX)
 
 	set(CMAKE_PREFIX_PATH ${QT_PATH})
 	message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-	find_package(QT NAMES Qt6 ${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
+	find_package(QT NAMES Qt6 ${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
+	message(STATUS "Qt version: ${QT_VERSION_MAJOR}")
+
+
+	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
 
 	# 指定头文件目录
 	include_directories(
@@ -43,20 +47,20 @@ elseif (UNIX)
 	${QT_PATH}/include/QtWidget
 	else()
 	endif()
-	./common
-	./common/log
-	./common/util
+	${FFMPEG_ROOT_DIR}/include
+	../common
+	../common/log
+	../common/util
 	./include
 	./src
 	)
 
-	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
-	set(FFMPEG_INCLUDE_DIRS ${FFMPEG_ROOT_DIR}/include)
+	# set(FFMPEG_INCLUDE_DIRS ${FFMPEG_ROOT_DIR}/include)
 
 	# 添加源文件
 	aux_source_directory(./src SRC_LIST)
 	LIST(APPEND SRC_LIST
-	./common/util/util.cpp
+	../common/util/util.cpp
 	)
 
 	# 指定库文件目录
@@ -69,23 +73,33 @@ elseif (UNIX)
 	set(EXECUTABLE_OUTPUT_PATH ${CUR_DIR}/bin)
 	# add_executable(${PROJECT_NAME} ${SRC_LIST})
 	add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
+		# LIBRARY_OUTPUT_DIRECTORY_<CONFIG> <path>
+		# RUNTIME_OUTPUT_DIRECTORY ./lib
+		)
+	# message(STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+
 
 	if(${LINK_QT_STATIC})
-	set(QT_LIBS ${QT_VERSION_MAJOR}::Core ${QT_VERSION_MAJOR}::Gui ${QT_VERSION_MAJOR}::Widgets qtpcre2)
+	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network qtpcre2)
 	else()
-	set(QT_LIBS ${QT_VERSION_MAJOR}::Core ${QT_VERSION_MAJOR}::Gui ${QT_VERSION_MAJOR}::Widgets harfbuzz pcre2-16)
+	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network harfbuzz pcre2-16)
 	endif()
 
 	set(LINK_LIBS pthread dl glib-2.0 freetype harfbuzz)
-	set(FFMPEG_LIBRARIES swscale swresample avutil avformat avfilter avdevice avcodec)
+	# set(FFMPEG_LIBRARIES swscale swresample avutil avformat avfilter avdevice avcodec)
+	set(FFMPEG_LIBRARIES swscale swresample avutil avformat avdevice avcodec)
+	# Bsymbolic参考：https://ffmpeg.org/platform.html#Advanced-linking-configuration
 	target_link_libraries(${PROJECT_NAME} 
-	-Wl,--start-group 
+	-Wl,-Bsymbolic,--start-group 
 	${QT_LIBS} ${LINK_LIBS} ${FFMPEG_LIBRARIES}
-	-Wl,--end-group)
+	-Wl,-Bsymbolic,--end-group)
 endif()
 
 #-O2 -g -DNDEBUG
 set(APP_DEFINE "-DQT_MESSAGELOGCONTEXT")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -std=c++11 -Wno-deprecated-declarations -finput-charset=gbk ${APP_DEFINE}")
-set(CMAKE_CXX_FLAGS "-O0 -g -DNDEBUG -std=c++11 -Wno-deprecated-declarations -finput-charset=gbk ${APP_DEFINE}")
+# set(CMAKE_CXX_FLAGS "-O0 -g -DNDEBUG -std=c++11 -Wno-deprecated-declarations -finput-charset=gbk ${APP_DEFINE}")
+set(CMAKE_CXX_FLAGS "-O0 -g -DNDEBUG -std=c++11 -Wno-deprecated-declarations ${APP_DEFINE}")
 message(STATUS "cxx flags is ${CMAKE_CXX_FLAGS}")

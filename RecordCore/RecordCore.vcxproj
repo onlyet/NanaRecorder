@@ -91,21 +91,21 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <IncludePath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath);$(SolutionDir)common;$(SolutionDir)common\util</IncludePath>
     <LibraryPath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath);$(SolutionDir)common;$(SolutionDir)common\util</IncludePath>
     <LibraryPath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <IncludePath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath);$(SolutionDir)common;$(SolutionDir)common\util</IncludePath>
     <LibraryPath>$(ProjectDir)3rd\FFmpeg\FFmpeg-5.1\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\include;$(ProjectDir)src;$(ProjectDir)include;$(ProjectDir)common;$(ProjectDir)common\util;$(IncludePath);$(SolutionDir)common;$(SolutionDir)common\util</IncludePath>
     <LibraryPath>$(ProjectDir)3rd\ffmpeg\FFmpeg-n5.1\x86\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -217,7 +217,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="common\util\util.cpp" />
+    <ClCompile Include="..\common\util\util.cpp" />
     <ClCompile Include="src\AudioCapture.cpp" />
     <ClCompile Include="src\AudioEncoder.cpp" />
     <ClCompile Include="src\AudioFrameQueue.cpp" />
@@ -230,8 +230,8 @@
     <ClCompile Include="src\VideoFrameQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common\timer.h" />
-    <ClInclude Include="common\util\util.h" />
+    <ClInclude Include="..\common\timer.h" />
+    <ClInclude Include="..\common\util\util.h" />
     <ClInclude Include="include\IRecorder.h" />
     <ClInclude Include="src\AudioCapture.h" />
     <ClInclude Include="src\AudioEncoder.h" />

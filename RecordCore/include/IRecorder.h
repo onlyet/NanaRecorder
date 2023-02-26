@@ -1,10 +1,14 @@
 #pragma once
 
+#ifdef WIN32
 #ifdef RECORDER_EXPORT
 #define RECORDAPI __declspec(dllexport)
 #else
 #define RECORDAPI __declspec(dllimport)
 #endif  // RECORDER_EXPORT
+#else
+#define RECORDAPI
+#endif  // WIN32
 
 #include <QVariant>
 #include <qdebug.h>

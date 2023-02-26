@@ -1,4 +1,4 @@
-#include "NanaRecorder.h"
+ï»¿#include "NanaRecorder.h"
 #include <IRecorder.h>
 
 #include <AppData.h>
@@ -22,7 +22,7 @@ NanaRecorder::~NanaRecorder() {
 }
 
 void NanaRecorder::startBtnClicked() {
-    // ÔİÍ£ºó»Ö¸´
+    // æš‚åœåæ¢å¤
     if (m_paused) {
         if (!m_recorder) return;
 
@@ -165,7 +165,7 @@ void NanaRecorder::initUI() {
     ui.recordEdit->setText(dir);
     connect(ui.recordPathBtn, &QPushButton::clicked, [this, dir]() {
         QFileDialog fileDialog;
-        fileDialog.setWindowTitle(QStringLiteral("ÉèÖÃÊÓÆµ±£´æÂ·¾¶"));
+        fileDialog.setWindowTitle(QStringLiteral("è®¾ç½®è§†é¢‘ä¿å­˜è·¯å¾„"));
         fileDialog.setDirectory(dir);
         fileDialog.setFileMode(QFileDialog::Directory);
         fileDialog.setViewMode(QFileDialog::Detail);

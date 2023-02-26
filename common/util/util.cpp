@@ -17,13 +17,15 @@
 #include <QApplication>
 #include  <QNetworkInterface>
 #include <QProcess>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QLabel>
 #include <QStringList>
 #include <QStorageInfo>
 #include <QStandardPaths>
 
+#ifdef WIN32
 #include <DXGI.h>
+#endif // WIN32
 
 QString util::currentDateTimeString(const QString &format)
 {
@@ -45,7 +47,9 @@ QVariant util::getSetting(const QString &key, const QVariant &defaultValue, cons
     }
 
     QSettings mSetting(path, QSettings::IniFormat);
+#if (QT_VERSION <= QT_VERSION_CHECK(6,0,0))
     mSetting.setIniCodec("UTF-8");
+#endif
     return mSetting.value(key, defaultValue);
 }
 
@@ -58,7 +62,9 @@ void util::setSetting(const QString &key, const QVariant &value, const QString &
     }
 	path = QString("%1/%2.ini").arg(QApplication::applicationDirPath()).arg(path);
     QSettings mSetting(path, QSettings::IniFormat);
+#if (QT_VERSION <= QT_VERSION_CHECK(6,0,0))
     mSetting.setIniCodec("UTF-8");
+#endif
     mSetting.setValue(key, value);
 }
 
@@ -279,25 +285,25 @@ bool util::ensureDirExist(const QString &dirPath)
 
 int util::screenWidth()
 {
-    return QApplication::desktop()->geometry().width();
+    return QGuiApplication::primaryScreen()->geometry().width();
 }
 
 int util::screenHeight()
 {
-    return QApplication::desktop()->geometry().height();
+    return QGuiApplication::primaryScreen()->geometry().height();
 }
 
 int util::scaleWidthByResolution(int width)
 {
-    int screenWidth = QApplication::desktop()->geometry().width();
+    int screenWidth = QGuiApplication::primaryScreen()->geometry().width();
     int newWidth = width / (float)1920 * screenWidth;
     return newWidth;
 }
 
 QSize util::newSize(QSize size)
 {
-    int screenWidth = QApplication::desktop()->geometry().width();
-    int screenHeight = QApplication::desktop()->geometry().height();
+    int screenWidth = QGuiApplication::primaryScreen()->geometry().width();
+    int screenHeight = QGuiApplication::primaryScreen()->geometry().height();
 
     int newWidth = size.width() / (float)1920 * screenWidth;
     int newHeight = size.height()/ (float)1080 * screenHeight;
@@ -375,19 +381,25 @@ QVariant util::QString2QVariant(const QString &s)
 
 bool util::isDriveExist(const QString &drive)
 {
-    for (const auto &fi : QDir::drives())
-    {
-        QString path = fi.filePath();
-        UINT ret = GetDriveType((WCHAR *)path.utf16());
-        if (path == drive && ret == DRIVE_FIXED)
-        {
-            return true;
-        }
-    }
+#ifdef WIN32
+	for (const auto& fi : QDir::drives())
+	{
+		QString path = fi.filePath();
+		UINT ret = GetDriveType((WCHAR*)path.utf16());
+		if (path == drive && ret == DRIVE_FIXED)
+		{
+			return true;
+		}
+	}
 
-    //qWarning() << qstr("驱动器%1不存在，或者不是硬盘").arg(drive);
-    qWarning() << QString("驱动器%1不存在，或者不是硬盘").arg(drive);
-    return false;
+	//qWarning() << qstr("驱动器%1不存在，或者不是硬盘").arg(drive);
+	qWarning() << QString("驱动器%1不存在，或者不是硬盘").arg(drive);
+	return false;
+#else
+    // 暂时不判断
+    return true;
+#endif // WIN32
+
 }
 
 bool util::isFileExist(const QString &path)

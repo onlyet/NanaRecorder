@@ -11,7 +11,7 @@
 #include <string>
 #include <mutex>
 
-#include <Windows.h>
+//#include <Windows.h>
 
 #ifdef WIN32
 //#define USE_DSHOW
@@ -26,7 +26,7 @@
 
 #elif __linux__
 #define VIDEO_DEVICE_FORMAT "x11grab"
-#define VIDEO_DEVICE_NAME "0.0"
+#define VIDEO_DEVICE_NAME ":1"
 #else
 #error Unsupported platform
 #endif

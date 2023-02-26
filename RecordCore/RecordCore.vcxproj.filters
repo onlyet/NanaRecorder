@@ -34,9 +34,6 @@
     <ClCompile Include="src\Recorder.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="common\util\util.cpp">
-      <Filter>common\util</Filter>
-    </ClCompile>
     <ClCompile Include="src\VideoCapture.cpp">
       <Filter>src\video</Filter>
     </ClCompile>
@@ -55,6 +52,9 @@
     <ClCompile Include="src\AudioFrameQueue.cpp">
       <Filter>src\audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\util\util.cpp">
+      <Filter>common\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FFmpegHeader.h">
@@ -71,12 +71,6 @@
     </ClInclude>
     <ClInclude Include="src\RecordConfig.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="common\util\util.h">
-      <Filter>common\util</Filter>
-    </ClInclude>
-    <ClInclude Include="common\timer.h">
-      <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="src\VideoCapture.h">
       <Filter>src\video</Filter>
@@ -101,6 +95,12 @@
     </ClInclude>
     <ClInclude Include="src\Recorder.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\util\util.h">
+      <Filter>common\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\timer.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

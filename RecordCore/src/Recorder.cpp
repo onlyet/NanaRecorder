@@ -1,5 +1,4 @@
-#include <FFmpegHeader.h>
-#include <timer.h>
+#include "FFmpegHeader.h"
 #include <Recorder.h>
 #include "RecordConfig.h"
 #include "VideoCapture.h"
@@ -10,13 +9,11 @@
 #include "FFmpegHelper.h"
 
 #include <util.h>
-
-//#include <chrono>
+#include <timer.h>
 
 #include <QDateTime>
 #include <QDebug>
 #include <QApplication>
-#include <QDesktopWidget>
 
 using namespace std;
 using namespace std::placeholders;

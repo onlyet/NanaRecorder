@@ -14,7 +14,6 @@ elseif (UNIX)
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-	# 设置自动生成moc文件,AUTOMOC打开可以省去QT5_WRAP_CPP命令
 	set(CMAKE_AUTOUIC ON)
 	set(CMAKE_AUTOMOC ON)
 	set(CMAKE_AUTORCC ON)
@@ -26,15 +25,15 @@ elseif (UNIX)
 		set(QT_PATH ${CUR_DIR}/3rd/qt-5.12.9-static)
 		message(STATUS "Link with Qt static lib")
 	else()
-		set(QT_PATH "/opt/qt-5.12.9")
+		set(QT_PATH "/home/andy/Qt/6.2.4/gcc_64")
 		message(STATUS "Link with Qt shared lib")
 	endif()
 
 	set(CMAKE_PREFIX_PATH ${QT_PATH})
 	message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-	# find_package(Qt5 COMPONENTS Core Network Concurrent REQUIRED)
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
+	find_package(QT NAMES Qt6 ${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
+	message(STATUS "Qt version: ${QT_VERSION_MAJOR}")
 
 	# 指定头文件目录
 	include_directories(
@@ -45,46 +44,51 @@ elseif (UNIX)
 	${QT_PATH}/include/QtWidget
 	else()
 	endif()
-	./src/app
-	./src/common
-	./src/common/Http
+    ../RecordCore/include
+	../common
+	../common/log
+	../common/util
+    ../common/dump
+    ./model
 	)
 
 	# 添加源文件
-	aux_source_directory(./src/app SRC_LIST)
+	aux_source_directory(./ SRC_LIST)
 	LIST(APPEND SRC_LIST
-	./src/common/SingleApplication.cpp
+    ./model/AppData.cpp
+	../common/util/util.cpp
+    ../common/dump/dump.cpp
 	)
+
+	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
 
 	# 指定库文件目录
 	link_directories(
-	if(${LINK_QT_STATIC})
 	${QT_PATH}/lib
 	${QT_PATH}/plugins/platforms
-	else()
-	${QT_PATH}/plugins/platforms
-	${QT_PATH}/lib
-	endif()
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RecordCore/lib
+	${FFMPEG_ROOT_DIR}/lib
 	)
 
-	set(EXECUTABLE_OUTPUT_PATH ${CUR_DIR}/bin)
+	set(EXECUTABLE_OUTPUT_PATH ${CUR_DIR}/../bin)
 	add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 	if(${LINK_QT_STATIC})
-	set(QT_LIBS Qt5::Core Qt5::Network Qt5::Concurrent qtpcre2)
+	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network qtpcre2)
 	else()
-	set(QT_LIBS Qt5::Core Qt5::Network Qt5::Concurrent harfbuzz pcre2-16)
+	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network harfbuzz pcre2-16)
 	endif()
 
 	set(LINK_LIBS pthread dl glib-2.0 freetype harfbuzz)
-	set(OPENCV_DEPEND_LIBS swscale swresample avutil avformat avfilter avdevice avcodec)
-	target_link_libraries(${PROJECT_NAME} -Wl,--start-group 
-	${QT_LIBS} ${LINK_LIBS} ${OPENCV_DEPEND_LIBS}
-	-Wl,--end-group)
-endif ()
 
-#-O2 -g -DNDEBUG
+	set(FFMPEG_LIBRARIES swscale swresample avutil avformat avdevice avcodec)
+
+	target_link_libraries(${PROJECT_NAME} 
+	-Wl,--start-group 
+	RecordCore ${QT_LIBS} ${LINK_LIBS} ${FFMPEG_LIBRARIES}
+	-Wl,--end-group)
+endif()
+
 set(APP_DEFINE "-DQT_MESSAGELOGCONTEXT")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -std=c++11 -Wno-deprecated-declarations -finput-charset=gbk ${APP_DEFINE}")
-set(CMAKE_CXX_FLAGS "-O0 -g -DNDEBUG -std=c++11 -Wno-deprecated-declarations -finput-charset=gbk ${APP_DEFINE}")
+set(CMAKE_CXX_FLAGS "-O0 -g -DNDEBUG -std=c++11 -Wno-deprecated-declarations ${APP_DEFINE}")
 message(STATUS "cxx flags is ${CMAKE_CXX_FLAGS}")

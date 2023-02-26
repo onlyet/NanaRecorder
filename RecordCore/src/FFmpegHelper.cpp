@@ -1,7 +1,13 @@
 #include "FFmpegHelper.h"
 #include "FFmpegHeader.h"
 
+#ifdef WIN32
 #include <dshow.h>
+#elif __linux__
+
+#else
+#error Unsupported platform
+#endif
 
 #include <QDebug>
 
@@ -25,6 +31,7 @@ void FFmpegHelper::registerAll()
     }
 }
 
+#ifdef WIN32
 static std::string AnsiToUTF8(const char* _ansi, int _ansi_len) {
     std::string str_utf8("");
     wchar_t*    pUnicode = NULL;
@@ -59,9 +66,12 @@ static std::string AnsiToUTF8(const char* _ansi, int _ansi_len) {
 
     return str_utf8;
 }
+#endif  // WIN32
 
 std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     string ret;
+
+#ifdef WIN32
     GUID guid;
     char   sName[256] = {0};
     unordered_set<string> audioDevSet;
@@ -149,6 +159,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     pCreateDevEnum->Release();
     pEm->Release();
     ::CoUninitialize();
+#endif  // WIN32
     return ret;
 }
 
