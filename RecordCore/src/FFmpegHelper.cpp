@@ -10,8 +10,10 @@
 #endif
 
 #include <QDebug>
+#include <QProcess>
 
 #include <unordered_set>
+#include <memory>
 
 #define CAPTURE_SPEAKER_NAME "virtual-audio-capturer"
 #define CAPTURE_MICROPHONE_NAME1 "Âó¿Ë·ç"
@@ -159,7 +161,36 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     pCreateDevEnum->Release();
     pEm->Release();
     ::CoUninitialize();
+#elif __linux__
+    QString dev;
+    if (AudioCaptureDevice_Speaker == type) {
+        // ret = "alsa_output.pci-0000_02_02.0.analog-stereo.monitor";
+        dev = "alsa_output";
+    } else if (AudioCaptureDevice_Microphone == type) {
+        // ret = "alsa_input.pci-0000_02_02.0.analog-stereo";
+        dev = "alsa_input";
+    }
+
+    // QtConcurrent::run([]() {
+    QString              cmd     = QString("pactl list short sources | grep %1 | awk '{print $2}'").arg(dev);
+    //QString              cmd     = QString("free ");
+    unique_ptr<QProcess> process = make_unique<QProcess>();
+    //process->start(cmd);
+    process->start("bash", QStringList() << "-c" << cmd);
+    if (!process->waitForFinished(5000)) {
+        qDebug() << QString("pactl failed: %1").arg(process->error());
+        return ret;
+    }
+    QString msg = QString::fromLocal8Bit(process->readAllStandardOutput());
+    if (msg.endsWith('\n')) msg.chop(1);
+    qDebug() << "Audio input device:" << msg;
+    if (!msg.contains(dev)) {
+        qInfo() << QString("pactl failed 2");
+    }
+    ret = msg.toStdString();
+    //});
 #endif  // WIN32
+
     return ret;
 }
 

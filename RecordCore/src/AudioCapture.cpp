@@ -8,7 +8,13 @@
 #include <string>
 #include <thread>
 
-//#include <Windows.h>
+#ifdef WIN32
+#define AUDIO_DEVICE_FORMAT "dshow"
+#elif __linux__
+#define AUDIO_DEVICE_FORMAT "pulse"
+#else
+#error Unsupported platform
+#endif
 
 using namespace std;
 
@@ -39,13 +45,9 @@ int AudioCapture::initCapture() {
     int                  ret     = -1;
     AVDictionary*        options = nullptr;
     const AVCodec*       decoder = nullptr;
-    const AVInputFormat* ifmt    = av_find_input_format("dshow");
+    const AVInputFormat* ifmt    = av_find_input_format(AUDIO_DEVICE_FORMAT);
 
-#if 1
     string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));
-#else
-    string audioDeviceName = FFmpegHelper::getAudioDevice(AudioCaptureDevice_Microphone);
-#endif
     if ("" == audioDeviceName) {
         return -1;
     }

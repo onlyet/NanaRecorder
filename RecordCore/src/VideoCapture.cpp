@@ -11,8 +11,6 @@
 #include <string>
 #include <mutex>
 
-//#include <Windows.h>
-
 #ifdef WIN32
 //#define USE_DSHOW
 
