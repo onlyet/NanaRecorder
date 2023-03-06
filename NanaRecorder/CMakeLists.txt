@@ -1,5 +1,5 @@
 # 项目名称
-project(NaNaRecorder VERSION 0.1 LANGUAGES CXX)
+project(NaNaRecorder)
 cmake_minimum_required(VERSION 3.5)
 
 if (WIN32)
@@ -14,9 +14,9 @@ elseif (UNIX)
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+    set(CMAKE_AUTORCC ON)
 	set(CMAKE_AUTOUIC ON)
-	set(CMAKE_AUTOMOC ON)
-	set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOMOC ON)
 
 	set(CMAKE_CXX_STANDARD 17)
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -52,13 +52,22 @@ elseif (UNIX)
     ./model
 	)
 
+#    file(GLOB recorder ./*.h ./*.ui ./*.cpp ./model/*)
+#    source_group("Recorder" FILES ${Recorder})
+
+#    file(GLOB interface ../RecordCore/include/*.h)
+#    source_group("Interface" FILES ${Interface})
+
+#    file(GLOB common ../common/util/* ../common/dump/*)
+#    source_group("common" FILES ${common})
+
 	# 添加源文件
-	aux_source_directory(./ SRC_LIST)
-	LIST(APPEND SRC_LIST
+    aux_source_directory(./ SRC_LIST)
+    LIST(APPEND SRC_LIST
     ./model/AppData.cpp
-	../common/util/util.cpp
+    ../common/util/util.cpp
     ../common/dump/dump.cpp
-	)
+    )
 
 	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
 
@@ -71,21 +80,16 @@ elseif (UNIX)
 	)
 
 	set(EXECUTABLE_OUTPUT_PATH ${CUR_DIR}/../bin)
-	add_executable(${PROJECT_NAME} ${SRC_LIST})
+    set(QRC_PATH ${CUR_DIR}/../res/NanaRecorder.qrc)
+    add_executable(${PROJECT_NAME} ${SRC_LIST} #[[${common}]] ${QRC_PATH} #[[${Recorder}]] #[[${Interface}]])
 
-	if(${LINK_QT_STATIC})
-	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network qtpcre2)
-	else()
-	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network harfbuzz pcre2-16)
-	endif()
+    set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 
-	set(LINK_LIBS pthread dl glib-2.0 freetype harfbuzz)
-
-	set(FFMPEG_LIBRARIES swscale swresample avutil avformat avdevice avcodec)
+    set(FFMPEG_LIBS swscale swresample avutil avformat avdevice avcodec)
 
 	target_link_libraries(${PROJECT_NAME} 
 	-Wl,--start-group 
-	RecordCore ${QT_LIBS} ${LINK_LIBS} ${FFMPEG_LIBRARIES}
+    RecordCore ${QT_LIBS} ${FFMPEG_LIBS}
 	-Wl,--end-group)
 endif()
 

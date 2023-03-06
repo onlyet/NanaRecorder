@@ -1,5 +1,5 @@
 # 项目名称
-project(RecordCore VERSION 0.1 LANGUAGES CXX)
+project(RecordCore)
 cmake_minimum_required(VERSION 3.5)
 
 if (WIN32)
@@ -14,9 +14,9 @@ elseif (UNIX)
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-	set(CMAKE_AUTOUIC ON)
-	set(CMAKE_AUTOMOC ON)
-	set(CMAKE_AUTORCC ON)
+#	set(CMAKE_AUTOUIC ON)
+#	set(CMAKE_AUTOMOC ON)
+#	set(CMAKE_AUTORCC ON)
 
 	set(CMAKE_CXX_STANDARD 17)
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -34,7 +34,6 @@ elseif (UNIX)
 	find_package(QT NAMES Qt6 ${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 	message(STATUS "Qt version: ${QT_VERSION_MAJOR}")
-
 
 	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
 
@@ -55,8 +54,6 @@ elseif (UNIX)
 	./src
 	)
 
-	# set(FFMPEG_INCLUDE_DIRS ${FFMPEG_ROOT_DIR}/include)
-
 	# 添加源文件
 	aux_source_directory(./src SRC_LIST)
 	LIST(APPEND SRC_LIST
@@ -71,29 +68,19 @@ elseif (UNIX)
 	)
 
 	set(EXECUTABLE_OUTPUT_PATH ${CUR_DIR}/bin)
-	# add_executable(${PROJECT_NAME} ${SRC_LIST})
 	add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
 	set_target_properties(${PROJECT_NAME} PROPERTIES
 		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
-		# LIBRARY_OUTPUT_DIRECTORY_<CONFIG> <path>
-		# RUNTIME_OUTPUT_DIRECTORY ./lib
-		)
+    )
 	# message(STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 
+    set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 
-	if(${LINK_QT_STATIC})
-	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network qtpcre2)
-	else()
-	set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network harfbuzz pcre2-16)
-	endif()
-
-	set(LINK_LIBS pthread dl glib-2.0 freetype harfbuzz)
-	# set(FFMPEG_LIBRARIES swscale swresample avutil avformat avfilter avdevice avcodec)
-	set(FFMPEG_LIBRARIES swscale swresample avutil avformat avdevice avcodec)
+    set(FFMPEG_LIBS swscale swresample avutil avformat avdevice avcodec)
 	# Bsymbolic参考：https://ffmpeg.org/platform.html#Advanced-linking-configuration
 	target_link_libraries(${PROJECT_NAME} 
 	-Wl,-Bsymbolic,--start-group 
-	${QT_LIBS} ${LINK_LIBS} ${FFMPEG_LIBRARIES}
+    ${QT_LIBS} ${FFMPEG_LIBS}
 	-Wl,-Bsymbolic,--end-group)
 endif()
 

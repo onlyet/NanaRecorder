@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>520</width>
     <height>166</height>
    </rect>
   </property>
@@ -55,12 +55,17 @@ QComboBox:editable {
   background: #FFFFFF;
 }
 
+/*
+BUG: In ubuntu2204, This two settings will cause the selected item to become blank .
+
 QComboBox:!editable, QComboBox::drop-down:editable {
   background: #FFFFFF;
 }
+
 QComboBox:!editable:on, QComboBox::drop-down:editable:on {
   background: #FFFFFF;
 }
+*/
 
 QComboBox:on { /* shift the text when the popup opens */
 }
@@ -93,6 +98,7 @@ QComboBox QAbstractItemView {
   background-color: white;
   color: gray;
 }
+
 /*下拉item*/
 QComboBox QAbstractItemView::item {
   color: gray;
@@ -134,8 +140,7 @@ QComboBox QScrollBar::sub-line::vertical{/*下箭头*/
 
 QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
   background:white;
-}
-</string>
+}</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -193,10 +198,10 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
           </size>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Plain</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <property name="leftMargin">
@@ -218,7 +223,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
             </property>
             <property name="maximumSize">
              <size>
-              <width>150</width>
+              <width>190</width>
               <height>16777215</height>
              </size>
             </property>
@@ -282,7 +287,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
               <widget class="QComboBox" name="fpsComboBox">
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
+                 <width>50</width>
                  <height>0</height>
                 </size>
                </property>
@@ -362,7 +367,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
               <widget class="QComboBox" name="resolutionComboBox">
                <property name="minimumSize">
                 <size>
-                 <width>80</width>
+                 <width>110</width>
                  <height>20</height>
                 </size>
                </property>
@@ -518,7 +523,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
               <widget class="QLineEdit" name="recordEdit">
                <property name="minimumSize">
                 <size>
-                 <width>240</width>
+                 <width>260</width>
                  <height>20</height>
                 </size>
                </property>
