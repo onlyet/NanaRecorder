@@ -29,7 +29,21 @@ FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
 - Qt6.2.4
 - FFmpeg5.1.2
 
-需要在CMakeLists.txt里修改FFmpeg和Qt的依赖路径
+需要在CMakeLists.txt里修改Qt和FFmpeg的依赖路径
+- QT_PATH
+- FFMPEG_ROOT_DIR
+
+#### 构建
+```cpp
+# build
+mkdir build && cd build
+cmake ..
+make -j4
+```
+
+#### 运行app
+1. 直接用Qt Creator运行  
+2. 命令行启动：`../bin/NanaRecorder`  
 
 ## TODO
 - [ ] 平衡高画质高帧率低码率  

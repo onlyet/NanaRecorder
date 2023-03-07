@@ -21,6 +21,8 @@ elseif (UNIX)
 	set(CMAKE_CXX_STANDARD 17)
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
+
 	if(${LINK_QT_STATIC})
 		set(QT_PATH ${CUR_DIR}/3rd/qt-5.12.9-static)
 		message(STATUS "Link with Qt static lib")
@@ -34,8 +36,6 @@ elseif (UNIX)
 	find_package(QT NAMES Qt6 ${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 	message(STATUS "Qt version: ${QT_VERSION_MAJOR}")
-
-	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
 
 	# 指定头文件目录
 	include_directories(
