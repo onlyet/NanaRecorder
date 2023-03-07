@@ -1,3 +1,5 @@
+[English version](./README_en.md)
+
 # 基于Qt+FFmpeg的录屏软件NanaRecorder
 
 ## UI
@@ -35,7 +37,6 @@ FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
 
 #### 构建
 ```cpp
-# build
 mkdir build && cd build
 cmake ..
 make -j4
@@ -46,7 +47,7 @@ make -j4
 2. 命令行启动：`../bin/NanaRecorder`  
 
 ## TODO
-- [ ] 平衡高画质高帧率低码率  
+- [ ] 画质高，文件小，码率低  
 - [ ] flush编码器  
 - [ ] 支持同时录制扬声器和麦克风  
 - [ ] 支持硬编码
