@@ -10,7 +10,7 @@
 
 主线程：UI线程，调用Recorder接口  
 采集线程：采集到帧后->格式转换/重采样->写进FIFO  
-编码线程：循环从FIFO读取帧->编码->写进文件
+编码复用线程：循环从FIFO读取帧->编码->写进文件
 
 ## 环境依赖
 ### windows
@@ -24,12 +24,14 @@ FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
   
 解决方案支持Debug/Release和Win32/x64  
 </br>
-[VS+Qt开发环境配置](./VS%2BQt%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.pdf)
+[VS+Qt开发环境配置](./doc/VS%2BQt%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.pdf)
 
 ### linux
 我的开发环境
 - Qt6.2.4
 - FFmpeg5.1.2
+
+[ffmpeg build reference](./doc/ffmpeg_build.md)
 
 需要在CMakeLists.txt里修改Qt和FFmpeg的依赖路径
 - QT_PATH
