@@ -9,10 +9,11 @@ struct AVCodecContext;
 struct AVFrame;
 
 class AudioCaptureInfo;
+enum class AudioCaptureDevice;
 
 class AudioCapture {
 public:
-    int startCapture();
+    int startCapture(AudioCaptureDevice dev);
     int stopCapture();
 
     void setFrameCb(std::function<void(AVFrame*, const AudioCaptureInfo&)> cb) {
@@ -20,7 +21,7 @@ public:
     }
 
 private:
-    int initCapture();
+    int  initCapture(AudioCaptureDevice dev);
     void deinit();
 
     void audioCaptureThreadProc();

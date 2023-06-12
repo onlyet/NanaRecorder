@@ -37,8 +37,12 @@ Recorder::Recorder(const QVariantMap& recordInfo) {
     m_videoFrameQueue = new VideoFrameQueue;
 
     if (g_record.enableAudio) {
-        m_audioCap = new AudioCapture;
-        m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+        m_speakerCap = new AudioCapture;
+        m_speakerCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+
+        m_microphoneCap = new AudioCapture;
+        m_microphoneCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+
         m_audioFrameQueue = new AudioFrameQueue;
     }
 
@@ -61,9 +65,13 @@ Recorder::~Recorder()
 		delete m_videoFrameQueue;
 		m_videoFrameQueue = nullptr;
 	}
-    if (m_audioCap) {
-        delete m_audioCap;
-        m_audioCap = nullptr;
+    if (m_speakerCap) {
+        delete m_speakerCap;
+        m_speakerCap = nullptr;
+    }
+    if (m_microphoneCap) {
+        delete m_microphoneCap;
+        m_microphoneCap = nullptr;
     }
     if (m_audioFrameQueue) {
         delete m_audioFrameQueue;
@@ -177,11 +185,16 @@ void Recorder::startCapture()
 {
 	m_videoCap->startCapture();
     if (g_record.enableAudio) {
-        int ret = m_audioCap->startCapture();
-		// 找不到音频或打开失败
+        int ret = m_speakerCap->startCapture(AudioCaptureDevice::Speaker);
+        // 找不到音频或打开失败
         if (-1 == ret) {
             g_record.enableAudio = false;
-		}
+        }
+        ret = m_microphoneCap->startCapture(AudioCaptureDevice::Microphone);
+        // 找不到音频或打开失败
+        if (-1 == ret) {
+            g_record.enableAudio = false;
+        }
     }
 }
 
@@ -189,7 +202,8 @@ void Recorder::stopCapture()
 {
 	m_videoCap->stopCapture();
     if (g_record.enableAudio) {
-        m_audioCap->stopCapture();
+        m_speakerCap->stopCapture();
+        m_microphoneCap->stopCapture();
     }
 }
 

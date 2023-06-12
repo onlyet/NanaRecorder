@@ -70,7 +70,7 @@ static std::string AnsiToUTF8(const char* _ansi, int _ansi_len) {
 }
 #endif  // WIN32
 
-std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
+std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     string ret;
 
 #ifdef WIN32
@@ -89,9 +89,9 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     guid = CLSID_AudioInputDeviceCategory;
 #endif
 
-    if (AudioCaptureDevice_Speaker == type) {
+    if (AudioCaptureDevice::Speaker == type) {
         audioDevSet.emplace(CAPTURE_SPEAKER_NAME);
-    } else if (AudioCaptureDevice_Microphone == type) {
+    } else if (AudioCaptureDevice::Microphone == type) {
         audioDevSet.emplace(CAPTURE_MICROPHONE_NAME1);
         audioDevSet.emplace(CAPTURE_MICROPHONE_NAME2);
     } else {
@@ -155,7 +155,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     }
 
     if (!isFound) {
-        qInfo() << QString("Cant't find %1 device").arg(AudioCaptureDevice_Speaker == type ? "speaker" : "microphone");
+        qInfo() << QString("Cant't find %1 device").arg(AudioCaptureDevice::Speaker == type ? "speaker" : "microphone");
     }
 
     pCreateDevEnum->Release();

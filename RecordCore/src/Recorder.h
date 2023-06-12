@@ -49,7 +49,8 @@ private:
 private:
     VideoCapture*                                     m_videoCap        = nullptr;
     VideoFrameQueue*                                  m_videoFrameQueue = nullptr;
-    AudioCapture*                                     m_audioCap        = nullptr;
+    AudioCapture*                                     m_speakerCap      = nullptr;
+    AudioCapture*                                     m_microphoneCap   = nullptr;
     AudioFrameQueue*                                  m_audioFrameQueue = nullptr;
     FileOutputer*                                     m_outputer        = nullptr;
     int64_t                                           m_startTime       = -1;       // 录制开始时间戳（微秒）

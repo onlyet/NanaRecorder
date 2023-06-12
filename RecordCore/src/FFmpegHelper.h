@@ -3,9 +3,9 @@
 
 #include <QString>
 
-enum AudioCaptureDeviceType {
-    AudioCaptureDevice_Speaker = 0,  // 扬声器
-    AudioCaptureDevice_Microphone    // 麦克风
+enum class AudioCaptureDevice {
+    Speaker = 0,  // 扬声器
+    Microphone    // 麦克风
 };
 
 namespace FFmpegHelper {
@@ -15,7 +15,7 @@ namespace FFmpegHelper {
      * @param type 设备类型
      * @return 设备名
     */
-    std::string getAudioDevice(AudioCaptureDeviceType type);
+    std::string getAudioDevice(AudioCaptureDevice type);
 
     QString err2Str(int err);
 }

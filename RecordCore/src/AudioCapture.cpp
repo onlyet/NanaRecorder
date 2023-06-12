@@ -18,11 +18,11 @@
 
 using namespace std;
 
-int AudioCapture::startCapture() {
+int AudioCapture::startCapture(AudioCaptureDevice dev) {
     if (m_isRunning) return -1;
 
     m_isRunning = true;
-    int ret     = initCapture();
+    int ret     = initCapture(dev);
     if (0 != ret) {
         return -1;
     }
@@ -41,13 +41,13 @@ int AudioCapture::stopCapture() {
     return 0;
 }
 
-int AudioCapture::initCapture() {
+int AudioCapture::initCapture(AudioCaptureDevice dev) {
     int                  ret     = -1;
     AVDictionary*        options = nullptr;
     const AVCodec*       decoder = nullptr;
     const AVInputFormat* ifmt    = av_find_input_format(AUDIO_DEVICE_FORMAT);
 
-    string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));
+    string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDevice>(g_record.audioDeviceIndex));
     if ("" == audioDeviceName) {
         return -1;
     }
