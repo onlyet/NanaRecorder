@@ -55,6 +55,12 @@
     <ClCompile Include="..\common\util\util.cpp">
       <Filter>common\util</Filter>
     </ClCompile>
+    <ClCompile Include="src\AmixFilter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FFmpegHeader.h">
@@ -101,6 +107,12 @@
     </ClInclude>
     <ClInclude Include="..\common\timer.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmixFilter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filter.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

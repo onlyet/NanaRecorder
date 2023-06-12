@@ -218,11 +218,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\util\util.cpp" />
+    <ClCompile Include="src\AmixFilter.cpp" />
     <ClCompile Include="src\AudioCapture.cpp" />
     <ClCompile Include="src\AudioEncoder.cpp" />
     <ClCompile Include="src\AudioFrameQueue.cpp" />
     <ClCompile Include="src\FFmpegHelper.cpp" />
     <ClCompile Include="src\FileOutputer.cpp" />
+    <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\mux.cpp" />
     <ClCompile Include="src\Recorder.cpp" />
     <ClCompile Include="src\VideoCapture.cpp" />
@@ -233,12 +235,14 @@
     <ClInclude Include="..\common\timer.h" />
     <ClInclude Include="..\common\util\util.h" />
     <ClInclude Include="include\IRecorder.h" />
+    <ClInclude Include="src\AmixFilter.h" />
     <ClInclude Include="src\AudioCapture.h" />
     <ClInclude Include="src\AudioEncoder.h" />
     <ClInclude Include="src\AudioFrameQueue.h" />
     <ClInclude Include="src\FFmpegHeader.h" />
     <ClInclude Include="src\FFmpegHelper.h" />
     <ClInclude Include="src\FileOutputer.h" />
+    <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\mux.h" />
     <ClInclude Include="src\RecordConfig.h" />
     <ClInclude Include="src\Recorder.h" />
