@@ -232,3 +232,4 @@ vcpkg_installed
 /RecordCore/3rd/ffmpeg/FFmpeg-4.5-r104625
 
 .vshistory
+*.so
