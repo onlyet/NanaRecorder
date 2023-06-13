@@ -34,6 +34,7 @@ struct RecordConfig {
     bool enableAudio;
     int  audioDeviceIndex;  // 0：扬声器，1：麦克风
     int  channel;
+    int  sampleRate;
 
     QString filePath;  // 录制文件保存路径
     int     outWidth;  // 输出宽高

@@ -1,5 +1,14 @@
 #include "filter.h"
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 #include <libavutil/channel_layout.h>
+
+#ifdef __cplusplus
+};
+#endif  // __cplusplus
+
 
 void format_pad_arg(char *arg, int size, const FILTER_CTX &ctx) {
     sprintf_s(arg, size, "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=0x%I64x",

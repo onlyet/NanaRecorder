@@ -10,17 +10,18 @@
 #include <thread>
 
 class AVFilterGraph;
+class AVAudioFifo;
 
-class filter_amix {
+class AmixFilter {
 public:
-    filter_amix();
-    ~filter_amix();
+    AmixFilter();
+    ~AmixFilter();
 
     int init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const FILTER_CTX &ctx_out);
 
-    inline void registe_cb(on_filter_data cb_on_filter_data, on_filter_error cb_on_filter_error) {
+    inline void registe_cb(on_filter_data cb_on_filter_data/*, on_filter_error cb_on_filter_error*/) {
         _on_filter_data  = cb_on_filter_data;
-        _on_filter_error = cb_on_filter_error;
+        //_on_filter_error = cb_on_filter_error;
     }
 
     int start();
@@ -53,4 +54,6 @@ private:
     std::mutex              _mutex;
     std::condition_variable _cond_var;
     bool                    _cond_notify;
+
+    AVAudioFifo *m_filteredFrameFifo = nullptr; // 用作避免编码时报错：more samples than frame size
 };

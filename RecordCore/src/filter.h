@@ -9,8 +9,16 @@
 
 
 //#include "headers_ffmpeg.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <libavutil/rational.h>
 #include <libavutil/samplefmt.h>
+
+#ifdef __cplusplus
+};
+#endif
 
 class AVFilterContext;
 class AVFilterInOut;

@@ -19,6 +19,8 @@ class AudioFrameQueue;
 class AudioCaptureInfo;
 class FileOutputer;
 
+class AmixFilter;
+
 template <typename clock_type>
 class Timer;
 
@@ -46,6 +48,9 @@ private:
 
     int64_t getPauseDurationCb() { return m_pauseDuration; }
 
+    void addFrameToAmixFilter(AVFrame* frame, int filterCtxIndex);
+    void writeAudioFrameCb(AVFrame* frame);
+
 private:
     VideoCapture*                                     m_videoCap        = nullptr;
     VideoFrameQueue*                                  m_videoFrameQueue = nullptr;
@@ -56,5 +61,8 @@ private:
     int64_t                                           m_startTime       = -1;       // 录制开始时间戳（微秒）
     int64_t                                           m_pauseDuration   = 0;        // 暂停持续时间
     std::unique_ptr<Timer<std::chrono::system_clock>> m_pauseStopwatch  = nullptr;  // 暂停秒表
+
+    int         m_audioSrcNum = 0;
+    AmixFilter* m_amixFilter  = nullptr;
 };
 

@@ -7,6 +7,7 @@
 #include "AudioFrameQueue.h"
 #include "FileOutputer.h"
 #include "FFmpegHelper.h"
+#include <AmixFilter.h>
 
 #include <util.h>
 #include <timer.h>
@@ -37,11 +38,16 @@ Recorder::Recorder(const QVariantMap& recordInfo) {
     m_videoFrameQueue = new VideoFrameQueue;
 
     if (g_record.enableAudio) {
+        m_audioSrcNum = 2;
+        if (m_audioSrcNum > 1) {
+            //m_amixFilter = new AmixFilter;
+        }
+
         m_speakerCap = new AudioCapture;
-        m_speakerCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+        m_speakerCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 1);
 
         m_microphoneCap = new AudioCapture;
-        m_microphoneCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+        m_microphoneCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 2);
 
         m_audioFrameQueue = new AudioFrameQueue;
     }
@@ -93,8 +99,10 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
     g_record.enableAudio      = recordInfo["enableAudio"].toBool();
     g_record.audioDeviceIndex = recordInfo["audioDeviceIndex"].toInt();
     g_record.channel          = recordInfo["channel"].toInt();
+    g_record.sampleRate       = recordInfo["sampleRate"].toInt();
 
-    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9")
+    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,\
+                        fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9,sampleRate:%10")
                    .arg(g_record.filePath)
                    .arg(g_record.inWidth)
                    .arg(g_record.inHeight)
@@ -103,7 +111,8 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
                    .arg(g_record.fps)
                    .arg(g_record.enableAudio)
                    .arg(g_record.audioDeviceIndex)
-                   .arg(g_record.channel);
+                   .arg(g_record.channel)
+                   .arg(g_record.sampleRate);
 }
 
 /**
@@ -132,7 +141,25 @@ int Recorder::startRecord()
 	// init
     m_videoFrameQueue->initBuf(g_record.outWidth, g_record.outHeight, AV_PIX_FMT_YUV420P);
 
-	m_outputer->init();
+    int ret = m_amixFilter->init(
+        {nullptr, nullptr,
+         m_speakerCap->timebase(),
+         m_speakerCap->sampleRate(),
+         m_speakerCap->sampleFormat(),
+         m_speakerCap->channel(),
+         m_speakerCap->channelLayout()},
+        {nullptr, nullptr,
+         m_microphoneCap->timebase(),
+         m_microphoneCap->sampleRate(),
+         m_microphoneCap->sampleFormat(),
+         m_microphoneCap->channel(),
+         m_microphoneCap->channelLayout()},
+        {nullptr, nullptr, {1, AV_TIME_BASE}, g_record.sampleRate, AV_SAMPLE_FMT_FLTP, g_record.channel, av_get_default_channel_layout(g_record.channel)});
+    if (ret != 0) return -1;
+
+    m_amixFilter->registe_cb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
+
+    m_outputer->init();
 
 	// start
     m_startTime = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
@@ -240,4 +267,16 @@ AVFrame* Recorder::readAudioFrameCb() {
         return m_audioFrameQueue->readFrame();
     }
     return nullptr;
+}
+
+void Recorder::addFrameToAmixFilter(AVFrame* frame, int filterCtxIndex) {
+    m_amixFilter->add_frame(frame, filterCtxIndex);
+}
+
+void Recorder::writeAudioFrameCb(AVFrame* frame) {
+    if (Running == g_record.status) {
+        if (m_audioFrameQueue) {
+            m_audioFrameQueue->writeFrame(frame/*, info*/);
+        }
+    }
 }

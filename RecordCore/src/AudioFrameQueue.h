@@ -13,6 +13,8 @@ public:
     int      writeFrame(AVFrame* frame, const AudioCaptureInfo& info);
     AVFrame* readFrame();
 
+    int writeFrame(AVFrame* frame);
+
 private:
     bool                    m_isInit   = false;
     uint64_t                m_channelLayout;

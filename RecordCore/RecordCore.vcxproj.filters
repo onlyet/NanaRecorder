@@ -55,10 +55,10 @@
     <ClCompile Include="..\common\util\util.cpp">
       <Filter>common\util</Filter>
     </ClCompile>
-    <ClCompile Include="src\AmixFilter.cpp">
+    <ClCompile Include="src\filter.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\filter.cpp">
+    <ClCompile Include="src\AmixFilter.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,10 +108,10 @@
     <ClInclude Include="..\common\timer.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="src\AmixFilter.h">
+    <ClInclude Include="src\filter.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\filter.h">
+    <ClInclude Include="src\AmixFilter.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

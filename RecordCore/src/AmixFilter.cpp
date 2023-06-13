@@ -1,19 +1,18 @@
 #include <chrono>
 
 //#include "error_define.h"
-//#include "filter_amix.h"
+//#include "AmixFilter.h"
 //#include "log_helper.h"
-#include <AmixFilter.h>
+#include "AmixFilter.h"
+#include "FFmpegHeader.h"
 
-#include <libavfilter/avfilter.h>
-#include <libavfilter/buffersrc.h>
-#include <libavfilter/buffersink.h>
+#include <QDebug>
 
 //static void print_frame(const AVFrame *frame, int index) {
 //    al_debug("index:%d %lld %d", index, frame->pts, frame->nb_samples);
 //}
 
-filter_amix::filter_amix() {
+AmixFilter::AmixFilter() {
     //av_register_all();
     //avfilter_register_all();
 
@@ -29,16 +28,16 @@ filter_amix::filter_amix() {
     _cond_notify = false;
 }
 
-filter_amix::~filter_amix() {
+AmixFilter::~AmixFilter() {
     stop();
     cleanup();
 }
 
-int filter_amix::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const FILTER_CTX &ctx_out) {
-    int error = AE_NO;
+int AmixFilter::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const FILTER_CTX &ctx_out) {
+    int error = 0;
     int ret   = 0;
 
-    if (_inited) return AE_NO;
+    if (_inited) return error;
 
     do {
         _ctx_in_0 = ctx_in0;
@@ -47,7 +46,7 @@ int filter_amix::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, cons
 
         _filter_graph = avfilter_graph_alloc();
         if (!_filter_graph) {
-            error = AE_FILTER_ALLOC_GRAPH_FAILED;
+            error = -1;
             break;
         }
 
@@ -64,19 +63,19 @@ int filter_amix::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, cons
 
         ret = avfilter_graph_create_filter(&_ctx_in_0.ctx, avfilter_get_by_name("abuffer"), "in0", pad_args0, NULL, _filter_graph);
         if (ret < 0) {
-            error = AE_FILTER_CREATE_FILTER_FAILED;
+            error = -1;
             break;
         }
 
         ret = avfilter_graph_create_filter(&_ctx_in_1.ctx, avfilter_get_by_name("abuffer"), "in1", pad_args1, NULL, _filter_graph);
         if (ret < 0) {
-            error = AE_FILTER_CREATE_FILTER_FAILED;
+            error = -1;
             break;
         }
 
         ret = avfilter_graph_create_filter(&_ctx_out.ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, _filter_graph);
         if (ret < 0) {
-            error = AE_FILTER_CREATE_FILTER_FAILED;
+            error = -1;
             break;
         }
 
@@ -103,13 +102,13 @@ int filter_amix::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, cons
 
         ret = avfilter_graph_parse_ptr(_filter_graph, filter_desrc.c_str(), &_ctx_out.inout, inoutputs, NULL);
         if (ret < 0) {
-            error = AE_FILTER_PARSE_PTR_FAILED;
+            error = -1;
             break;
         }
 
         ret = avfilter_graph_config(_filter_graph, NULL);
         if (ret < 0) {
-            error = AE_FILTER_CONFIG_FAILED;
+            error = -1;
             break;
         }
 
@@ -118,8 +117,9 @@ int filter_amix::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, cons
         _inited = true;
     } while (0);
 
-    if (error != AE_NO) {
-        al_debug("filter init failed:%s %d", err2str(error), ret);
+    if (error != 0) {
+        //al_debug("filter init failed:%s %d", err2str(error), ret);
+        qCritical() << "filter init failed";
         cleanup();
     }
 
@@ -135,22 +135,22 @@ int filter_amix::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, cons
     return error;
 }
 
-int filter_amix::start() {
+int AmixFilter::start() {
     if (!_inited)
-        return AE_NEED_INIT;
+        return -1;
 
     if (_running)
-        return AE_NO;
+        return 0;
 
     _running = true;
-    _thread  = std::thread(std::bind(&filter_amix::filter_loop, this));
+    _thread  = std::thread(std::bind(&AmixFilter::filter_loop, this));
 
     return 0;
 }
 
-int filter_amix::stop() {
+int AmixFilter::stop() {
     if (!_inited || !_running)
-        return AE_NO;
+        return 0;
 
     _running = false;
 
@@ -160,13 +160,13 @@ int filter_amix::stop() {
     if (_thread.joinable())
         _thread.join();
 
-    return AE_NO;
+    return 0;
 }
 
-int filter_amix::add_frame(AVFrame *frame, int index) {
+int AmixFilter::add_frame(AVFrame *frame, int index) {
     std::unique_lock<std::mutex> lock(_mutex);
 
-    int error = AE_NO;
+    int error = 0;
     int ret   = 0;
 
     do {
@@ -184,21 +184,22 @@ int filter_amix::add_frame(AVFrame *frame, int index) {
         }
 
         if (!ctx) {
-            error = AE_FILTER_INVALID_CTX_INDEX;
+            error = -1;
             break;
         }
 
         //print_frame(frame, index);
         int ret = av_buffersrc_add_frame_flags(ctx, frame, AV_BUFFERSRC_FLAG_KEEP_REF);
         if (ret < 0) {
-            error = AE_FILTER_ADD_FRAME_FAILED;
+            error = -1;
             break;
         }
 
     } while (0);
 
-    if (error != AE_NO) {
-        al_debug("add frame failed:%s ,%d", err2str(error), ret);
+    if (error != 0) {
+        //al_debug("add frame failed:%s ,%d", err2str(error), ret);
+        qCritical() << "av_buffersrc_add_frame_flags failed:" << ret;
     }
 
     _cond_notify = true;
@@ -207,11 +208,12 @@ int filter_amix::add_frame(AVFrame *frame, int index) {
     return error;
 }
 
-const AVRational filter_amix::get_time_base() {
+const AVRational AmixFilter::get_time_base() {
     return av_buffersink_get_time_base(_ctx_out.ctx);
+    return AVRational();
 }
 
-void filter_amix::cleanup() {
+void AmixFilter::cleanup() {
     if (_filter_graph)
         avfilter_graph_free(&_filter_graph);
 
@@ -222,36 +224,63 @@ void filter_amix::cleanup() {
     _inited = false;
 }
 
-void filter_amix::filter_loop() {
-    AVFrame *frame = av_frame_alloc();
+void AmixFilter::filter_loop() {
+    AVFrame *sinkFrame       = av_frame_alloc();
+    AVFrame *outFrame        = av_frame_alloc();
+    outFrame->format         = _ctx_out.sample_fmt;
+    outFrame->nb_samples     = 1024; // FIXME: ²»ÒªÐ´ËÀ
+    outFrame->channel_layout = _ctx_out.channel_layout;
+    int ret                  = av_frame_get_buffer(outFrame, 0);
+    if (ret < 0) {
+        qCritical() << "av_frame_get_buffer failed";
+        return;
+    }
 
-    int ret = 0;
+    ret = 0;
     while (_running) {
         std::unique_lock<std::mutex> lock(_mutex);
         while (!_cond_notify && _running)
             _cond_var.wait_for(lock, std::chrono::milliseconds(300));
 
         while (_running && _cond_notify) {
-            ret = av_buffersink_get_frame(_ctx_out.ctx, frame);
+            ret = av_buffersink_get_frame(_ctx_out.ctx, sinkFrame);
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
                 break;
-                ;
             }
 
             if (ret < 0) {
-                al_fatal("avfilter get frame error:%d", ret);
+                qCritical() << "av_buffersink_get_frame failed:" << ret;
                 if (_on_filter_error) _on_filter_error(ret, -1);
                 break;
             }
 
-            if (_on_filter_data)
-                _on_filter_data(frame, -1);
+            int space = av_audio_fifo_space(m_filteredFrameFifo);
+            if (space < sinkFrame->nb_samples) {
+                qCritical() << "fifo space is not enough";
+                return;
+            }
+            int nbsamples = av_audio_fifo_write(m_filteredFrameFifo, (void **)sinkFrame->data, sinkFrame->nb_samples);
+            if (nbsamples != sinkFrame->nb_samples) {
+                qCritical() << "nbsamples != filt_frame->nb_samples";
+                return;
+            }
 
-            av_frame_unref(frame);
+            av_frame_unref(sinkFrame);
+
+            while (av_audio_fifo_size(m_filteredFrameFifo) >= outFrame->nb_samples) {
+                int nbread = av_audio_fifo_read(m_filteredFrameFifo, (void **)outFrame->data, outFrame->nb_samples);
+                if (nbread != outFrame->nb_samples) {
+                    qCritical() << "av_audio_fifo_read failed";
+                    return;
+                }
+                if (_on_filter_data)
+                    _on_filter_data(outFrame, -1);
+            }
         }
 
         _cond_notify = false;
     }
 
-    av_frame_free(&frame);
+    av_frame_free(&sinkFrame);
+    av_frame_free(&outFrame);
 }

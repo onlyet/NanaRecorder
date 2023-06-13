@@ -41,6 +41,26 @@ int AudioCapture::stopCapture() {
     return 0;
 }
 
+AVRational AudioCapture::timebase() {
+    return AVRational();
+}
+
+int AudioCapture::sampleRate() {
+    return 0;
+}
+
+AVSampleFormat AudioCapture::sampleFormat() {
+    return AVSampleFormat();
+}
+
+int AudioCapture::channel() {
+    return 0;
+}
+
+int64_t AudioCapture::channelLayout() {
+    return int64_t();
+}
+
 int AudioCapture::initCapture(AudioCaptureDevice dev) {
     int                  ret     = -1;
     AVDictionary*        options = nullptr;
@@ -160,12 +180,12 @@ void AudioCapture::audioCaptureThreadProc() {
         }
         av_packet_unref(&pkt);
 
-        AudioCaptureInfo info;
-        // 手动设置布局，因为从流中获取的通道布局是0
-        info.channelLayout = /*m_aDecodeCtx->channel_layout*/ AV_CH_LAYOUT_STEREO;
-        info.format        = m_aDecodeCtx->sample_fmt;
-        info.sampleRate    = m_aDecodeCtx->sample_rate;
-        m_frameCb(oldFrame, info);
+        //AudioCaptureInfo info;
+        //// 手动设置布局，因为从流中获取的通道布局是0
+        //info.channelLayout = /*m_aDecodeCtx->channel_layout*/ AV_CH_LAYOUT_STEREO;
+        //info.format        = m_aDecodeCtx->sample_fmt;
+        //info.sampleRate    = m_aDecodeCtx->sample_rate;
+        m_frameCb(oldFrame, m_filterCtxIndex);
     }
     //FlushAudioDecoder();
 

@@ -112,7 +112,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
@@ -124,7 +124,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -137,7 +137,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
@@ -149,7 +149,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
