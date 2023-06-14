@@ -44,10 +44,10 @@ Recorder::Recorder(const QVariantMap& recordInfo) {
         }
 
         m_speakerCap = new AudioCapture;
-        m_speakerCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 0);
+        m_speakerCap->setAmixFilterCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 0);
 
         m_microphoneCap = new AudioCapture;
-        m_microphoneCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 1);
+        m_microphoneCap->setAmixFilterCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 1);
 
         m_audioFrameQueue = new AudioFrameQueue;
     }

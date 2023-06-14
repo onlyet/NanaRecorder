@@ -1,30 +1,18 @@
 #include <chrono>
 
-//#include "error_define.h"
-//#include "AmixFilter.h"
-//#include "log_helper.h"
 #include "AmixFilter.h"
 #include "FFmpegHeader.h"
 
 #include <QDebug>
 
-//static void print_frame(const AVFrame *frame, int index) {
-//    al_debug("index:%d %lld %d", index, frame->pts, frame->nb_samples);
-//}
-
 AmixFilter::AmixFilter() {
-    //av_register_all();
-    //avfilter_register_all();
-
     memset(&_ctx_in_0, 0, sizeof(FILTER_CTX));
     memset(&_ctx_in_1, 0, sizeof(FILTER_CTX));
     memset(&_ctx_out, 0, sizeof(FILTER_CTX));
 
     _filter_graph = NULL;
-
     _inited  = false;
     _running = false;
-
     _cond_notify = false;
 }
 
@@ -118,7 +106,6 @@ int AmixFilter::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const
     } while (0);
 
     if (error != 0) {
-        //al_debug("filter init failed:%s %d", err2str(error), ret);
         qCritical() << "filter init failed";
         cleanup();
     }
@@ -188,7 +175,6 @@ int AmixFilter::add_frame(AVFrame *frame, int index) {
             break;
         }
 
-        //print_frame(frame, index);
         ret = av_buffersrc_add_frame_flags(ctx, frame, AV_BUFFERSRC_FLAG_KEEP_REF);
         if (ret < 0) {
             error = -1;
@@ -198,7 +184,6 @@ int AmixFilter::add_frame(AVFrame *frame, int index) {
     } while (0);
 
     if (error != 0) {
-        //al_debug("add frame failed:%s ,%d", err2str(error), ret);
         qCritical() << QString("av_buffersrc_add_frame_flags ret:%1,index:%2").arg(ret).arg(index);
     }
 
@@ -228,7 +213,7 @@ void AmixFilter::filter_loop() {
     AVFrame *sinkFrame       = av_frame_alloc();
     AVFrame *outFrame        = av_frame_alloc();
     outFrame->format         = _ctx_out.sample_fmt;
-    outFrame->nb_samples     = 1024; // FIXME: 不要写死
+    outFrame->nb_samples     = 1024; // TODO: 不要写死
     outFrame->channel_layout = _ctx_out.channel_layout;
     int ret                  = av_frame_get_buffer(outFrame, 0);
     if (ret < 0) {

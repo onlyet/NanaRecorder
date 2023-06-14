@@ -1,5 +1,7 @@
 #include "AudioFrameQueue.h"
 
+#include "FFmpegHelper.h"
+
 #include <QDebug>
 #include <QDateTime>
 
@@ -88,21 +90,10 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
     }
 
     if (dst_nb_samples > m_resampleBufSize) {
-#if 0
-        // FIXME: bug
-        for (int i = 0; i < m_channelNum; ++i) {
-            qDebug() << "dump 1-1-1";
-            if (m_resampleBuf[i]) {
-                av_freep(&m_resampleBuf[i]);
-            }
-            qDebug() << "dump 1-1-2";
-        }
-#else
         if (m_resampleBuf[0]) {
-            // 整个buf都会被释放，不需要掉各个通道单独free
+            // 整个buf都会被释放，不需要每个通道都释放一次
             av_freep(&m_resampleBuf[0]);
         }
-#endif
         
         ret = av_samples_alloc(m_resampleBuf, NULL, m_channelNum, dst_nb_samples, m_format, 0);
         if (ret < 0) {
@@ -140,17 +131,21 @@ AVFrame* AudioFrameQueue::readFrame() {
         unique_lock<mutex> lk(m_mtxABuf);
         bool               notTimeout = m_cvABufNotEmpty.wait_for(lk, 100ms, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_aOutFrame->nb_samples; });
         if (!notTimeout) {
-            //qCritical() << "Audio wait timeout";
-            qDebug() << "timeout, av_audio_fifo_size:" << av_audio_fifo_size(m_aFifoBuf);
+            //qDebug() << "timeout, av_audio_fifo_size:" << av_audio_fifo_size(m_aFifoBuf);
             return nullptr;
         }
-    }
+
     // 从FIFO读取到n个平面（n是通道数，一个通道一个平面）
-    int tt = av_audio_fifo_size(m_aFifoBuf);
-    qDebug() << "1 av_audio_fifo_size:" << tt;
-    av_audio_fifo_read(m_aFifoBuf, (void**)m_aOutFrame->data, m_aOutFrame->nb_samples);
-    int tt2 = av_audio_fifo_size(m_aFifoBuf);
-    qDebug() << "2 av_audio_fifo_size:" << tt2;
+        //int tt = av_audio_fifo_size(m_aFifoBuf);
+        //qDebug() << "1 av_audio_fifo_size:" << tt;
+        int nread = av_audio_fifo_read(m_aFifoBuf, (void**)m_aOutFrame->data, m_aOutFrame->nb_samples);
+        if (nread != m_aOutFrame->nb_samples) {
+            qCritical() << "av_audio_fifo_read failed:" << FFmpegHelper::err2Str(nread);
+            return nullptr;
+        }
+        //int tt2 = av_audio_fifo_size(m_aFifoBuf);
+        //qDebug() << "2 av_audio_fifo_size:" << tt2;
+    }
     m_cvABufNotFull.notify_one();
 
     return m_aOutFrame;
@@ -162,11 +157,12 @@ int AudioFrameQueue::writeFrame(AVFrame* frame) {
 
     {
         unique_lock<mutex> lk(m_mtxABuf);
-        // 这里改成frame->nb_samples是否正确？
+        // TODO: 这里改成frame->nb_samples是否正确？
         m_cvABufNotFull.wait(lk, [this, frame] { return av_audio_fifo_space(m_aFifoBuf) >= frame->nb_samples; });
+
+        av_audio_fifo_write(m_aFifoBuf, (void**)frame->data, frame->nb_samples);
     }
 
-    av_audio_fifo_write(m_aFifoBuf, (void**)frame->data, frame->nb_samples);
     m_cvABufNotEmpty.notify_one();
 
     return 0;

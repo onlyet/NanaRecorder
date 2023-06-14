@@ -23,13 +23,13 @@ class AudioCaptureInfo;
 enum class AudioCaptureDevice;
 
 class AudioCapture {
-    using AudioFrameCb = std::function<void(AVFrame*, int)>;
+    using AmixFilterCb = std::function<void(AVFrame*, int)>;
 public:
     int startCapture(AudioCaptureDevice dev);
     int stopCapture();
 
-    void setFrameCb(AudioFrameCb cb, int filterCtxIdx) {
-        m_frameCb    = cb;
+    void setAmixFilterCb(AmixFilterCb cb, int filterCtxIdx) {
+        m_amixFilterCb    = cb;
         m_filterCtxIndex = filterCtxIdx;
     }
 
@@ -43,7 +43,7 @@ private:
     int  initCapture(AudioCaptureDevice dev);
     void deinit();
 
-    void audioCaptureThreadProc();
+    void audioCaptureThread();
 
 private:
     std::atomic_bool                                       m_isRunning  = false;
@@ -51,6 +51,6 @@ private:
     AVFormatContext*                                       m_aFmtCtx    = nullptr;
     AVCodecContext*                                        m_aDecodeCtx = nullptr;
     std::thread                                            m_captureThread;
-    AudioFrameCb                                           m_frameCb;
+    AmixFilterCb                                           m_amixFilterCb;
     int                                                    m_filterCtxIndex;
 };
