@@ -194,6 +194,7 @@ void AudioCapture::audioCaptureThread() {
             av_packet_unref(&pkt);
             continue;
         }
+        qDebug() << QString("pkt.pts:%1,frame.pts:%2").arg(pkt.pts).arg(oldFrame->pts);
         av_packet_unref(&pkt);
 
         m_amixFilterCb(oldFrame, m_filterCtxIndex);
