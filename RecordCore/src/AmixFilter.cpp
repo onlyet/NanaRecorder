@@ -189,7 +189,7 @@ int AmixFilter::add_frame(AVFrame *frame, int index) {
         }
 
         //print_frame(frame, index);
-        int ret = av_buffersrc_add_frame_flags(ctx, frame, AV_BUFFERSRC_FLAG_KEEP_REF);
+        ret = av_buffersrc_add_frame_flags(ctx, frame, AV_BUFFERSRC_FLAG_KEEP_REF);
         if (ret < 0) {
             error = -1;
             break;
@@ -199,7 +199,7 @@ int AmixFilter::add_frame(AVFrame *frame, int index) {
 
     if (error != 0) {
         //al_debug("add frame failed:%s ,%d", err2str(error), ret);
-        qCritical() << "av_buffersrc_add_frame_flags failed:" << ret;
+        qCritical() << QString("av_buffersrc_add_frame_flags ret:%1,index:%2").arg(ret).arg(index);
     }
 
     _cond_notify = true;
@@ -233,6 +233,13 @@ void AmixFilter::filter_loop() {
     int ret                  = av_frame_get_buffer(outFrame, 0);
     if (ret < 0) {
         qCritical() << "av_frame_get_buffer failed";
+        return;
+    }
+
+    // TODO: ²»ÒªÐ´ËÀ
+    m_filteredFrameFifo = av_audio_fifo_alloc(_ctx_out.sample_fmt, _ctx_out.nb_channel, 1024 * 5);
+    if (!m_filteredFrameFifo) {
+        qCritical() << "Fifo null";
         return;
     }
 
@@ -281,6 +288,8 @@ void AmixFilter::filter_loop() {
         _cond_notify = false;
     }
 
+    av_audio_fifo_free(m_filteredFrameFifo);
     av_frame_free(&sinkFrame);
     av_frame_free(&outFrame);
+    qInfo() << "AmixFilter thread exit";
 }

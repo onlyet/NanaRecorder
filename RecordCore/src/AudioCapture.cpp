@@ -42,23 +42,44 @@ int AudioCapture::stopCapture() {
 }
 
 AVRational AudioCapture::timebase() {
-    return AVRational();
+    if (m_aFmtCtx && m_aIndex != -1) {
+        return m_aFmtCtx->streams[m_aIndex]->time_base;
+    } else {
+        return {1, AV_TIME_BASE};
+    }
 }
 
 int AudioCapture::sampleRate() {
-    return 0;
+    if (m_aDecodeCtx) {
+        return m_aDecodeCtx->sample_rate;
+    } else {
+        return 0;
+    }
 }
 
 AVSampleFormat AudioCapture::sampleFormat() {
-    return AVSampleFormat();
+    if (m_aDecodeCtx) {
+        return m_aDecodeCtx->sample_fmt;
+    } else {
+        return AV_SAMPLE_FMT_NONE;
+    }
 }
 
 int AudioCapture::channel() {
-    return 0;
+    if (m_aDecodeCtx) {
+        return m_aDecodeCtx->channels;
+    } else {
+        return 0;
+    }
 }
 
 int64_t AudioCapture::channelLayout() {
-    return int64_t();
+    if (m_aDecodeCtx) {
+        //return av_channel_layout_default();
+        return av_get_default_channel_layout(m_aDecodeCtx->channels);
+    } else {
+        return 0;
+    }
 }
 
 int AudioCapture::initCapture(AudioCaptureDevice dev) {
@@ -67,7 +88,7 @@ int AudioCapture::initCapture(AudioCaptureDevice dev) {
     const AVCodec*       decoder = nullptr;
     const AVInputFormat* ifmt    = av_find_input_format(AUDIO_DEVICE_FORMAT);
 
-    string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDevice>(g_record.audioDeviceIndex));
+    string audioDeviceName = FFmpegHelper::getAudioDevice(dev);
     if ("" == audioDeviceName) {
         return -1;
     }

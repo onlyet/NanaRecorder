@@ -141,12 +141,33 @@ AVFrame* AudioFrameQueue::readFrame() {
         bool               notTimeout = m_cvABufNotEmpty.wait_for(lk, 100ms, [this] { return av_audio_fifo_size(m_aFifoBuf) >= m_aOutFrame->nb_samples; });
         if (!notTimeout) {
             //qCritical() << "Audio wait timeout";
+            qDebug() << "timeout, av_audio_fifo_size:" << av_audio_fifo_size(m_aFifoBuf);
             return nullptr;
         }
     }
     // 从FIFO读取到n个平面（n是通道数，一个通道一个平面）
+    int tt = av_audio_fifo_size(m_aFifoBuf);
+    qDebug() << "1 av_audio_fifo_size:" << tt;
     av_audio_fifo_read(m_aFifoBuf, (void**)m_aOutFrame->data, m_aOutFrame->nb_samples);
+    int tt2 = av_audio_fifo_size(m_aFifoBuf);
+    qDebug() << "2 av_audio_fifo_size:" << tt2;
     m_cvABufNotFull.notify_one();
 
     return m_aOutFrame;
+}
+
+int AudioFrameQueue::writeFrame(AVFrame* frame) {
+    if (!m_isInit) return -1;
+    if (!frame) return -1;
+
+    {
+        unique_lock<mutex> lk(m_mtxABuf);
+        // 这里改成frame->nb_samples是否正确？
+        m_cvABufNotFull.wait(lk, [this, frame] { return av_audio_fifo_space(m_aFifoBuf) >= frame->nb_samples; });
+    }
+
+    av_audio_fifo_write(m_aFifoBuf, (void**)frame->data, frame->nb_samples);
+    m_cvABufNotEmpty.notify_one();
+
+    return 0;
 }

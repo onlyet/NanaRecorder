@@ -40,14 +40,14 @@ Recorder::Recorder(const QVariantMap& recordInfo) {
     if (g_record.enableAudio) {
         m_audioSrcNum = 2;
         if (m_audioSrcNum > 1) {
-            //m_amixFilter = new AmixFilter;
+            m_amixFilter = new AmixFilter;
         }
 
         m_speakerCap = new AudioCapture;
-        m_speakerCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 1);
+        m_speakerCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 0);
 
         m_microphoneCap = new AudioCapture;
-        m_microphoneCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 2);
+        m_microphoneCap->setFrameCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 1);
 
         m_audioFrameQueue = new AudioFrameQueue;
     }
@@ -101,8 +101,7 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
     g_record.channel          = recordInfo["channel"].toInt();
     g_record.sampleRate       = recordInfo["sampleRate"].toInt();
 
-    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,\
-                        fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9,sampleRate:%10")
+    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9,sampleRate:%10")
                    .arg(g_record.filePath)
                    .arg(g_record.inWidth)
                    .arg(g_record.inHeight)
@@ -158,6 +157,7 @@ int Recorder::startRecord()
     if (ret != 0) return -1;
 
     m_amixFilter->registe_cb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
+    m_amixFilter->start();
 
     m_outputer->init();
 
@@ -198,6 +198,9 @@ int Recorder::stopRecord()
     }
 
 	stopCapture();
+
+    m_amixFilter->stop();
+
 	m_outputer->stop();
 	m_outputer->deinit();
 	m_videoFrameQueue->deinit();
@@ -276,7 +279,7 @@ void Recorder::addFrameToAmixFilter(AVFrame* frame, int filterCtxIndex) {
 void Recorder::writeAudioFrameCb(AVFrame* frame) {
     if (Running == g_record.status) {
         if (m_audioFrameQueue) {
-            m_audioFrameQueue->writeFrame(frame/*, info*/);
+            m_audioFrameQueue->writeFrame(frame);
         }
     }
 }

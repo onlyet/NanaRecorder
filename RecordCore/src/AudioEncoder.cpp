@@ -17,9 +17,9 @@ int AudioEncoder::initAAC() {
     m_aEncodeCtx->codec_type     = AVMEDIA_TYPE_AUDIO;
     m_aEncodeCtx->sample_fmt     = AV_SAMPLE_FMT_FLTP;
     m_aEncodeCtx->codec_id       = AV_CODEC_ID_AAC;
-    m_aEncodeCtx->sample_rate    = 44100;
-    m_aEncodeCtx->channel_layout = /*AV_CH_LAYOUT_STEREO*/ av_get_default_channel_layout(m_channel);
-    m_aEncodeCtx->channels       = /*av_get_channel_layout_nb_channels(m_aEncodeCtx->channel_layout)*/ m_channel;
+    m_aEncodeCtx->sample_rate    = g_record.sampleRate;
+    m_aEncodeCtx->channel_layout = av_get_default_channel_layout(m_channel);
+    m_aEncodeCtx->channels       = m_channel;
     //ÕýÈ·ÉèÖÃsps/pps
     m_aEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 

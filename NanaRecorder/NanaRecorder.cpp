@@ -59,6 +59,7 @@ void NanaRecorder::startBtnClicked() {
         if (enableAudio) {
             info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
             info.insert("channel", ui.channelComboBox->currentText());
+            info.insert("sampleRate", 48000);
         }
 
         QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
