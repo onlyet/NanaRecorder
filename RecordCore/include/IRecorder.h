@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_IRECORDER_H
+#define ONLYET_IRECORDER_H
 
 #ifdef WIN32
 #ifdef RECORDER_EXPORT
@@ -27,4 +28,5 @@ public:
 };
 
 RECORDAPI std::unique_ptr<IRecorder> createRecorder(const QVariantMap& recordInfo);
-//RECORDAPI IRecorder* freeRecorder();
+
+#endif  // !ONLYET_IRECORDER_H

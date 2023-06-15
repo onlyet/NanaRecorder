@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_RECORDER_H
+#define ONLYET_RECORDER_H
 
 #include "IRecorder.h"
 
@@ -67,3 +68,4 @@ private:
     ResampleFilter* m_resampleFilter = nullptr;
 };
 
+#endif  // !ONLYET_RECORDER_H

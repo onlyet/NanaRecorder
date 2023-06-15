@@ -1,12 +1,9 @@
 /****************************************************************
- * 此文件用于生成log日志
- * 调用 LogInit 函数完成日志初始化
- * 在非windows的64位系统时, 需要在pro头文件里定义宏#M_OS_64
  * 生成日志在运行目录的log文件夹里, 单个日志文件最大为10MB, 最多保存10个历史日志
  ****************************************************************/
 
-#ifndef LOG_H
-#define LOG_H
+#ifndef ONLYET_LOG_H
+#define ONLYET_LOG_H
 
 #include <QDebug>
 #include <QFile>
@@ -27,12 +24,6 @@
 #define LogFileMaxCount 10      // 历史日志文件最大个数
 #define LogMaxBytes (10<<20)    // 单个历史日志文件最大字节数
 #define LogDirName "log"        // 日志文件存放目录
-
-//#if defined (M_OS_64) || defined (Q_OS_WIN64)
-//    typedef quint64 mhandle;
-//#else
-//    typedef quint32 mhandle;
-//#endif
 
 static QString s_LogDir = "";
 static QString s_logName = "";
@@ -152,7 +143,6 @@ static void outputMessage(QtMsgType type, const QMessageLogContext &context, con
         context_info = QString("[%1:%2][%3]").arg(fileText).arg(context.line).arg(funcText);
     }
 
-    //QString current_thread = QString("[%1]").arg((mhandle)QThread::currentThread(), sizeof(mhandle)*2, 16, QChar('0')).toUpper();
 	std::ostringstream os;
 	os << std::this_thread::get_id();
 	QString current_thread = QString("[%1]").arg(QString::fromStdString(os.str()));
@@ -198,4 +188,4 @@ void setLogLevel(int level)
     s_logLevel = level;
 }
 
-#endif // LOG_H
+#endif // ONLYET_LOG_H

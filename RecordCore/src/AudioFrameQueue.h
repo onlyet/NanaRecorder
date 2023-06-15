@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_AUDIOFRAMEQUEUE_H
+#define ONLYET_AUDIOFRAMEQUEUE_H
+
 #include "FFmpegHeader.h"
 #include "RecordConfig.h"
 
@@ -31,3 +33,5 @@ private:
     int64_t                 m_resampleBufSize = 0;
     uint8_t*                m_resampleBuf[MAX_AV_PLANES];
 };
+
+#endif  // !ONLYET_AUDIOFRAMEQUEUE_H

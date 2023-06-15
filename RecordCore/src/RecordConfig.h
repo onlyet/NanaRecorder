@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_RECORDCONFIG_H
+#define ONLYET_RECORDCONFIG_H
 
 #include "singleton.h"
 #include "FFmpegHeader.h"
@@ -59,3 +60,5 @@ struct RecordConfig {
 };
 
 #define g_record Singleton<RecordConfig>::instance()
+
+#endif  // !ONLYET_RECORDCONFIG_H

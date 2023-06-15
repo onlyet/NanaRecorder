@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_NANARECORDER_H
+#define ONLYET_NANARECORDER_H
 
 #include <QtWidgets/QMainWindow>
 #include "ui_NanaRecorder.h"
@@ -34,3 +35,5 @@ private:
     bool                       m_started        = false;
     bool                       m_paused         = false;
 };
+
+#endif  // !ONLYET_NANARECORDER_H

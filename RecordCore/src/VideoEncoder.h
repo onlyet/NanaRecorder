@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_VIDEOENCODER_H
+#define ONLYET_VIDEOENCODER_H
 
 #include "FFmpegHeader.h"
 
@@ -16,3 +17,4 @@ private:
     AVDictionary*   m_dict       = nullptr;
 };
 
+#endif  // !ONLYET_VIDEOENCODER_H

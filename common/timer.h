@@ -1,5 +1,5 @@
-#pragma once
-#pragma once
+#ifndef ONLYET_TIMER_H
+#define ONLYET_TIMER_H
 
 #include <chrono>
 #include <ratio>
@@ -53,3 +53,5 @@ private:
 	time_point<clock_type> tpStart;
 	time_point<clock_type> tpStop;
 };
+
+#endif  // !ONLYET_TIMER_H

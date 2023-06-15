@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_FILEOUTPUTER_H
+#define ONLYET_FILEOUTPUTER_H
+
 #include "FFmpegHeader.h"
 
 #include <thread>
@@ -52,3 +54,4 @@ private:
     std::function<int64_t()>             m_pauseCb;           // 获取暂停持续时间
 };
 
+#endif  // !ONLYET_FILEOUTPUTER_H

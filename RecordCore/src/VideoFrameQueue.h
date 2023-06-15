@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_VIDEOFRAMEQUEUE_H
+#define ONLYET_VIDEOFRAMEQUEUE_H
+
 #include "FFmpegHeader.h"
 #include "RecordConfig.h"
 
@@ -37,3 +39,4 @@ private:
     bool                    m_needScale = false;
 };
 
+#endif  // !ONLYET_VIDEOFRAMEQUEUE_H

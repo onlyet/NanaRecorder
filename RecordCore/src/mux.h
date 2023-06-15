@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_MUX_H
+#define ONLYET_MUX_H
+
 #include "FFmpegHeader.h"
 
 #include <string>
@@ -33,3 +35,4 @@ private:
     std::mutex          m_WriteFrameMtx;
 };
 
+#endif  // !ONLYET_MUX_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_RESAMPLEFILTER
+#define ONLYET_RESAMPLEFILTER
 
 #include "filter.h"
 
@@ -53,3 +54,5 @@ private:
     std::condition_variable _cond_var;
     bool                    _cond_notify;
 };
+
+#endif  // !ONLYET_RESAMPLEFILTER

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_AUDIOENCODER_H
+#define ONLYET_AUDIOENCODER_H
+
 #include "FFmpegHeader.h"
 
 #include <vector>
@@ -15,3 +17,5 @@ private:
     AVDictionary*   m_dict       = nullptr;
     int             m_channel;
 };
+
+#endif  // !ONLYET_AUDIOENCODER_H

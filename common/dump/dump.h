@@ -1,5 +1,5 @@
-﻿#ifndef DUMP_H
-#define DUMP_H
+﻿#ifndef ONLYET_DUMP_H
+#define ONLYET_DUMP_H
 
 #include <QString>
 
@@ -10,4 +10,4 @@ using Callback_Dump = void(*)();
 void Init(const QString &dirpath, Callback_Dump after = nullptr);
 }
 
-#endif // DUMP_H
+#endif // !ONLYET_DUMP_H

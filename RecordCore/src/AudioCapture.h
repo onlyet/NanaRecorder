@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_AUDIOCAPTURE_H
+#define ONLYET_AUDIOCAPTURE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,3 +55,5 @@ private:
     AmixFilterCb                                           m_amixFilterCb;
     int                                                    m_filterCtxIndex;
 };
+
+#endif  // !ONLYET_AUDIOCAPTURE_H

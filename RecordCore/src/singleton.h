@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_SINGLETON_H
+#define ONLYET_SINGLETON_H
 
 #define MY_DISABLE_COPY_MOVE(Class)             \
     Class(const Class &) = delete;              \
@@ -32,3 +33,5 @@ private:
     ~GlobalConfiguration();
 };
 #endif
+
+#endif  // !ONLYET_SINGLETON_H

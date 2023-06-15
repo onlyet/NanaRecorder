@@ -1,5 +1,5 @@
-﻿#ifndef UTIL_H
-#define UTIL_H
+﻿#ifndef ONLYET_UTIL_H
+#define ONLYET_UTIL_H
 
 #include <QString>
 #include <QVariant>
@@ -141,4 +141,4 @@ namespace util {
     bool isDiskSpaceEnough(QString dir = "");
 };
 
-#endif // UTIL_H
+#endif // ONLYET_UTIL_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_AMIXFILTER_H
+#define ONLYET_AMIXFILTER_H
 
 #include "filter.h"
 
@@ -55,3 +56,5 @@ private:
 
     AVAudioFifo *m_filteredFrameFifo = nullptr; // 用作避免编码时报错：more samples than frame size
 };
+
+#endif  // !ONLYET_AMIXFILTER_H

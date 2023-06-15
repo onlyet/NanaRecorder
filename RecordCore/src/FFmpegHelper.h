@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_FFMPEGHELPER_H
+#define ONLYET_FFMPEGHELPER_H
+
 #include <string>
 
 #include <QString>
@@ -16,3 +18,5 @@ namespace FFmpegHelper {
 
     QString err2Str(int err);
 }
+
+#endif  // !ONLYET_FFMPEGHELPER_H

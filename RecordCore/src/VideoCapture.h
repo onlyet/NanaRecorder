@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_VIDEOCAPTURE_H
+#define ONLYET_VIDEOCAPTURE_H
 
 #include <thread>
 #include <functional>
@@ -33,3 +34,4 @@ private:
     std::function<void(AVFrame*, const VideoCaptureInfo&)> m_frameCb;
 };
 
+#endif  // !ONLYET_VIDEOCAPTURE_H

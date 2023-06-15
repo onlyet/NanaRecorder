@@ -1,14 +1,9 @@
-#pragma once
+#ifndef ONLYET_FILTER_H
+#define ONLYET_FILTER_H
 
-//#include <atomic>
-//#include <condition_variable>
 #include <functional>
-//#include <mutex>
-//#include <string>
-//#include <thread>
 
 
-//#include "headers_ffmpeg.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,3 +45,5 @@ typedef std::function<void(AVFrame *frame, int index)> on_filter_data;
 typedef std::function<void(int code, int index)> on_filter_error;
 
 void format_pad_arg(char *arg, int size, const FILTER_CTX &ctx);
+
+#endif  // !ONLYET_FILTER_H

@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef ONLYET_APPDATA_H
+#define ONLYET_APPDATA_H
 
 #include <QReadWriteLock>
 #include <QVariant>
@@ -44,3 +45,5 @@ private:
 };
 
 #define APPDATA AppData::instance()
+
+#endif  // !ONLYET_APPDATA_H

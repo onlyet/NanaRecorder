@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_FFMPEGHEADER_H
+#define ONLYET_FFMPEGHEADER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,3 +23,5 @@ extern "C" {
 #ifdef __cplusplus
 };
 #endif
+
+#endif  // !ONLYET_FFMPEGHEADER_H
