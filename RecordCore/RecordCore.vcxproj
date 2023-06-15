@@ -112,7 +112,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
@@ -124,7 +124,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -137,7 +137,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
     <ClCompile>
@@ -149,7 +149,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
-      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;avdevice.lib;swscale.lib;swresample.lib;avfilter.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
       <ImportLibrary>$(ProjectDir)lib\$(PlatformTarget)\$(TargetName).lib</ImportLibrary>
     </Link>
@@ -218,13 +218,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\util\util.cpp" />
+    <ClCompile Include="src\AmixFilter.cpp" />
     <ClCompile Include="src\AudioCapture.cpp" />
     <ClCompile Include="src\AudioEncoder.cpp" />
     <ClCompile Include="src\AudioFrameQueue.cpp" />
     <ClCompile Include="src\FFmpegHelper.cpp" />
     <ClCompile Include="src\FileOutputer.cpp" />
+    <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\mux.cpp" />
     <ClCompile Include="src\Recorder.cpp" />
+    <ClCompile Include="src\ResampleFilter.cpp" />
     <ClCompile Include="src\VideoCapture.cpp" />
     <ClCompile Include="src\VideoEncoder.cpp" />
     <ClCompile Include="src\VideoFrameQueue.cpp" />
@@ -233,15 +236,19 @@
     <ClInclude Include="..\common\timer.h" />
     <ClInclude Include="..\common\util\util.h" />
     <ClInclude Include="include\IRecorder.h" />
+    <ClInclude Include="src\AmixFilter.h" />
     <ClInclude Include="src\AudioCapture.h" />
     <ClInclude Include="src\AudioEncoder.h" />
     <ClInclude Include="src\AudioFrameQueue.h" />
     <ClInclude Include="src\FFmpegHeader.h" />
     <ClInclude Include="src\FFmpegHelper.h" />
     <ClInclude Include="src\FileOutputer.h" />
+    <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\mux.h" />
     <ClInclude Include="src\RecordConfig.h" />
     <ClInclude Include="src\Recorder.h" />
+    <ClInclude Include="src\ResampleFilter.h" />
+    <QtMoc Include="src\singleton.h" />
     <ClInclude Include="src\VideoCapture.h" />
     <ClInclude Include="src\VideoEncoder.h" />
     <ClInclude Include="src\VideoFrameQueue.h" />

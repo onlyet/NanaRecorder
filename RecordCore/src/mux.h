@@ -1,19 +1,22 @@
-#pragma once
+#ifndef ONLYET_MUX_H
+#define ONLYET_MUX_H
+
 #include "FFmpegHeader.h"
 
 #include <string>
 #include <mutex>
 
-class Mux
-{
+namespace onlyet {
+
+class Mux {
 public:
     Mux() {}
     ~Mux() {}
-    int init(const std::string& filename);
+    int  init(const std::string& filename);
     void deinit();
-    int writeHeader();
-    int writePacket(AVPacket* packet, int64_t captureTime);
-    int writeTrailer();
+    int  writeHeader();
+    int  writePacket(AVPacket* packet, int64_t captureTime);
+    int  writeTrailer();
 
     int addStream(AVCodecContext* encodeCtx);
 
@@ -21,15 +24,18 @@ public:
     int audioStreamIndex() { return m_aIndex; }
 
 private:
-    bool                m_isInit = false;
-    std::string         m_filename;
-    AVFormatContext*    m_oFmtCtx = nullptr;
-    AVStream*           m_vStream = nullptr;
-    AVStream*           m_aStream = nullptr;
-    AVCodecContext*     m_vEncodeCtx = nullptr; // Encoder拥有资源
-    AVCodecContext*     m_aEncodeCtx = nullptr;
-    int                 m_vIndex = -1;
-    int                 m_aIndex = -1;
-    std::mutex          m_WriteFrameMtx;
+    bool             m_isInit = false;
+    std::string      m_filename;
+    AVFormatContext* m_oFmtCtx    = nullptr;
+    AVStream*        m_vStream    = nullptr;
+    AVStream*        m_aStream    = nullptr;
+    AVCodecContext*  m_vEncodeCtx = nullptr;  // Encoder拥有资源
+    AVCodecContext*  m_aEncodeCtx = nullptr;
+    int              m_vIndex     = -1;
+    int              m_aIndex     = -1;
+    std::mutex       m_WriteFrameMtx;
 };
 
+}  // namespace onlyet
+
+#endif  // !ONLYET_MUX_H

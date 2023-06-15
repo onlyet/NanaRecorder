@@ -1,11 +1,14 @@
-#pragma once
+#ifndef ONLYET_NANARECORDER_H
+#define ONLYET_NANARECORDER_H
 
 #include <QtWidgets/QMainWindow>
 #include "ui_NanaRecorder.h"
 
 #include <memory>
 
+namespace onlyet {
 class IRecorder;
+}
 
 class QTimer;
 
@@ -21,17 +24,18 @@ private slots:
     void startBtnClicked();
     void pauseBtnClicked();
     void stopBtnClicked();
-    //void updateTime();
     void updateRecordTime();
 
     private:
     void initUI();
 
 private:
-    Ui::NanaRecorderClass      ui;
-    std::unique_ptr<IRecorder> m_recorder;
-    QTimer*                    m_recordTimer    = nullptr;
-    int                        m_recordDuration = 0;
-    bool                       m_started        = false;
-    bool                       m_paused         = false;
+    Ui::NanaRecorderClass              ui;
+    std::unique_ptr<onlyet::IRecorder> m_recorder;
+    QTimer*                            m_recordTimer    = nullptr;
+    int                                m_recordDuration = 0;
+    bool                               m_started        = false;
+    bool                               m_paused         = false;
 };
+
+#endif  // !ONLYET_NANARECORDER_H

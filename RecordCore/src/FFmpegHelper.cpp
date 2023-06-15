@@ -1,5 +1,6 @@
 #include "FFmpegHelper.h"
 #include "FFmpegHeader.h"
+#include "RecordConfig.h"
 
 #ifdef WIN32
 #include <dshow.h>
@@ -21,8 +22,9 @@
 
 using namespace std;
 
-void FFmpegHelper::registerAll()
-{
+namespace onlyet {
+
+void FFmpegHelper::registerAll() {
     static bool s_init = false;
     if (!s_init) {
         s_init = true;
@@ -70,12 +72,12 @@ static std::string AnsiToUTF8(const char* _ansi, int _ansi_len) {
 }
 #endif  // WIN32
 
-std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
+std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     string ret;
 
 #ifdef WIN32
-    GUID guid;
-    char   sName[256] = {0};
+    GUID                  guid;
+    char                  sName[256] = {0};
     unordered_set<string> audioDevSet;
 
 #if 0
@@ -89,9 +91,9 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     guid = CLSID_AudioInputDeviceCategory;
 #endif
 
-    if (AudioCaptureDevice_Speaker == type) {
+    if (AudioCaptureDevice::Speaker == type) {
         audioDevSet.emplace(CAPTURE_SPEAKER_NAME);
-    } else if (AudioCaptureDevice_Microphone == type) {
+    } else if (AudioCaptureDevice::Microphone == type) {
         audioDevSet.emplace(CAPTURE_MICROPHONE_NAME1);
         audioDevSet.emplace(CAPTURE_MICROPHONE_NAME2);
     } else {
@@ -101,7 +103,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     ::CoInitialize(NULL);
 
     ICreateDevEnum* pCreateDevEnum;  //enumrate all audio capture devices
-    HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
+    HRESULT         hr = CoCreateInstance(CLSID_SystemDeviceEnum,
                                   NULL,
                                   CLSCTX_INPROC_SERVER,
                                   IID_ICreateDevEnum,
@@ -117,7 +119,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
 
     bool isFound = false;
     pEm->Reset();
-    ULONG cFetched;
+    ULONG     cFetched;
     IMoniker* pM;
     while (pEm->Next(1, &pM, &cFetched) == S_OK && !isFound) {
         IPropertyBag* pBag = NULL;
@@ -155,7 +157,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     }
 
     if (!isFound) {
-        qInfo() << QString("Cant't find %1 device").arg(AudioCaptureDevice_Speaker == type ? "speaker" : "microphone");
+        qInfo() << QString("Cant't find %1 device").arg(AudioCaptureDevice::Speaker == type ? "speaker" : "microphone");
     }
 
     pCreateDevEnum->Release();
@@ -172,7 +174,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDeviceType type) {
     }
 
     // QtConcurrent::run([]() {
-    QString              cmd     = QString("pactl list short sources | grep %1 | awk '{print $2}'").arg(dev);
+    QString cmd = QString("pactl list short sources | grep %1 | awk '{print $2}'").arg(dev);
     //QString              cmd     = QString("free ");
     unique_ptr<QProcess> process = make_unique<QProcess>();
     //process->start(cmd);
@@ -200,3 +202,5 @@ QString FFmpegHelper::err2Str(int err) {
     qCritical() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
     return QString("%1(%2)").arg(errbuf).arg(err);
 }
+
+}  // namespace onlyet

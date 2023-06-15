@@ -1,7 +1,11 @@
-#pragma once
+#ifndef ONLYET_AUDIOENCODER_H
+#define ONLYET_AUDIOENCODER_H
+
 #include "FFmpegHeader.h"
 
 #include <vector>
+
+namespace onlyet {
 
 class AudioEncoder {
 public:
@@ -15,3 +19,7 @@ private:
     AVDictionary*   m_dict       = nullptr;
     int             m_channel;
 };
+
+}  // namespace onlyet
+
+#endif  // !ONLYET_AUDIOENCODER_H

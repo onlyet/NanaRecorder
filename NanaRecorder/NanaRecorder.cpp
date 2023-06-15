@@ -32,7 +32,6 @@ void NanaRecorder::startBtnClicked() {
         m_recordTimer->start(1000);
         ui.pauseBtn->show();
         ui.startBtn->hide();
-        //ui.infoFrame->setEnabled(false);
 
         qInfo() << "Resume record";
         return;
@@ -57,14 +56,15 @@ void NanaRecorder::startBtnClicked() {
         bool enableAudio = ui.audioCheckBox->isChecked();
         info.insert("enableAudio", enableAudio);
         if (enableAudio) {
-            info.insert("audioDeviceIndex", ui.audioComboBox->currentIndex());
+            info.insert("audioCaptureType", ui.audioComboBox->currentIndex());
             info.insert("channel", ui.channelComboBox->currentText());
+            info.insert("sampleRate", 48000);
         }
 
-        QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
+        QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), onlyet::util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
         APPDATA->set(AppDataRole::RecordPath, path);
         info.insert("recordPath", path);
-        m_recorder = createRecorder(info);
+        m_recorder = onlyet::createRecorder(info);
     }
     m_recorder->startRecord();
 
@@ -118,13 +118,6 @@ void NanaRecorder::stopBtnClicked() {
     qInfo() << "Stop record";
 }
 
-//void NanaRecorder::updateTime()
-//{
-//    static QDateTime dt;
-//    dt = QDateTime::currentDateTime();
-//    ui.timeLabel->setText(dt.toString("yyyy-MM-dd hh:mm:ss.zzz"));
-//}
-
 void NanaRecorder::updateRecordTime() {
     m_recordDuration += 1;
     int     hour         = m_recordDuration / 3600;
@@ -143,18 +136,11 @@ void NanaRecorder::initUI() {
     connect(ui.pauseBtn, &QPushButton::clicked, this, &NanaRecorder::pauseBtnClicked);
     connect(ui.stopBtn, &QPushButton::clicked, this, &NanaRecorder::stopBtnClicked);
 
-    //m_timer = new QTimer(this);
-    //connect(m_timer, &QTimer::timeout, this, &NanaRecorder::updateTime);
-    //m_timer->start(1000);
-
     m_recordTimer = new QTimer(this);
     connect(m_recordTimer, &QTimer::timeout, this, &NanaRecorder::updateRecordTime);
     ui.durationLabel->setText("00:00:00");
-    //qInfo() << "av_version_info:" << av_version_info();
 
     ui.videoCheckBox->setEnabled(false);
-    //ui.audioComboBox->setEnabled(false);
-    //ui.channelComboBox->setEnabled(false);
     connect(ui.audioCheckBox, &QCheckBox::stateChanged, [this](int state) {
         bool checked = ui.audioCheckBox->isChecked();
         ui.audioComboBox->setEnabled(checked);

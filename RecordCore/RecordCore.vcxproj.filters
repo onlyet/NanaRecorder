@@ -20,6 +20,9 @@
     <Filter Include="src\audio">
       <UniqueIdentifier>{abfee6ce-39a7-4b96-9558-9cd29c6161e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\audio\filter">
+      <UniqueIdentifier>{2ba0fc84-9619-427a-bec5-e182e76a4c6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\FFmpegHelper.cpp">
@@ -54,6 +57,15 @@
     </ClCompile>
     <ClCompile Include="..\common\util\util.cpp">
       <Filter>common\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ResampleFilter.cpp">
+      <Filter>src\audio\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filter.cpp">
+      <Filter>src\audio\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AmixFilter.cpp">
+      <Filter>src\audio\filter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +113,15 @@
     </ClInclude>
     <ClInclude Include="..\common\timer.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ResampleFilter.h">
+      <Filter>src\audio\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filter.h">
+      <Filter>src\audio\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmixFilter.h">
+      <Filter>src\audio\filter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

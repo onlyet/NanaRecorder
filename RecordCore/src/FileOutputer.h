@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ONLYET_FILEOUTPUTER_H
+#define ONLYET_FILEOUTPUTER_H
+
 #include "FFmpegHeader.h"
 
 #include <thread>
@@ -6,13 +8,14 @@
 #include <vector>
 #include <queue>
 
+namespace onlyet {
+
 class VideoEncoder;
 class AudioEncoder;
 class Mux;
 class FrameItem;
 
-class FileOutputer
-{
+class FileOutputer {
 public:
     FileOutputer();
     ~FileOutputer();
@@ -52,3 +55,6 @@ private:
     std::function<int64_t()>             m_pauseCb;           // 获取暂停持续时间
 };
 
+}  // namespace onlyet
+
+#endif  // !ONLYET_FILEOUTPUTER_H

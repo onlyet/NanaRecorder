@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_RECORDCONFIG_H
+#define ONLYET_RECORDCONFIG_H
 
 #include "singleton.h"
 #include "FFmpegHeader.h"
@@ -7,10 +8,23 @@
 
 #include <condition_variable>
 
+namespace onlyet {
+
 enum RecordStatus {
     Stopped = 0,
     Running,
     Paused,
+};
+
+enum class AudioCaptureDevice {
+    Speaker = 0,  // 扬声器
+    Microphone    // 麦克风
+};
+
+enum class AudioCaptureType {
+    OnlySpeaker = 0,
+    OnlyMicrophone,
+    SpeakerAndMicrophone
 };
 
 struct VideoCaptureInfo {
@@ -31,9 +45,10 @@ struct RecordConfig {
     int inWidth;  // 输入宽高
     int inHeight;
 
-    bool enableAudio;
-    int  audioDeviceIndex;  // 0：扬声器，1：麦克风
-    int  channel;
+    bool             enableAudio;
+    AudioCaptureType audioCaptureType;
+    int              channel;
+    int              sampleRate;
 
     QString filePath;  // 录制文件保存路径
     int     outWidth;  // 输出宽高
@@ -47,3 +62,7 @@ struct RecordConfig {
 };
 
 #define g_record Singleton<RecordConfig>::instance()
+
+}  // namespace onlyet
+
+#endif  // !ONLYET_RECORDCONFIG_H

@@ -7,6 +7,8 @@
 #include "AudioFrameQueue.h"
 #include "FileOutputer.h"
 #include "FFmpegHelper.h"
+#include <AmixFilter.h>
+#include <ResampleFilter.h>
 
 #include <util.h>
 #include <timer.h>
@@ -19,31 +21,43 @@ using namespace std;
 using namespace std::placeholders;
 using namespace std::chrono;
 
+namespace onlyet {
+
 RECORDAPI std::unique_ptr<IRecorder> createRecorder(const QVariantMap& recordInfo) {
     return make_unique<Recorder>(recordInfo);
 }
-//RECORDAPI IRecorder* freeRecorder() {
-//
-//}
 
 Recorder::Recorder(const QVariantMap& recordInfo) {
-
     m_pauseStopwatch = make_unique<Timer<std::chrono::system_clock>>();
 
-	setRecordInfo(recordInfo);
+    setRecordInfo(recordInfo);
 
-	m_videoCap = new VideoCapture;
-	m_videoCap->setFrameCb(bind(&Recorder::writeVideoFrameCb, this, _1, _2));
+    m_videoCap = new VideoCapture;
+    m_videoCap->setFrameCb(bind(&Recorder::writeVideoFrameCb, this, _1, _2));
     m_videoFrameQueue = new VideoFrameQueue;
 
     if (g_record.enableAudio) {
-        m_audioCap = new AudioCapture;
-        m_audioCap->setFrameCb(bind(&Recorder::writeAudioFrameCb, this, _1, _2));
+        if (AudioCaptureType::OnlySpeaker == g_record.audioCaptureType) {
+            m_resampleFilter = new ResampleFilter;
+            m_speakerCap     = new AudioCapture;
+            m_speakerCap->setAmixFilterCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 0);
+        } else if (AudioCaptureType::OnlyMicrophone == g_record.audioCaptureType) {
+            m_resampleFilter = new ResampleFilter;
+            m_microphoneCap  = new AudioCapture;
+            m_microphoneCap->setAmixFilterCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 0);
+        } else {
+            m_amixFilter = new AmixFilter;
+            m_speakerCap = new AudioCapture;
+            m_speakerCap->setAmixFilterCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 0);
+            m_microphoneCap = new AudioCapture;
+            m_microphoneCap->setAmixFilterCb(bind(&Recorder::addFrameToAmixFilter, this, _1, _2), 1);
+        }
+
         m_audioFrameQueue = new AudioFrameQueue;
     }
 
-	m_outputer = new FileOutputer;
-	m_outputer->setVideoFrameCb(bind(&Recorder::readVideoFrameCb, this));
+    m_outputer = new FileOutputer;
+    m_outputer->setVideoFrameCb(bind(&Recorder::readVideoFrameCb, this));
     if (g_record.enableAudio) {
         m_outputer->setAudioBufCb(bind(&Recorder::initAudioBufCb, this, _1));
         m_outputer->setAudioFrameCb(bind(&Recorder::readAudioFrameCb, this));
@@ -51,28 +65,31 @@ Recorder::Recorder(const QVariantMap& recordInfo) {
     }
 }
 
-Recorder::~Recorder()
-{
-	if (m_videoCap) {
-		delete m_videoCap;
-		m_videoCap = nullptr;
-	}
-	if (m_videoFrameQueue) {
-		delete m_videoFrameQueue;
-		m_videoFrameQueue = nullptr;
-	}
-    if (m_audioCap) {
-        delete m_audioCap;
-        m_audioCap = nullptr;
+Recorder::~Recorder() {
+    if (m_videoCap) {
+        delete m_videoCap;
+        m_videoCap = nullptr;
+    }
+    if (m_videoFrameQueue) {
+        delete m_videoFrameQueue;
+        m_videoFrameQueue = nullptr;
+    }
+    if (m_speakerCap) {
+        delete m_speakerCap;
+        m_speakerCap = nullptr;
+    }
+    if (m_microphoneCap) {
+        delete m_microphoneCap;
+        m_microphoneCap = nullptr;
     }
     if (m_audioFrameQueue) {
         delete m_audioFrameQueue;
         m_audioFrameQueue = nullptr;
     }
-	if (m_outputer) {
-		delete m_outputer;
-		m_outputer = nullptr;
-	}
+    if (m_outputer) {
+        delete m_outputer;
+        m_outputer = nullptr;
+    }
 }
 
 void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
@@ -83,10 +100,11 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
     g_record.outHeight        = recordInfo["outHeight"].toInt();
     g_record.fps              = recordInfo["fps"].toInt();
     g_record.enableAudio      = recordInfo["enableAudio"].toBool();
-    g_record.audioDeviceIndex = recordInfo["audioDeviceIndex"].toInt();
+    g_record.audioCaptureType = static_cast<AudioCaptureType>(recordInfo["audioCaptureType"].toInt());
     g_record.channel          = recordInfo["channel"].toInt();
+    g_record.sampleRate       = recordInfo["sampleRate"].toInt();
 
-    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,fps:%6,enableAudio:%7,audioDeviceIndex:%8,channel:%9")
+    qInfo() << QString("Record info filePath:%1,inWidth:%2,inHeight:%3,outWidth:%4,outHeight:%5,fps:%6,enableAudio:%7,audioCaptureType:%8,channel:%9,sampleRate:%10")
                    .arg(g_record.filePath)
                    .arg(g_record.inWidth)
                    .arg(g_record.inHeight)
@@ -94,8 +112,9 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
                    .arg(g_record.outHeight)
                    .arg(g_record.fps)
                    .arg(g_record.enableAudio)
-                   .arg(g_record.audioDeviceIndex)
-                   .arg(g_record.channel);
+                   .arg(static_cast<int>(g_record.audioCaptureType))
+                   .arg(g_record.channel)
+                   .arg(g_record.sampleRate);
 }
 
 /**
@@ -114,34 +133,75 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
  * 
  * @return 
 */
-int Recorder::startRecord()
-{
-	if (Running == g_record.status) return -1;
+int Recorder::startRecord() {
+    if (Running == g_record.status) return -1;
 
-	FFmpegHelper::registerAll();
+    FFmpegHelper::registerAll();
 
-	startCapture();
-	// init
+    startCapture();
+    // init
     m_videoFrameQueue->initBuf(g_record.outWidth, g_record.outHeight, AV_PIX_FMT_YUV420P);
 
-	m_outputer->init();
+    int ret = 0;
+    if (m_amixFilter) {
+        ret = m_amixFilter->init(
+            {nullptr, nullptr,
+             m_speakerCap->timebase(),
+             m_speakerCap->sampleRate(),
+             m_speakerCap->sampleFormat(),
+             m_speakerCap->channel(),
+             m_speakerCap->channelLayout()},
+            {nullptr, nullptr,
+             m_microphoneCap->timebase(),
+             m_microphoneCap->sampleRate(),
+             m_microphoneCap->sampleFormat(),
+             m_microphoneCap->channel(),
+             m_microphoneCap->channelLayout()},
+            {nullptr, nullptr, {1, AV_TIME_BASE}, g_record.sampleRate, AV_SAMPLE_FMT_FLTP, g_record.channel, av_get_default_channel_layout(g_record.channel)});
+        if (ret != 0) return -1;
 
-	// start
+        m_amixFilter->registe_cb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
+        m_amixFilter->start();
+    }
+    if (m_resampleFilter) {
+        FILTER_CTX    ctx_in = {0}, ctx_out = {0};
+        AudioCapture* cap     = m_speakerCap ? m_speakerCap : m_microphoneCap;
+        ctx_in.time_base      = cap->timebase();
+        ctx_in.channel_layout = cap->channelLayout();
+        ctx_in.nb_channel     = cap->channel();
+        ctx_in.sample_fmt     = cap->sampleFormat();
+        ctx_in.sample_rate    = cap->sampleRate();
+
+        ctx_out.time_base      = {1, AV_TIME_BASE};
+        ctx_out.channel_layout = av_get_default_channel_layout(g_record.channel);
+        ctx_out.nb_channel     = g_record.channel;
+        ctx_out.sample_fmt     = AV_SAMPLE_FMT_FLTP;
+        ctx_out.sample_rate    = g_record.sampleRate;
+
+        ret = m_resampleFilter->init(ctx_in, ctx_out);
+        if (ret != 0) return -1;
+
+        m_resampleFilter->registe_cb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
+        m_resampleFilter->start();
+    }
+
+    m_outputer->init();
+
+    // start
     m_startTime = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
     qInfo() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime / 1000).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
-	g_record.status = Running;
+    g_record.status = Running;
 
-	return 0;
+    return 0;
 }
 
-int Recorder::pauseRecord()
-{
+int Recorder::pauseRecord() {
     if (Running != g_record.status) return -1;
     g_record.status = Paused;
     m_pauseStopwatch->start();
-	return 0;
+    return 0;
 }
 
 int Recorder::resumeRecord() {
@@ -152,8 +212,7 @@ int Recorder::resumeRecord() {
     return 0;
 }
 
-int Recorder::stopRecord()
-{
+int Recorder::stopRecord() {
     RecordStatus oldStatus = g_record.status;
     if (Stopped == oldStatus) return -1;
     g_record.status = Stopped;
@@ -162,49 +221,60 @@ int Recorder::stopRecord()
         g_record.cvNotPause.notify_all();
     }
 
-	stopCapture();
-	m_outputer->stop();
-	m_outputer->deinit();
-	m_videoFrameQueue->deinit();
+    stopCapture();
+
+    if (m_amixFilter) m_amixFilter->stop();
+    if (m_resampleFilter) m_resampleFilter->stop();
+
+    m_outputer->stop();
+    m_outputer->deinit();
+    m_videoFrameQueue->deinit();
     if (g_record.enableAudio) {
         m_audioFrameQueue->deinit();
     }
-	g_record.status = Stopped;
-	return 0;
+    g_record.status = Stopped;
+    return 0;
 }
 
-void Recorder::startCapture()
-{
-	m_videoCap->startCapture();
+void Recorder::startCapture() {
+    int ret;
+    m_videoCap->startCapture();
     if (g_record.enableAudio) {
-        int ret = m_audioCap->startCapture();
-		// 找不到音频或打开失败
-        if (-1 == ret) {
-            g_record.enableAudio = false;
-		}
+        if (m_speakerCap) {
+            ret = m_speakerCap->startCapture(AudioCaptureDevice::Speaker);
+            // 找不到音频或打开失败
+            if (-1 == ret) {
+                g_record.enableAudio = false;
+            }
+        }
+        if (m_microphoneCap) {
+            ret = m_microphoneCap->startCapture(AudioCaptureDevice::Microphone);
+            // 找不到音频或打开失败
+            if (-1 == ret) {
+                g_record.enableAudio = false;
+            }
+        }
     }
 }
 
-void Recorder::stopCapture()
-{
-	m_videoCap->stopCapture();
+void Recorder::stopCapture() {
+    m_videoCap->stopCapture();
     if (g_record.enableAudio) {
-        m_audioCap->stopCapture();
+        if (m_speakerCap) m_speakerCap->stopCapture();
+        if (m_microphoneCap) m_microphoneCap->stopCapture();
     }
 }
 
-void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info)
-{
-	if (Running == g_record.status) {
+void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info) {
+    if (Running == g_record.status) {
         int64_t now         = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-        int64_t captureTime = now - m_startTime - m_pauseDuration; // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
+        int64_t captureTime = now - m_startTime - m_pauseDuration;  // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
         m_videoFrameQueue->writeFrame(frame, info, captureTime);
-	}
+    }
 }
 
-FrameItem* Recorder::readVideoFrameCb()
-{
-	return m_videoFrameQueue->readFrame();
+FrameItem* Recorder::readVideoFrameCb() {
+    return m_videoFrameQueue->readFrame();
 }
 
 void Recorder::initAudioBufCb(AVCodecContext* encodeCtx) {
@@ -227,3 +297,21 @@ AVFrame* Recorder::readAudioFrameCb() {
     }
     return nullptr;
 }
+
+void Recorder::addFrameToAmixFilter(AVFrame* frame, int filterCtxIndex) {
+    if (m_amixFilter) {
+        m_amixFilter->add_frame(frame, filterCtxIndex);
+    } else if (m_resampleFilter) {
+        m_resampleFilter->add_frame(frame);
+    }
+}
+
+void Recorder::writeAudioFrameCb(AVFrame* frame) {
+    if (Running == g_record.status) {
+        if (m_audioFrameQueue) {
+            m_audioFrameQueue->writeFrame(frame);
+        }
+    }
+}
+
+}  // namespace onlyet

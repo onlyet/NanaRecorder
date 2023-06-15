@@ -18,15 +18,17 @@
 
 using namespace std;
 
-int AudioCapture::startCapture() {
+namespace onlyet {
+
+int AudioCapture::startCapture(AudioCaptureDevice dev) {
     if (m_isRunning) return -1;
 
     m_isRunning = true;
-    int ret     = initCapture();
+    int ret     = initCapture(dev);
     if (0 != ret) {
         return -1;
     }
-    m_captureThread = thread(bind(&AudioCapture::audioCaptureThreadProc, this));
+    m_captureThread = thread(bind(&AudioCapture::audioCaptureThread, this));
     return 0;
 }
 
@@ -41,13 +43,54 @@ int AudioCapture::stopCapture() {
     return 0;
 }
 
-int AudioCapture::initCapture() {
+AVRational AudioCapture::timebase() {
+    if (m_aFmtCtx && m_aIndex != -1) {
+        return m_aFmtCtx->streams[m_aIndex]->time_base;
+    } else {
+        return {1, AV_TIME_BASE};
+    }
+}
+
+int AudioCapture::sampleRate() {
+    if (m_aDecodeCtx) {
+        return m_aDecodeCtx->sample_rate;
+    } else {
+        return 0;
+    }
+}
+
+AVSampleFormat AudioCapture::sampleFormat() {
+    if (m_aDecodeCtx) {
+        return m_aDecodeCtx->sample_fmt;
+    } else {
+        return AV_SAMPLE_FMT_NONE;
+    }
+}
+
+int AudioCapture::channel() {
+    if (m_aDecodeCtx) {
+        return m_aDecodeCtx->channels;
+    } else {
+        return 0;
+    }
+}
+
+int64_t AudioCapture::channelLayout() {
+    if (m_aDecodeCtx) {
+        //return av_channel_layout_default();
+        return av_get_default_channel_layout(m_aDecodeCtx->channels);
+    } else {
+        return 0;
+    }
+}
+
+int AudioCapture::initCapture(AudioCaptureDevice dev) {
     int                  ret     = -1;
     AVDictionary*        options = nullptr;
     const AVCodec*       decoder = nullptr;
     const AVInputFormat* ifmt    = av_find_input_format(AUDIO_DEVICE_FORMAT);
 
-    string audioDeviceName = FFmpegHelper::getAudioDevice(static_cast<AudioCaptureDeviceType>(g_record.audioDeviceIndex));
+    string audioDeviceName = FFmpegHelper::getAudioDevice(dev);
     if ("" == audioDeviceName) {
         return -1;
     }
@@ -96,9 +139,9 @@ void AudioCapture::deinit() {
     }
 }
 
-void AudioCapture::audioCaptureThreadProc() {
-    if (!m_frameCb) {
-        qCritical() << "m_frameCb empty, thread exit";
+void AudioCapture::audioCaptureThread() {
+    if (!m_amixFilterCb) {
+        qCritical() << "m_amixFilterCb empty, thread exit";
         return;
     }
 
@@ -108,13 +151,13 @@ void AudioCapture::audioCaptureThreadProc() {
     AVFrame* oldFrame = av_frame_alloc();
 
     while (m_isRunning) {
+#if 0
         /// <summary>
         /// 暂停后不读音频帧会导致几秒报错：
         /// real-time buffer [virtual-audio-capturer] [audio input]
         /// too full or near too full(84 % of size : 3041280 [rtbufsize parameter]) !frame dropped !
         /// 最终录制出来的视频会在暂停位置卡住
         /// </summary>
-#if 0
         if (g_record.status == RecordStatus::Paused) {
             unique_lock<mutex> lk(g_record.mtxPause);
             g_record.cvNotPause.wait(lk, [this] { return g_record.status != RecordStatus::Paused; });
@@ -125,8 +168,6 @@ void AudioCapture::audioCaptureThreadProc() {
             qCritical() << "m_aFmtCtx or m_aDecodeCtx nullptr";
             break;
         }
-        //static int s_cnt = 1;
-        //QTime      t     = QTime::currentTime();
         if (av_read_frame(m_aFmtCtx, &pkt) < 0) {
             qCritical() << "Audio av_read_frame < 0";
             continue;
@@ -137,9 +178,6 @@ void AudioCapture::audioCaptureThreadProc() {
             this_thread::sleep_for(1ms);
             continue;
         }
-
-        //qCritical() << "audio pkt: " << pkt.pts << "," << pkt.dts;
-        //qCritical() << "av_read_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << s_cnt++;
 
         if (pkt.stream_index != m_aIndex) {
             qCritical() << "not a Audio packet from Audio input";
@@ -158,17 +196,15 @@ void AudioCapture::audioCaptureThreadProc() {
             av_packet_unref(&pkt);
             continue;
         }
+        //qDebug() << QString("pkt.pts:%1,frame.pts:%2").arg(pkt.pts).arg(oldFrame->pts);
         av_packet_unref(&pkt);
 
-        AudioCaptureInfo info;
-        // 手动设置布局，因为从流中获取的通道布局是0
-        info.channelLayout = /*m_aDecodeCtx->channel_layout*/ AV_CH_LAYOUT_STEREO;
-        info.format        = m_aDecodeCtx->sample_fmt;
-        info.sampleRate    = m_aDecodeCtx->sample_rate;
-        m_frameCb(oldFrame, info);
+        m_amixFilterCb(oldFrame, m_filterCtxIndex);
     }
     //FlushAudioDecoder();
 
     av_frame_free(&oldFrame);
-    qInfo() << "audioCaptureThreadProc thread exit";
+    qInfo() << "audioCaptureThread thread exit";
 }
+
+}  // namespace onlyet

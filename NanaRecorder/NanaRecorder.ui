@@ -229,12 +229,17 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
             </property>
             <item>
              <property name="text">
-              <string>扬声器（您听到的声音）</string>
+              <string>仅系统声音</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>麦克风</string>
+              <string>仅麦克风</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>扬声器和麦克风</string>
              </property>
             </item>
            </widget>

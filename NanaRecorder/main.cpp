@@ -12,10 +12,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QString appName = util::getAppName(argv[0]);
+    QString appName = onlyet::util::getAppName(argv[0]);
 
     //Ê¹³ÌÐòÎ¨Ò»
-    if (!util::setProgramUnique(appName)) {
+    if (!onlyet::util::setProgramUnique(appName)) {
         return 0;
     }
 

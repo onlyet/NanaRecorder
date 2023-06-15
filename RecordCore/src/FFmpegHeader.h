@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ONLYET_FFMPEGHEADER_H
+#define ONLYET_FFMPEGHEADER_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -13,6 +14,14 @@ extern "C" {
 #include <libavutil/audio_fifo.h>
 #include <libavutil/imgutils.h>
 
+#include <libavfilter/avfilter.h>
+#include <libavfilter/buffersrc.h>
+#include <libavfilter/buffersink.h>
+#include <libavutil/opt.h>
+#include <libavutil/audio_fifo.h>
+
 #ifdef __cplusplus
 };
 #endif
+
+#endif  // !ONLYET_FFMPEGHEADER_H

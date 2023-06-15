@@ -1,4 +1,16 @@
-#pragma once
+#ifndef ONLYET_AUDIOCAPTURE_H
+#define ONLYET_AUDIOCAPTURE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <libavutil/rational.h>
+#include <libavutil/samplefmt.h>
+
+#ifdef __cplusplus
+};
+#endif
 
 #include <atomic>
 #include <functional>
@@ -8,28 +20,44 @@ struct AVFormatContext;
 struct AVCodecContext;
 struct AVFrame;
 
+namespace onlyet {
+
 class AudioCaptureInfo;
+enum class AudioCaptureDevice;
 
 class AudioCapture {
+    using AmixFilterCb = std::function<void(AVFrame*, int)>;
+
 public:
-    int startCapture();
+    int startCapture(AudioCaptureDevice dev);
     int stopCapture();
 
-    void setFrameCb(std::function<void(AVFrame*, const AudioCaptureInfo&)> cb) {
-        m_frameCb = cb;
+    void setAmixFilterCb(AmixFilterCb cb, int filterCtxIdx) {
+        m_amixFilterCb   = cb;
+        m_filterCtxIndex = filterCtxIdx;
     }
 
+    AVRational     timebase();
+    int            sampleRate();
+    AVSampleFormat sampleFormat();
+    int            channel();
+    int64_t        channelLayout();
+
 private:
-    int initCapture();
+    int  initCapture(AudioCaptureDevice dev);
     void deinit();
 
-    void audioCaptureThreadProc();
+    void audioCaptureThread();
 
 private:
-    std::atomic_bool                                       m_isRunning  = false;
-    int                                                    m_aIndex     = -1;  // 输入音频流索引
-    AVFormatContext*                                       m_aFmtCtx    = nullptr;
-    AVCodecContext*                                        m_aDecodeCtx = nullptr;
-    std::thread                                            m_captureThread;
-    std::function<void(AVFrame*, const AudioCaptureInfo&)> m_frameCb;
+    std::atomic_bool m_isRunning  = false;
+    int              m_aIndex     = -1;  // 输入音频流索引
+    AVFormatContext* m_aFmtCtx    = nullptr;
+    AVCodecContext*  m_aDecodeCtx = nullptr;
+    std::thread      m_captureThread;
+    AmixFilterCb     m_amixFilterCb;
+    int              m_filterCtxIndex;
 };
+
+}  // namespace onlyet
+#endif  // !ONLYET_AUDIOCAPTURE_H

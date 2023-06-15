@@ -1,11 +1,15 @@
-#pragma once
+#ifndef ONLYET_VIDEOFRAMEQUEUE_H
+#define ONLYET_VIDEOFRAMEQUEUE_H
+
 #include "FFmpegHeader.h"
 #include "RecordConfig.h"
 
 #include <condition_variable>
 
+namespace onlyet {
+
 struct FrameItem {
-    int64_t captureTime;
+    int64_t  captureTime;
     AVFrame* frame = nullptr;
 };
 
@@ -37,3 +41,6 @@ private:
     bool                    m_needScale = false;
 };
 
+}  // namespace onlyet
+
+#endif  // !ONLYET_VIDEOFRAMEQUEUE_H

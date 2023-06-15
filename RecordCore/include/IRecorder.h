@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ONLYET_IRECORDER_H
+#define ONLYET_IRECORDER_H
 
 #ifdef WIN32
 #ifdef RECORDER_EXPORT
@@ -14,6 +15,8 @@
 #include <qdebug.h>
 #include <memory>
 
+namespace onlyet {
+
 class RECORDAPI IRecorder {
 public:
     //IRecorder(){}
@@ -27,4 +30,7 @@ public:
 };
 
 RECORDAPI std::unique_ptr<IRecorder> createRecorder(const QVariantMap& recordInfo);
-//RECORDAPI IRecorder* freeRecorder();
+
+}  // namespace onlyet
+
+#endif  // !ONLYET_IRECORDER_H

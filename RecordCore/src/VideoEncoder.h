@@ -1,8 +1,11 @@
-#pragma once
+#ifndef ONLYET_VIDEOENCODER_H
+#define ONLYET_VIDEOENCODER_H
 
 #include "FFmpegHeader.h"
 
 #include <vector>
+
+namespace onlyet {
 
 class VideoEncoder {
 public:
@@ -16,3 +19,6 @@ private:
     AVDictionary*   m_dict       = nullptr;
 };
 
+}  // namespace onlyet
+
+#endif  // !ONLYET_VIDEOENCODER_H
