@@ -248,6 +248,7 @@
     <ClInclude Include="src\RecordConfig.h" />
     <ClInclude Include="src\Recorder.h" />
     <ClInclude Include="src\ResampleFilter.h" />
+    <QtMoc Include="src\singleton.h" />
     <ClInclude Include="src\VideoCapture.h" />
     <ClInclude Include="src\VideoEncoder.h" />
     <ClInclude Include="src\VideoFrameQueue.h" />

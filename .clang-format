@@ -50,4 +50,5 @@ TabWidth: 4
 AllowShortIfStatementsOnASingleLine: true
 
 # 命名空间里的函数缩进
-NamespaceIndentation: All
+#NamespaceIndentation: All
+NamespaceIndentation: None

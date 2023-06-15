@@ -7,16 +7,19 @@
     Class(Class &&) = delete;                   \
     Class &operator=(Class &&) = delete;
 
-template<typename DerivedClass>
-struct Singleton
-{
+namespace onlyet {
+
+template <typename DerivedClass>
+struct Singleton {
     static DerivedClass& instance() {
         static DerivedClass s_instance;
         return s_instance;
     }
+
 protected:
-    Singleton() = default;
+    Singleton()  = default;
     ~Singleton() = default;
+
 private:
     MY_DISABLE_COPY_MOVE(Singleton)
 };
@@ -33,5 +36,7 @@ private:
     ~GlobalConfiguration();
 };
 #endif
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_SINGLETON_H

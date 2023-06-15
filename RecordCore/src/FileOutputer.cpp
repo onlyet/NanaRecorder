@@ -16,9 +16,9 @@
 using namespace std;
 using namespace std::chrono;
 
+namespace onlyet {
 
-FileOutputer::FileOutputer()
-{
+FileOutputer::FileOutputer() {
     m_enableAudio  = g_record.enableAudio;
     m_videoEncoder = new VideoEncoder;
     if (m_enableAudio) {
@@ -27,8 +27,7 @@ FileOutputer::FileOutputer()
     m_mux = new Mux;
 }
 
-FileOutputer::~FileOutputer()
-{
+FileOutputer::~FileOutputer() {
     if (m_videoEncoder) {
         delete m_videoEncoder;
         m_videoEncoder = nullptr;
@@ -43,8 +42,7 @@ FileOutputer::~FileOutputer()
     }
 }
 
-int FileOutputer::init()
-{
+int FileOutputer::init() {
     openEncoder();
 
     string filename = g_record.filePath.toStdString();
@@ -58,8 +56,7 @@ int FileOutputer::init()
     return 0;
 }
 
-int FileOutputer::deinit()
-{
+int FileOutputer::deinit() {
     m_isInit = false;
     m_mux->writeTrailer();
     m_mux->deinit();
@@ -77,11 +74,10 @@ int FileOutputer::start(int64_t startTime) {
     if (m_enableAudio) {
         m_outputAudioThread = thread(bind(&FileOutputer::outputAudioThreadProc, this));
     }
-   return 0;
+    return 0;
 }
 
-int FileOutputer::stop()
-{
+int FileOutputer::stop() {
     m_isRunning = false;
     if (m_outputVideoThread.joinable()) {
         m_outputVideoThread.join();
@@ -103,8 +99,7 @@ void FileOutputer::openEncoder() {
     }
 }
 
-void FileOutputer::closeEncoder()
-{
+void FileOutputer::closeEncoder() {
     if (!m_videoEncoder) return;
     m_videoEncoder->deinit();
 
@@ -113,23 +108,21 @@ void FileOutputer::closeEncoder()
     }
 }
 
-void FileOutputer::outputVideoThreadProc()
-{
+void FileOutputer::outputVideoThreadProc() {
     while (m_isRunning) {
         encodeVideoAndMux();
     }
     qInfo() << "outputVideoThreadProc thread exit";
 }
 
-void FileOutputer::encodeVideoAndMux()
-{
+void FileOutputer::encodeVideoAndMux() {
     if (!m_isInit || !m_isRunning || !m_videoEncoder || !m_mux) {
         return;
     }
 
     FrameItem* item;
     while (1) {
-		item = m_videoFrameCb();
+        item = m_videoFrameCb();
         if (!item) {
             //qDebug() << "m_videoFrameCb is null";
             return;
@@ -138,18 +131,18 @@ void FileOutputer::encodeVideoAndMux()
         m_captureTimeQueue.push(item->captureTime);
 
         // 8次EAGAIN后avcodec_receive_packet才成功
-		m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_videoPackets);
+        m_videoEncoder->encode(item->frame, m_mux->videoStreamIndex(), 0, 0, m_videoPackets);
 
         if (m_videoPackets.empty()) return;
 
-		for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this/*, item*/](AVPacket* packet) {
+        for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this /*, item*/](AVPacket* packet) {
             if (!m_captureTimeQueue.empty()) {
                 m_mux->writePacket(packet, /*item->captureTime*/ m_captureTimeQueue.front());
                 m_captureTimeQueue.pop();
             }
         });
 
-		m_videoPackets.clear();
+        m_videoPackets.clear();
     }
 }
 
@@ -178,7 +171,7 @@ void FileOutputer::encodeAudioAndMux() {
 
         if (m_audioPackets.empty()) return;
 
-        int64_t now         = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
+        int64_t now           = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
         int64_t pauseDuration = m_pauseCb();
         int64_t captureTime   = now - m_startTime - pauseDuration;  // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
         //qDebug() << QString("Audio captureTime:%1,pauseDuration:%2").arg(captureTime).arg(pauseDuration);
@@ -189,3 +182,5 @@ void FileOutputer::encodeAudioAndMux() {
         m_audioPackets.clear();
     }
 }
+
+}  // namespace onlyet

@@ -6,6 +6,8 @@
 
 #include <QDebug>
 
+namespace onlyet {
+
 ResampleFilter::ResampleFilter() {
     memset(&_ctx_in, 0, sizeof(FILTER_CTX));
     memset(&_ctx_out, 0, sizeof(FILTER_CTX));
@@ -212,3 +214,5 @@ void ResampleFilter::filter_loop() {
 
     av_frame_free(&frame);
 }
+
+}  // namespace onlyet

@@ -6,8 +6,10 @@
 
 #include <condition_variable>
 
+namespace onlyet {
+
 struct FrameItem {
-    int64_t captureTime;
+    int64_t  captureTime;
     AVFrame* frame = nullptr;
 };
 
@@ -38,5 +40,7 @@ private:
     VideoCaptureInfo        m_videoCapInfo;  // 解码获取到的视频信息
     bool                    m_needScale = false;
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_VIDEOFRAMEQUEUE_H

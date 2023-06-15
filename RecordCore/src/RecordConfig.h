@@ -8,6 +8,8 @@
 
 #include <condition_variable>
 
+namespace onlyet {
+
 enum RecordStatus {
     Stopped = 0,
     Running,
@@ -43,10 +45,10 @@ struct RecordConfig {
     int inWidth;  // 输入宽高
     int inHeight;
 
-    bool enableAudio;
+    bool             enableAudio;
     AudioCaptureType audioCaptureType;
-    int  channel;
-    int  sampleRate;
+    int              channel;
+    int              sampleRate;
 
     QString filePath;  // 录制文件保存路径
     int     outWidth;  // 输出宽高
@@ -60,5 +62,7 @@ struct RecordConfig {
 };
 
 #define g_record Singleton<RecordConfig>::instance()
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_RECORDCONFIG_H

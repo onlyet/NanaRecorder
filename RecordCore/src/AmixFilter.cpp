@@ -5,15 +5,17 @@
 
 #include <QDebug>
 
+namespace onlyet {
+
 AmixFilter::AmixFilter() {
     memset(&_ctx_in_0, 0, sizeof(FILTER_CTX));
     memset(&_ctx_in_1, 0, sizeof(FILTER_CTX));
     memset(&_ctx_out, 0, sizeof(FILTER_CTX));
 
     _filter_graph = NULL;
-    _inited  = false;
-    _running = false;
-    _cond_notify = false;
+    _inited       = false;
+    _running      = false;
+    _cond_notify  = false;
 }
 
 AmixFilter::~AmixFilter() {
@@ -21,7 +23,7 @@ AmixFilter::~AmixFilter() {
     cleanup();
 }
 
-int AmixFilter::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const FILTER_CTX &ctx_out) {
+int AmixFilter::init(const FILTER_CTX& ctx_in0, const FILTER_CTX& ctx_in1, const FILTER_CTX& ctx_out) {
     int error = 0;
     int ret   = 0;
 
@@ -67,9 +69,9 @@ int AmixFilter::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const
             break;
         }
 
-        av_opt_set_bin(_ctx_out.ctx, "sample_fmts", (uint8_t *)&_ctx_out.sample_fmt, sizeof(_ctx_out.sample_fmt), AV_OPT_SEARCH_CHILDREN);
-        av_opt_set_bin(_ctx_out.ctx, "channel_layouts", (uint8_t *)&_ctx_out.channel_layout, sizeof(_ctx_out.channel_layout), AV_OPT_SEARCH_CHILDREN);
-        av_opt_set_bin(_ctx_out.ctx, "sample_rates", (uint8_t *)&_ctx_out.sample_rate, sizeof(_ctx_out.sample_rate), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set_bin(_ctx_out.ctx, "sample_fmts", (uint8_t*)&_ctx_out.sample_fmt, sizeof(_ctx_out.sample_fmt), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set_bin(_ctx_out.ctx, "channel_layouts", (uint8_t*)&_ctx_out.channel_layout, sizeof(_ctx_out.channel_layout), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set_bin(_ctx_out.ctx, "sample_rates", (uint8_t*)&_ctx_out.sample_rate, sizeof(_ctx_out.sample_rate), AV_OPT_SEARCH_CHILDREN);
 
         _ctx_in_0.inout->name       = av_strdup("in0");
         _ctx_in_0.inout->filter_ctx = _ctx_in_0.ctx;
@@ -86,7 +88,7 @@ int AmixFilter::init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const
         _ctx_out.inout->pad_idx    = 0;
         _ctx_out.inout->next       = NULL;
 
-        AVFilterInOut *inoutputs[2] = {_ctx_in_0.inout, _ctx_in_1.inout};
+        AVFilterInOut* inoutputs[2] = {_ctx_in_0.inout, _ctx_in_1.inout};
 
         ret = avfilter_graph_parse_ptr(_filter_graph, filter_desrc.c_str(), &_ctx_out.inout, inoutputs, NULL);
         if (ret < 0) {
@@ -150,14 +152,14 @@ int AmixFilter::stop() {
     return 0;
 }
 
-int AmixFilter::add_frame(AVFrame *frame, int index) {
+int AmixFilter::add_frame(AVFrame* frame, int index) {
     std::unique_lock<std::mutex> lock(_mutex);
 
     int error = 0;
     int ret   = 0;
 
     do {
-        AVFilterContext *ctx = NULL;
+        AVFilterContext* ctx = NULL;
         switch (index) {
             case 0:
                 ctx = _ctx_in_0.ctx;
@@ -210,10 +212,10 @@ void AmixFilter::cleanup() {
 }
 
 void AmixFilter::filter_loop() {
-    AVFrame *sinkFrame       = av_frame_alloc();
-    AVFrame *outFrame        = av_frame_alloc();
+    AVFrame* sinkFrame       = av_frame_alloc();
+    AVFrame* outFrame        = av_frame_alloc();
     outFrame->format         = _ctx_out.sample_fmt;
-    outFrame->nb_samples     = 1024; // TODO: 不要写死
+    outFrame->nb_samples     = 1024;  // TODO: 不要写死
     outFrame->channel_layout = _ctx_out.channel_layout;
     int ret                  = av_frame_get_buffer(outFrame, 0);
     if (ret < 0) {
@@ -251,7 +253,7 @@ void AmixFilter::filter_loop() {
                 qCritical() << "fifo space is not enough";
                 return;
             }
-            int nbsamples = av_audio_fifo_write(m_filteredFrameFifo, (void **)sinkFrame->data, sinkFrame->nb_samples);
+            int nbsamples = av_audio_fifo_write(m_filteredFrameFifo, (void**)sinkFrame->data, sinkFrame->nb_samples);
             if (nbsamples != sinkFrame->nb_samples) {
                 qCritical() << "nbsamples != filt_frame->nb_samples";
                 return;
@@ -260,7 +262,7 @@ void AmixFilter::filter_loop() {
             av_frame_unref(sinkFrame);
 
             while (av_audio_fifo_size(m_filteredFrameFifo) >= outFrame->nb_samples) {
-                int nbread = av_audio_fifo_read(m_filteredFrameFifo, (void **)outFrame->data, outFrame->nb_samples);
+                int nbread = av_audio_fifo_read(m_filteredFrameFifo, (void**)outFrame->data, outFrame->nb_samples);
                 if (nbread != outFrame->nb_samples) {
                     qCritical() << "av_audio_fifo_read failed";
                     return;
@@ -278,3 +280,5 @@ void AmixFilter::filter_loop() {
     av_frame_free(&outFrame);
     qInfo() << "AmixFilter thread exit";
 }
+
+}  // namespace onlyet

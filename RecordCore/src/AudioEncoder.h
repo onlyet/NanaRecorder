@@ -5,6 +5,8 @@
 
 #include <vector>
 
+namespace onlyet {
+
 class AudioEncoder {
 public:
     int             initAAC();
@@ -17,5 +19,7 @@ private:
     AVDictionary*   m_dict       = nullptr;
     int             m_channel;
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_AUDIOENCODER_H

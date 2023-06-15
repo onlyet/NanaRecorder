@@ -18,6 +18,8 @@
 
 using namespace std;
 
+namespace onlyet {
+
 int AudioCapture::startCapture(AudioCaptureDevice dev) {
     if (m_isRunning) return -1;
 
@@ -204,3 +206,5 @@ void AudioCapture::audioCaptureThread() {
     av_frame_free(&oldFrame);
     qInfo() << "audioCaptureThread thread exit";
 }
+
+}  // namespace onlyet

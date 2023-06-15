@@ -15,6 +15,8 @@
 #include <qdebug.h>
 #include <memory>
 
+namespace onlyet {
+
 class RECORDAPI IRecorder {
 public:
     //IRecorder(){}
@@ -28,5 +30,7 @@ public:
 };
 
 RECORDAPI std::unique_ptr<IRecorder> createRecorder(const QVariantMap& recordInfo);
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_IRECORDER_H

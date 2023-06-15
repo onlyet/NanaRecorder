@@ -20,17 +20,20 @@ struct AVFormatContext;
 struct AVCodecContext;
 struct AVFrame;
 
+namespace onlyet {
+
 class AudioCaptureInfo;
 enum class AudioCaptureDevice;
 
 class AudioCapture {
     using AmixFilterCb = std::function<void(AVFrame*, int)>;
+
 public:
     int startCapture(AudioCaptureDevice dev);
     int stopCapture();
 
     void setAmixFilterCb(AmixFilterCb cb, int filterCtxIdx) {
-        m_amixFilterCb    = cb;
+        m_amixFilterCb   = cb;
         m_filterCtxIndex = filterCtxIdx;
     }
 
@@ -47,13 +50,14 @@ private:
     void audioCaptureThread();
 
 private:
-    std::atomic_bool                                       m_isRunning  = false;
-    int                                                    m_aIndex     = -1;  // 输入音频流索引
-    AVFormatContext*                                       m_aFmtCtx    = nullptr;
-    AVCodecContext*                                        m_aDecodeCtx = nullptr;
-    std::thread                                            m_captureThread;
-    AmixFilterCb                                           m_amixFilterCb;
-    int                                                    m_filterCtxIndex;
+    std::atomic_bool m_isRunning  = false;
+    int              m_aIndex     = -1;  // 输入音频流索引
+    AVFormatContext* m_aFmtCtx    = nullptr;
+    AVCodecContext*  m_aDecodeCtx = nullptr;
+    std::thread      m_captureThread;
+    AmixFilterCb     m_amixFilterCb;
+    int              m_filterCtxIndex;
 };
 
+}  // namespace onlyet
 #endif  // !ONLYET_AUDIOCAPTURE_H

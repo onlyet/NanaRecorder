@@ -22,8 +22,9 @@
 
 using namespace std;
 
-void FFmpegHelper::registerAll()
-{
+namespace onlyet {
+
+void FFmpegHelper::registerAll() {
     static bool s_init = false;
     if (!s_init) {
         s_init = true;
@@ -75,8 +76,8 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     string ret;
 
 #ifdef WIN32
-    GUID guid;
-    char   sName[256] = {0};
+    GUID                  guid;
+    char                  sName[256] = {0};
     unordered_set<string> audioDevSet;
 
 #if 0
@@ -102,7 +103,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     ::CoInitialize(NULL);
 
     ICreateDevEnum* pCreateDevEnum;  //enumrate all audio capture devices
-    HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
+    HRESULT         hr = CoCreateInstance(CLSID_SystemDeviceEnum,
                                   NULL,
                                   CLSCTX_INPROC_SERVER,
                                   IID_ICreateDevEnum,
@@ -118,7 +119,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
 
     bool isFound = false;
     pEm->Reset();
-    ULONG cFetched;
+    ULONG     cFetched;
     IMoniker* pM;
     while (pEm->Next(1, &pM, &cFetched) == S_OK && !isFound) {
         IPropertyBag* pBag = NULL;
@@ -173,7 +174,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     }
 
     // QtConcurrent::run([]() {
-    QString              cmd     = QString("pactl list short sources | grep %1 | awk '{print $2}'").arg(dev);
+    QString cmd = QString("pactl list short sources | grep %1 | awk '{print $2}'").arg(dev);
     //QString              cmd     = QString("free ");
     unique_ptr<QProcess> process = make_unique<QProcess>();
     //process->start(cmd);
@@ -201,3 +202,5 @@ QString FFmpegHelper::err2Str(int err) {
     qCritical() << QString("FFmpeg error:%1, code=%2").arg(errbuf).arg(err);
     return QString("%1(%2)").arg(errbuf).arg(err);
 }
+
+}  // namespace onlyet

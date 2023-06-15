@@ -5,6 +5,8 @@
 
 #include <vector>
 
+namespace onlyet {
+
 class VideoEncoder {
 public:
     int             initH264(int width, int height, int fps);
@@ -16,5 +18,7 @@ private:
     AVCodecContext* m_vEncodeCtx = nullptr;
     AVDictionary*   m_dict       = nullptr;
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_VIDEOENCODER_H

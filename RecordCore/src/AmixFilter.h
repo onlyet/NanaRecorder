@@ -11,6 +11,8 @@
 class AVFilterGraph;
 class AVAudioFifo;
 
+namespace onlyet {
+
 class AmixFilter {
 public:
     AmixFilter();
@@ -56,5 +58,7 @@ private:
 
     AVAudioFifo *m_filteredFrameFifo = nullptr; // 用作避免编码时报错：more samples than frame size
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_AMIXFILTER_H

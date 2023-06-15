@@ -8,13 +8,14 @@
 #include <vector>
 #include <queue>
 
+namespace onlyet {
+
 class VideoEncoder;
 class AudioEncoder;
 class Mux;
 class FrameItem;
 
-class FileOutputer
-{
+class FileOutputer {
 public:
     FileOutputer();
     ~FileOutputer();
@@ -53,5 +54,7 @@ private:
     std::queue<int64_t>                  m_captureTimeQueue;  // 保存视频编码延迟帧的捕获时间戳
     std::function<int64_t()>             m_pauseCb;           // 获取暂停持续时间
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_FILEOUTPUTER_H

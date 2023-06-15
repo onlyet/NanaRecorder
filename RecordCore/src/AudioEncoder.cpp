@@ -4,6 +4,8 @@
 
 #include <QDebug>
 
+namespace onlyet {
+
 int AudioEncoder::initAAC() {
     m_channel = g_record.channel;
 
@@ -91,3 +93,5 @@ int AudioEncoder::encode(AVFrame* frame, int stream_index, int64_t pts, int64_t 
 
     return ret;
 }
+
+}  // namespace onlyet

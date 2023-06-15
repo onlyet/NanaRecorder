@@ -10,6 +10,8 @@
 
 class AVFilterGraph;
 
+namespace onlyet {
+
 class ResampleFilter {
 public:
     ResampleFilter();
@@ -17,8 +19,8 @@ public:
 
     int init(const FILTER_CTX& ctx_in, const FILTER_CTX& ctx_out);
 
-    inline void registe_cb(on_filter_data cb_on_filter_data/*, on_filter_error cb_on_filter_error*/) {
-        _on_filter_data  = cb_on_filter_data;
+    inline void registe_cb(on_filter_data cb_on_filter_data /*, on_filter_error cb_on_filter_error*/) {
+        _on_filter_data = cb_on_filter_data;
         //_on_filter_error = cb_on_filter_error;
     }
 
@@ -42,7 +44,7 @@ private:
 
     AVFilterGraph* _filter_graph = nullptr;
 
-    on_filter_data  _on_filter_data;
+    on_filter_data _on_filter_data;
     //on_filter_error _on_filter_error;
 
     std::atomic_bool _inited;
@@ -54,5 +56,7 @@ private:
     std::condition_variable _cond_var;
     bool                    _cond_notify;
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_RESAMPLEFILTER

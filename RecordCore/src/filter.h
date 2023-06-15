@@ -19,9 +19,11 @@ class AVFilterContext;
 class AVFilterInOut;
 class AVFrame;
 
+namespace onlyet {
+
 typedef struct {
-    AVFilterContext *ctx;
-    AVFilterInOut *  inout;
+    AVFilterContext* ctx;
+    AVFilterInOut*   inout;
 
     AVRational     time_base;
     int            sample_rate;
@@ -35,7 +37,7 @@ typedef struct {
 	* @param frame pointer to a AVFrame
 	* @param index resource index ,default is -1
 	*/
-typedef std::function<void(AVFrame *frame, int index)> on_filter_data;
+typedef std::function<void(AVFrame* frame, int index)> on_filter_data;
 
 /**
 	* filter error callback
@@ -44,6 +46,8 @@ typedef std::function<void(AVFrame *frame, int index)> on_filter_data;
 	*/
 typedef std::function<void(int code, int index)> on_filter_error;
 
-void format_pad_arg(char *arg, int size, const FILTER_CTX &ctx);
+void format_pad_arg(char* arg, int size, const FILTER_CTX& ctx);
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_FILTER_H

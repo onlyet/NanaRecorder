@@ -61,10 +61,10 @@ void NanaRecorder::startBtnClicked() {
             info.insert("sampleRate", 48000);
         }
 
-        QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
+        QString path = QString("%1/%2.mp4").arg(APPDATA->get(AppDataRole::RecordDir).toString(), onlyet::util::currentDateTimeString("yyyy-MM-dd hh-mm-ss"));
         APPDATA->set(AppDataRole::RecordPath, path);
         info.insert("recordPath", path);
-        m_recorder = createRecorder(info);
+        m_recorder = onlyet::createRecorder(info);
     }
     m_recorder->startRecord();
 

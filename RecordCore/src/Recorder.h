@@ -11,6 +11,8 @@
 class AVFrame;
 class AVCodecContext;
 
+namespace onlyet {
+
 class VideoCapture;
 class VideoFrameQueue;
 class FrameItem;
@@ -29,7 +31,7 @@ class Timer;
 class Recorder : public IRecorder {
 public:
     Recorder(const QVariantMap& recordInfo);
-	~Recorder();
+    ~Recorder();
 
     void setRecordInfo(const QVariantMap& recordInfo) override;
     int  startRecord() override;
@@ -38,14 +40,14 @@ public:
     int  stopRecord() override;
 
 private:
-	void startCapture();
-	void stopCapture();
+    void startCapture();
+    void stopCapture();
 
-	void writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info);
-	FrameItem* readVideoFrameCb();
+    void       writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info);
+    FrameItem* readVideoFrameCb();
 
-	void initAudioBufCb(AVCodecContext* encodeCtx);
-    void writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info);
+    void     initAudioBufCb(AVCodecContext* encodeCtx);
+    void     writeAudioFrameCb(AVFrame* frame, const AudioCaptureInfo& info);
     AVFrame* readAudioFrameCb();
 
     int64_t getPauseDurationCb() { return m_pauseDuration; }
@@ -64,8 +66,10 @@ private:
     int64_t                                           m_pauseDuration   = 0;        // 暂停持续时间
     std::unique_ptr<Timer<std::chrono::system_clock>> m_pauseStopwatch  = nullptr;  // 暂停秒表
 
-    AmixFilter* m_amixFilter  = nullptr;
+    AmixFilter*     m_amixFilter     = nullptr;
     ResampleFilter* m_resampleFilter = nullptr;
 };
+
+}  // namespace onlyet
 
 #endif  // !ONLYET_RECORDER_H
