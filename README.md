@@ -3,7 +3,7 @@
 # 基于Qt+FFmpeg的录屏软件NanaRecorder
 
 ## UI
-![QQ截图20230119022010](https://user-images.githubusercontent.com/19988547/213262749-ed8811aa-294a-44bc-8ed7-ad3c139540ac.png)
+![QQ截图20230119022010](./screenshot/UI.png)
 
 ## 录制流程
 ![flowchart](./screenshot/flowchart.png)  
@@ -51,5 +51,5 @@ make -j4
 ## TODO
 - [ ] 画质高，文件小，码率低  
 - [ ] flush编码器  
-- [ ] 支持同时录制扬声器和麦克风  
+- [X] 支持同时录制扬声器和麦克风  
 - [ ] 支持硬编码
