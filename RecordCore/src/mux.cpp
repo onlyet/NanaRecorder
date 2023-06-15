@@ -160,13 +160,13 @@ int Mux::addStream(AVCodecContext* encodeCtx)
         m_vEncodeCtx = encodeCtx;
         m_vStream = stream;
         m_vIndex = stream->index;
-        qInfo() << "Video stream index" << m_vIndex;
+        //qInfo() << "Video stream index" << m_vIndex;
     }
     else if (encodeCtx->codec_type == AVMEDIA_TYPE_AUDIO) {
         m_aEncodeCtx = encodeCtx;
         m_aStream = stream;
         m_aIndex = stream->index;
-        qInfo() << "Audio stream index" << m_aIndex;
+        //qInfo() << "Audio stream index" << m_aIndex;
     }
 
     return 0;

@@ -13,6 +13,17 @@ enum RecordStatus {
     Paused,
 };
 
+enum class AudioCaptureDevice {
+    Speaker = 0,  // 扬声器
+    Microphone    // 麦克风
+};
+
+enum class AudioCaptureType {
+    OnlySpeaker = 0,
+    OnlyMicrophone,
+    SpeakerAndMicrophone
+};
+
 struct VideoCaptureInfo {
     int           width;  // 输入宽高
     int           height;
@@ -32,7 +43,7 @@ struct RecordConfig {
     int inHeight;
 
     bool enableAudio;
-    int  audioDeviceIndex;  // 0：扬声器，1：麦克风
+    AudioCaptureType audioCaptureType;
     int  channel;
     int  sampleRate;
 

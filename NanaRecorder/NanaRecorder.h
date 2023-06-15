@@ -21,7 +21,6 @@ private slots:
     void startBtnClicked();
     void pauseBtnClicked();
     void stopBtnClicked();
-    //void updateTime();
     void updateRecordTime();
 
     private:

@@ -3,10 +3,7 @@
 
 #include <QString>
 
-enum class AudioCaptureDevice {
-    Speaker = 0,  // ÑïÉùÆ÷
-    Microphone    // Âó¿Ë·ç
-};
+enum class AudioCaptureDevice;
 
 namespace FFmpegHelper {
     void registerAll();

@@ -227,6 +227,7 @@
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\mux.cpp" />
     <ClCompile Include="src\Recorder.cpp" />
+    <ClCompile Include="src\ResampleFilter.cpp" />
     <ClCompile Include="src\VideoCapture.cpp" />
     <ClCompile Include="src\VideoEncoder.cpp" />
     <ClCompile Include="src\VideoFrameQueue.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="src\mux.h" />
     <ClInclude Include="src\RecordConfig.h" />
     <ClInclude Include="src\Recorder.h" />
+    <ClInclude Include="src\ResampleFilter.h" />
     <ClInclude Include="src\VideoCapture.h" />
     <ClInclude Include="src\VideoEncoder.h" />
     <ClInclude Include="src\VideoFrameQueue.h" />

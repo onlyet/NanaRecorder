@@ -1,5 +1,6 @@
 #include "FFmpegHelper.h"
 #include "FFmpegHeader.h"
+#include "RecordConfig.h"
 
 #ifdef WIN32
 #include <dshow.h>

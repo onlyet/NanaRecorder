@@ -20,6 +20,7 @@ class AudioCaptureInfo;
 class FileOutputer;
 
 class AmixFilter;
+class ResampleFilter;
 
 template <typename clock_type>
 class Timer;
@@ -62,7 +63,7 @@ private:
     int64_t                                           m_pauseDuration   = 0;        // 暂停持续时间
     std::unique_ptr<Timer<std::chrono::system_clock>> m_pauseStopwatch  = nullptr;  // 暂停秒表
 
-    int         m_audioSrcNum = 0;
     AmixFilter* m_amixFilter  = nullptr;
+    ResampleFilter* m_resampleFilter = nullptr;
 };
 
