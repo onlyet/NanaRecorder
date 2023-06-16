@@ -19,42 +19,31 @@ public:
 
     int init(const FILTER_CTX& ctx_in, const FILTER_CTX& ctx_out);
 
-    inline void registe_cb(on_filter_data cb_on_filter_data /*, on_filter_error cb_on_filter_error*/) {
-        _on_filter_data = cb_on_filter_data;
-        //_on_filter_error = cb_on_filter_error;
+    inline void setFilterFrameCb(FilterFrameCb cb_on_filter_data) {
+        m_filteredFrameCb = cb_on_filter_data;
     }
 
     int start();
-
     int stop();
 
-    int add_frame(AVFrame* frame);
-
+    int addFrame(AVFrame* frame);
     const AVRational get_time_base();
 
 private:
     void cleanup();
-    void filter_loop();
+    void filterThread();
 
 private:
-    //int _index;
-
-    FILTER_CTX _ctx_in;
-    FILTER_CTX _ctx_out;
-
-    AVFilterGraph* _filter_graph = nullptr;
-
-    on_filter_data _on_filter_data;
-    //on_filter_error _on_filter_error;
-
-    std::atomic_bool _inited;
-    std::atomic_bool _running;
-
-    std::thread _thread;
-
-    std::mutex              _mutex;
-    std::condition_variable _cond_var;
-    bool                    _cond_notify;
+    FILTER_CTX              m_input;
+    FILTER_CTX              m_output;
+    AVFilterGraph*          m_filterGraph = nullptr;
+    FilterFrameCb          m_filteredFrameCb;
+    std::atomic_bool        m_inited;
+    std::atomic_bool        m_running;
+    std::thread             m_thread;
+    std::mutex              m_mutex;
+    std::condition_variable m_condVar;
+    bool                    m_gotNewFrame;
 };
 
 }  // namespace onlyet

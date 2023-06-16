@@ -18,45 +18,35 @@ public:
     AmixFilter();
     ~AmixFilter();
 
-    int init(const FILTER_CTX &ctx_in0, const FILTER_CTX &ctx_in1, const FILTER_CTX &ctx_out);
+    int init(const FILTER_CTX &intput0, const FILTER_CTX &input1, const FILTER_CTX &output);
 
-    inline void registe_cb(on_filter_data cb_on_filter_data/*, on_filter_error cb_on_filter_error*/) {
-        _on_filter_data  = cb_on_filter_data;
-        //_on_filter_error = cb_on_filter_error;
+    inline void setFilterFrameCb(FilterFrameCb filteredFrameCb) {
+        m_filteredFrameCb = filteredFrameCb;
     }
 
     int start();
-
     int stop();
 
-    int add_frame(AVFrame *frame, int index);
-
+    int addFrame(AVFrame *frame, int index);
     const AVRational get_time_base();
 
 private:
     void cleanup();
-    void filter_loop();
+    void filterThread();
 
 private:
-    FILTER_CTX _ctx_in_0;
-    FILTER_CTX _ctx_in_1;
-    FILTER_CTX _ctx_out;
-
-    AVFilterGraph *_filter_graph = nullptr;
-
-    on_filter_data  _on_filter_data;
-    on_filter_error _on_filter_error;
-
-    std::atomic_bool _inited;
-    std::atomic_bool _running;
-
-    std::thread _thread;
-
-    std::mutex              _mutex;
-    std::condition_variable _cond_var;
-    bool                    _cond_notify;
-
-    AVAudioFifo *m_filteredFrameFifo = nullptr; // 用作避免编码时报错：more samples than frame size
+    FILTER_CTX              m_input0;
+    FILTER_CTX              m_input1;
+    FILTER_CTX              m_output;
+    AVFilterGraph*          m_filterGraph = nullptr;
+    FilterFrameCb          m_filteredFrameCb;
+    std::atomic_bool        m_inited;
+    std::atomic_bool        m_running;
+    std::thread             m_thread;
+    std::mutex              m_mutex;
+    std::condition_variable m_condVar;
+    bool                    m_gotNewFrame;
+    AVAudioFifo*            m_filteredFrameFifo = nullptr;  // 用作避免编码时报错：more samples than frame size
 };
 
 }  // namespace onlyet

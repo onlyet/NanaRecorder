@@ -160,7 +160,7 @@ int Recorder::startRecord() {
             {nullptr, nullptr, {1, AV_TIME_BASE}, g_record.sampleRate, AV_SAMPLE_FMT_FLTP, g_record.channel, av_get_default_channel_layout(g_record.channel)});
         if (ret != 0) return -1;
 
-        m_amixFilter->registe_cb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
+        m_amixFilter->setFilterFrameCb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
         m_amixFilter->start();
     }
     if (m_resampleFilter) {
@@ -181,7 +181,7 @@ int Recorder::startRecord() {
         ret = m_resampleFilter->init(ctx_in, ctx_out);
         if (ret != 0) return -1;
 
-        m_resampleFilter->registe_cb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
+        m_resampleFilter->setFilterFrameCb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
         m_resampleFilter->start();
     }
 
@@ -300,9 +300,9 @@ AVFrame* Recorder::readAudioFrameCb() {
 
 void Recorder::addFrameToAmixFilter(AVFrame* frame, int filterCtxIndex) {
     if (m_amixFilter) {
-        m_amixFilter->add_frame(frame, filterCtxIndex);
+        m_amixFilter->addFrame(frame, filterCtxIndex);
     } else if (m_resampleFilter) {
-        m_resampleFilter->add_frame(frame);
+        m_resampleFilter->addFrame(frame);
     }
 }
 

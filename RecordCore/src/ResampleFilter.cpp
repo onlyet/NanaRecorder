@@ -9,17 +9,15 @@
 namespace onlyet {
 
 ResampleFilter::ResampleFilter() {
-    memset(&_ctx_in, 0, sizeof(FILTER_CTX));
-    memset(&_ctx_out, 0, sizeof(FILTER_CTX));
+    memset(&m_input, 0, sizeof(FILTER_CTX));
+    memset(&m_output, 0, sizeof(FILTER_CTX));
 
-    _filter_graph = NULL;
+    m_filterGraph = NULL;
 
-    _inited  = false;
-    _running = false;
+    m_inited  = false;
+    m_running = false;
 
-    _cond_notify = false;
-
-    //_index = -1;
+    m_gotNewFrame = false;
 }
 
 ResampleFilter::~ResampleFilter() {
@@ -31,16 +29,14 @@ int ResampleFilter::init(const FILTER_CTX& ctx_in, const FILTER_CTX& ctx_out) {
     int error = 0;
     int ret   = 0;
 
-    if (_inited) return error;
-
-    //_index = index;
+    if (m_inited) return error;
 
     do {
-        _ctx_in  = ctx_in;
-        _ctx_out = ctx_out;
+        m_input  = ctx_in;
+        m_output = ctx_out;
 
-        _filter_graph = avfilter_graph_alloc();
-        if (!_filter_graph) {
+        m_filterGraph = avfilter_graph_alloc();
+        if (!m_filterGraph) {
             error = -1;
             break;
         }
@@ -58,52 +54,52 @@ int ResampleFilter::init(const FILTER_CTX& ctx_in, const FILTER_CTX& ctx_out) {
 
         std::string filter_desrc = filter_desrcss.str();
 
-        _ctx_in.inout  = avfilter_inout_alloc();
-        _ctx_out.inout = avfilter_inout_alloc();
+        m_input.inout  = avfilter_inout_alloc();
+        m_output.inout = avfilter_inout_alloc();
 
         char pad_args[512] = {0};
 
-        format_pad_arg(pad_args, 512, _ctx_in);
+        format_pad_arg(pad_args, 512, m_input);
 
-        ret = avfilter_graph_create_filter(&_ctx_in.ctx, avfilter_get_by_name("abuffer"), "in", pad_args, NULL, _filter_graph);
+        ret = avfilter_graph_create_filter(&m_input.ctx, avfilter_get_by_name("abuffer"), "in", pad_args, NULL, m_filterGraph);
         if (ret < 0) {
             error = -1;
             break;
         }
 
-        ret = avfilter_graph_create_filter(&_ctx_out.ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, _filter_graph);
+        ret = avfilter_graph_create_filter(&m_output.ctx, avfilter_get_by_name("abuffersink"), "out", NULL, NULL, m_filterGraph);
         if (ret < 0) {
             error = -1;
             break;
         }
 
-        av_opt_set_bin(_ctx_out.ctx, "sample_fmts", (uint8_t*)&_ctx_out.sample_fmt, sizeof(_ctx_out.sample_fmt), AV_OPT_SEARCH_CHILDREN);
-        av_opt_set_bin(_ctx_out.ctx, "channel_layouts", (uint8_t*)&_ctx_out.channel_layout, sizeof(_ctx_out.channel_layout), AV_OPT_SEARCH_CHILDREN);
-        av_opt_set_bin(_ctx_out.ctx, "sample_rates", (uint8_t*)&_ctx_out.sample_rate, sizeof(_ctx_out.sample_rate), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set_bin(m_output.ctx, "sample_fmts", (uint8_t*)&m_output.sample_fmt, sizeof(m_output.sample_fmt), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set_bin(m_output.ctx, "channel_layouts", (uint8_t*)&m_output.channel_layout, sizeof(m_output.channel_layout), AV_OPT_SEARCH_CHILDREN);
+        av_opt_set_bin(m_output.ctx, "sample_rates", (uint8_t*)&m_output.sample_rate, sizeof(m_output.sample_rate), AV_OPT_SEARCH_CHILDREN);
 
-        _ctx_in.inout->name       = av_strdup("in");
-        _ctx_in.inout->filter_ctx = _ctx_in.ctx;
-        _ctx_in.inout->pad_idx    = 0;
-        _ctx_in.inout->next       = NULL;
+        m_input.inout->name       = av_strdup("in");
+        m_input.inout->filter_ctx = m_input.ctx;
+        m_input.inout->pad_idx    = 0;
+        m_input.inout->next       = NULL;
 
-        _ctx_out.inout->name       = av_strdup("out");
-        _ctx_out.inout->filter_ctx = _ctx_out.ctx;
-        _ctx_out.inout->pad_idx    = 0;
-        _ctx_out.inout->next       = NULL;
+        m_output.inout->name       = av_strdup("out");
+        m_output.inout->filter_ctx = m_output.ctx;
+        m_output.inout->pad_idx    = 0;
+        m_output.inout->next       = NULL;
 
-        ret = avfilter_graph_parse_ptr(_filter_graph, filter_desrc.c_str(), &_ctx_out.inout, &_ctx_in.inout, NULL);
+        ret = avfilter_graph_parse_ptr(m_filterGraph, filter_desrc.c_str(), &m_output.inout, &m_input.inout, NULL);
         if (ret < 0) {
             error = -1;
             break;
         }
 
-        ret = avfilter_graph_config(_filter_graph, NULL);
+        ret = avfilter_graph_config(m_filterGraph, NULL);
         if (ret < 0) {
             error = -1;
             break;
         }
 
-        _inited = true;
+        m_inited = true;
     } while (0);
 
     if (error != 0) {
@@ -111,108 +107,97 @@ int ResampleFilter::init(const FILTER_CTX& ctx_in, const FILTER_CTX& ctx_out) {
         cleanup();
     }
 
+    if (m_input.inout) avfilter_inout_free(&m_input.inout);
+    if (m_output.inout) avfilter_inout_free(&m_output.inout);
+
     return error;
 }
 
 int ResampleFilter::start() {
-    if (!_inited)
+    if (!m_inited)
         return -1;
 
-    if (_running)
+    if (m_running)
         return 0;
 
-    _running = true;
-    _thread  = std::thread(std::bind(&ResampleFilter::filter_loop, this));
+    m_running = true;
+    m_thread  = std::thread(std::bind(&ResampleFilter::filterThread, this));
 
     return 0;
 }
 
 int ResampleFilter::stop() {
-    if (!_inited || !_running)
+    if (!m_inited || !m_running)
         return -1;
 
-    _running = false;
+    m_running = false;
 
-    _cond_notify = true;
-    _cond_var.notify_all();
+    m_gotNewFrame = true;
+    m_condVar.notify_all();
 
-    if (_thread.joinable())
-        _thread.join();
+    if (m_thread.joinable())
+        m_thread.join();
 
     return 0;
 }
 
-int ResampleFilter::add_frame(AVFrame* frame) {
-    std::unique_lock<std::mutex> lock(_mutex);
-
-    int error = 0;
+int ResampleFilter::addFrame(AVFrame* frame) {
     int ret   = 0;
 
-    do {
-        int ret = av_buffersrc_add_frame_flags(_ctx_in.ctx, frame, AV_BUFFERSRC_FLAG_KEEP_REF);
-        if (ret < 0) {
-            error = -1;
-            break;
-        }
-
-    } while (0);
-
-    if (error != 0) {
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        int                          ret = av_buffersrc_add_frame_flags(m_input.ctx, frame, AV_BUFFERSRC_FLAG_KEEP_REF);
+    }
+    if (ret < 0) {
         qCritical() << QString("av_buffersrc_add_frame_flags ret:%1").arg(ret);
+    } else {
+        m_gotNewFrame = true;
+        m_condVar.notify_all();
     }
 
-    _cond_notify = true;
-    _cond_var.notify_all();
-
-    return error;
+    return ret;
 }
 
 const AVRational ResampleFilter::get_time_base() {
-    return av_buffersink_get_time_base(_ctx_out.ctx);
+    return av_buffersink_get_time_base(m_output.ctx);
 }
 
 void ResampleFilter::cleanup() {
-    if (_filter_graph)
-        avfilter_graph_free(&_filter_graph);
+    if (m_filterGraph)
+        avfilter_graph_free(&m_filterGraph);
 
-    memset(&_ctx_in, 0, sizeof(FILTER_CTX));
-    memset(&_ctx_out, 0, sizeof(FILTER_CTX));
+    memset(&m_input, 0, sizeof(FILTER_CTX));
+    memset(&m_output, 0, sizeof(FILTER_CTX));
 
-    _inited = false;
+    m_inited = false;
 }
 
-void ResampleFilter::filter_loop() {
-    AVFrame* frame = av_frame_alloc();
-
+void ResampleFilter::filterThread() {
     int ret = 0;
-    while (_running) {
-        std::unique_lock<std::mutex> lock(_mutex);
-        while (!_cond_notify && _running)
-            _cond_var.wait_for(lock, std::chrono::milliseconds(300));
+    AVFrame* sinkFrame = av_frame_alloc();
 
-        while (_running && _cond_notify) {
-            ret = av_buffersink_get_frame(_ctx_out.ctx, frame);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-                break;
-                ;
-            }
-
-            if (ret < 0) {
-                qCritical() << "av_buffersink_get_frame failed:" << ret;
-                //if (_on_filter_error) _on_filter_error(ret, _index);
-                break;
-            }
-
-            if (_on_filter_data)
-                _on_filter_data(frame, 0);
-
-            av_frame_unref(frame);
+    while (1) {
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_condVar.wait(lock, [this] { return !m_running || m_gotNewFrame; });
+            if (!m_running) break;
+        }
+        ret = av_buffersink_get_frame(m_output.ctx, sinkFrame);
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+            continue;
+        } else if (ret < 0) {
+            qCritical() << "av_buffersink_get_frame failed:" << ret;
+            break;
         }
 
-        _cond_notify = false;
+        if (m_filteredFrameCb)
+            m_filteredFrameCb(sinkFrame, 0);
+
+        av_frame_unref(sinkFrame);
     }
 
-    av_frame_free(&frame);
+    av_frame_free(&sinkFrame);
+    qInfo() << "ResampleFilter thread exit";
 }
 
 }  // namespace onlyet
