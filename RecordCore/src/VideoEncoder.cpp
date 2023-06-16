@@ -1,3 +1,4 @@
+#include "FFmpegHeader.h"
 #include "VideoEncoder.h"
 #include "FFmpegHelper.h"
 

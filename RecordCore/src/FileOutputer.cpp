@@ -1,3 +1,4 @@
+#include "FFmpegHeader.h"
 #include "FileOutputer.h"
 #include "RecordConfig.h"
 #include "VideoEncoder.h"
@@ -8,10 +9,7 @@
 #include <QDebug>
 
 #include <string>
-#include <functional>
 #include <chrono>
-
-//#include <Windows.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -135,9 +133,9 @@ void FileOutputer::encodeVideoAndMux() {
 
         if (m_videoPackets.empty()) return;
 
-        for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this /*, item*/](AVPacket* packet) {
+        for_each(m_videoPackets.cbegin(), m_videoPackets.cend(), [this](AVPacket* packet) {
             if (!m_captureTimeQueue.empty()) {
-                m_mux->writePacket(packet, /*item->captureTime*/ m_captureTimeQueue.front());
+                m_mux->writePacket(packet, m_captureTimeQueue.front());
                 m_captureTimeQueue.pop();
             }
         });

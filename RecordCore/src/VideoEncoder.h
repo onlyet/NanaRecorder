@@ -1,9 +1,14 @@
 #ifndef ONLYET_VIDEOENCODER_H
 #define ONLYET_VIDEOENCODER_H
 
-#include "FFmpegHeader.h"
+
 
 #include <vector>
+
+class AVFrame;
+class AVPacket;
+class AVCodecContext;
+class AVDictionary;
 
 namespace onlyet {
 

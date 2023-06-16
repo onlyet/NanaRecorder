@@ -1,3 +1,4 @@
+#include "FFmpegHeader.h"
 #include "AudioEncoder.h"
 #include "RecordConfig.h"
 #include "FFmpegHelper.h"

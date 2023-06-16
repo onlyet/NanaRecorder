@@ -1,5 +1,5 @@
 #include "AudioFrameQueue.h"
-
+#include "FFmpegHeader.h"
 #include "FFmpegHelper.h"
 
 #include <QDebug>

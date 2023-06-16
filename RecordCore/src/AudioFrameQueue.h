@@ -1,10 +1,15 @@
 #ifndef ONLYET_AUDIOFRAMEQUEUE_H
 #define ONLYET_AUDIOFRAMEQUEUE_H
 
-#include "FFmpegHeader.h"
+
 #include "RecordConfig.h"
 
 #include <condition_variable>
+
+class AVCodecContext;
+class AVFrame;
+class AVAudioFifo;
+class SwrContext;
 
 #define MAX_AV_PLANES 8
 

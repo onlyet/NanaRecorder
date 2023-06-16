@@ -2,11 +2,21 @@
 #define ONLYET_RECORDCONFIG_H
 
 #include "singleton.h"
-#include "FFmpegHeader.h"
 
 #include <QString>
 
 #include <condition_variable>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <libavutil/pixfmt.h>
+#include <libavutil/samplefmt.h>
+
+#ifdef __cplusplus
+};
+#endif
 
 namespace onlyet {
 

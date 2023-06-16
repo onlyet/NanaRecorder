@@ -1,9 +1,14 @@
 #ifndef ONLYET_AUDIOENCODER_H
 #define ONLYET_AUDIOENCODER_H
 
-#include "FFmpegHeader.h"
+
 
 #include <vector>
+
+class AVFrame;
+class AVPacket;
+class AVCodecContext;
+class AVDictionary;
 
 namespace onlyet {
 

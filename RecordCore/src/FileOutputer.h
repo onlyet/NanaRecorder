@@ -1,12 +1,16 @@
 #ifndef ONLYET_FILEOUTPUTER_H
 #define ONLYET_FILEOUTPUTER_H
 
-#include "FFmpegHeader.h"
+
 
 #include <thread>
 #include <functional>
 #include <vector>
 #include <queue>
+
+class AVCodecContext;
+class AVFrame;
+class AVPacket;
 
 namespace onlyet {
 
@@ -50,7 +54,7 @@ private:
     std::vector<AVPacket*>               m_videoPackets;
     std::thread                          m_outputAudioThread;
     std::vector<AVPacket*>               m_audioPackets;
-    int64_t                              m_startTime;
+    int64_t                              m_startTime{0};
     std::queue<int64_t>                  m_captureTimeQueue;  // 保存视频编码延迟帧的捕获时间戳
     std::function<int64_t()>             m_pauseCb;           // 获取暂停持续时间
 };

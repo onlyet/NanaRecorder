@@ -1,10 +1,15 @@
 #ifndef ONLYET_MUX_H
 #define ONLYET_MUX_H
 
-#include "FFmpegHeader.h"
+
 
 #include <string>
 #include <mutex>
+
+class AVFormatContext;
+class AVStream;
+class AVCodecContext;
+class AVPacket;
 
 namespace onlyet {
 
