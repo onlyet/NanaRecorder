@@ -92,6 +92,7 @@ int AudioCapture::initCapture(AudioCaptureDevice dev) {
 
     string audioDeviceName = FFmpegHelper::getAudioDevice(dev);
     if ("" == audioDeviceName) {
+        qCritical() << "Can not find audio device";
         return -1;
     }
     if ((ret = avformat_open_input(&m_aFmtCtx, audioDeviceName.c_str(), ifmt, &options)) != 0) {

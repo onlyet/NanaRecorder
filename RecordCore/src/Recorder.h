@@ -40,7 +40,7 @@ public:
     int  stopRecord() override;
 
 private:
-    void startCapture();
+    int startCapture();
     void stopCapture();
 
     void       writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info);

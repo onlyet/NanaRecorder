@@ -113,7 +113,6 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     hr = pCreateDevEnum->CreateClassEnumerator(guid, &pEm, 0);
     if (hr != NOERROR) {
         ::CoUninitialize();
-        //return "";
         return ret;
     }
 
@@ -137,14 +136,9 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
 
                 for (const auto& dev : audioDevSet) {
                     if (tmpName.find(dev) != string::npos) {
-#if 0
-                        tmpName = QString::fromLocal8Bit(tmpName.c_str()).toStdString();
-                        qDebug() << "Audio device:" << QString::fromLocal8Bit(tmpName.c_str());
-#else
                         // 包含中文需要转UTF8编码
                         tmpName = AnsiToUTF8(tmpName.c_str(), tmpName.length());
                         qInfo() << "Audio device:" << QString::fromStdString(tmpName);
-#endif
                         ret     = tmpName;
                         isFound = true;
                         break;

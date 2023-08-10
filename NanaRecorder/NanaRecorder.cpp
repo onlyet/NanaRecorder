@@ -66,7 +66,10 @@ void NanaRecorder::startBtnClicked() {
         info.insert("recordPath", path);
         m_recorder = onlyet::createRecorder(info);
     }
-    m_recorder->startRecord();
+    if (-1 == m_recorder->startRecord()) {
+        qDebug() << "startRecord failed";
+        return;
+    }
 
     m_recordDuration = 0;
     ui.durationLabel->setText("00:00:00");

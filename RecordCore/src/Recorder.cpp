@@ -138,11 +138,12 @@ int Recorder::startRecord() {
 
     FFmpegHelper::registerAll();
 
-    startCapture();
-    // init
+    int ret = 0;
+    ret = startCapture();
+    if (ret != 0) return ret;
+
     m_videoFrameQueue->initBuf(g_record.outWidth, g_record.outHeight, AV_PIX_FMT_YUV420P);
 
-    int ret = 0;
     if (m_amixFilter) {
         ret = m_amixFilter->init(
             {nullptr, nullptr,
@@ -158,7 +159,7 @@ int Recorder::startRecord() {
              m_microphoneCap->channel(),
              m_microphoneCap->channelLayout()},
             {nullptr, nullptr, {1, AV_TIME_BASE}, g_record.sampleRate, AV_SAMPLE_FMT_FLTP, g_record.channel, av_get_default_channel_layout(g_record.channel)});
-        if (ret != 0) return -1;
+        if (ret != 0) return ret;
 
         m_amixFilter->setFilterFrameCb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
         m_amixFilter->start();
@@ -179,7 +180,7 @@ int Recorder::startRecord() {
         ctx_out.sample_rate    = g_record.sampleRate;
 
         ret = m_resampleFilter->init(ctx_in, ctx_out);
-        if (ret != 0) return -1;
+        if (ret != 0) return ret;
 
         m_resampleFilter->setFilterFrameCb(bind(static_cast<void (Recorder::*)(AVFrame*)>(&Recorder::writeAudioFrameCb), this, _1));
         m_resampleFilter->start();
@@ -187,14 +188,13 @@ int Recorder::startRecord() {
 
     m_outputer->init();
 
-    // start
     m_startTime = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
     qInfo() << "start time:" << QDateTime::fromMSecsSinceEpoch(m_startTime / 1000).toString("yyyy-MM-dd hh:mm:ss.zzz");
     m_outputer->start(m_startTime);
 
     g_record.status = Running;
 
-    return 0;
+    return ret;
 }
 
 int Recorder::pauseRecord() {
@@ -236,15 +236,17 @@ int Recorder::stopRecord() {
     return 0;
 }
 
-void Recorder::startCapture() {
-    int ret;
-    m_videoCap->startCapture();
+int Recorder::startCapture() {
+    int ret = 0;
+    ret = m_videoCap->startCapture();
+    if (-1 == ret) return ret;
     if (g_record.enableAudio) {
         if (m_speakerCap) {
             ret = m_speakerCap->startCapture(AudioCaptureDevice::Speaker);
             // 找不到音频或打开失败
             if (-1 == ret) {
                 g_record.enableAudio = false;
+                return ret;
             }
         }
         if (m_microphoneCap) {
@@ -252,9 +254,11 @@ void Recorder::startCapture() {
             // 找不到音频或打开失败
             if (-1 == ret) {
                 g_record.enableAudio = false;
+                return ret;
             }
         }
     }
+    return ret;
 }
 
 void Recorder::stopCapture() {
