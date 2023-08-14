@@ -159,10 +159,10 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
     ::CoUninitialize();
 #elif __linux__
     QString dev;
-    if (AudioCaptureDevice_Speaker == type) {
+    if (AudioCaptureDevice::Speaker == type) {
         // ret = "alsa_output.pci-0000_02_02.0.analog-stereo.monitor";
         dev = "alsa_output";
-    } else if (AudioCaptureDevice_Microphone == type) {
+    } else if (AudioCaptureDevice::Microphone == type) {
         // ret = "alsa_input.pci-0000_02_02.0.analog-stereo";
         dev = "alsa_input";
     }
