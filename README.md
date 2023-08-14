@@ -31,11 +31,13 @@ FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
 - Qt6.2.4
 - FFmpeg5.1.2
 
+<font color=red>注意：</font>
+目前linux下录音用到了PulseAudio，ffmpeg默认是不支持PulseAudio的，所以要手动编译ffmpeg，`./configure`时添加`--enable-libpulse`，具体编译参考如下文档  
 [ffmpeg build reference](./doc/ffmpeg_build.md)
 
 需要在CMakeLists.txt里修改Qt和FFmpeg的依赖路径
 - QT_PATH
-- FFMPEG_ROOT_DIR
+- FFMPEG_ROOT_DIR（你编译的ffmpeg根目录）
 
 #### 构建
 ```cpp
