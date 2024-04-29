@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     // 初始化日志
     LogInit(logpath, a.applicationVersion());
     setLogLevel(QtDebugMsg);
+    qDebug() << "sizeof:" << sizeof(long) << sizeof(long long);
 
     // 初始化dump生成器
     Dump::Init(dumppath);
