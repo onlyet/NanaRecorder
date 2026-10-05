@@ -82,7 +82,7 @@ QComboBox::drop-down {
   border-bottom-right-radius: 3px;
 }
 /*下拉箭头*/
-QComboBox::down-arrow { 
+QComboBox::down-arrow {
   height:18px;
   image: url(:/NanaRecorder/image/downArrow.png);
 }
@@ -163,7 +163,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
      <widget class="QFrame" name="outFrame">
       <property name="styleSheet">
        <string notr="true">QFrame#outFrame {
-	
+
 	border-image: url(:/NanaRecorder/image/972438.png);
 }</string>
       </property>
@@ -229,17 +229,17 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
             </property>
             <item>
              <property name="text">
-              <string>仅系统声音</string>
+              <string>System sounds only</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>仅麦克风</string>
+              <string>Microphone only</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>扬声器和麦克风</string>
+              <string>Speaker and microphone</string>
              </property>
             </item>
            </widget>
@@ -247,7 +247,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
           <item row="1" column="0">
            <widget class="QCheckBox" name="audioCheckBox">
             <property name="text">
-             <string>录制音频</string>
+             <string>Record audio</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -281,7 +281,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
                 </size>
                </property>
                <property name="text">
-                <string>帧率</string>
+                <string>Frame rate</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -327,7 +327,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
           <item row="0" column="0">
            <widget class="QCheckBox" name="videoCheckBox">
             <property name="text">
-             <string>录制视频</string>
+             <string>Record video</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -361,7 +361,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
                 </size>
                </property>
                <property name="text">
-                <string>分辨率</string>
+                <string>Resolution</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -448,7 +448,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
                 </size>
                </property>
                <property name="text">
-                <string>通道数</string>
+                <string>Number of channels</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -514,7 +514,7 @@ QComboBox QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical {
                 </size>
                </property>
                <property name="text">
-                <string>录像路径</string>
+                <string>Recording path</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -570,7 +570,7 @@ border:2px solid transparent;
 }</string>
                </property>
                <property name="text">
-                <string>浏览</string>
+                <string>Browse</string>
                </property>
               </widget>
              </item>
@@ -621,12 +621,12 @@ border:2px solid transparent;
                <string notr="true">
 QPushButton {
 
-	
+
 	border-image: url(:/NanaRecorder/image/record/start_normal.png);
 }
 
 QPushButton:disabled {
-    
+
 }
 </string>
               </property>
@@ -656,7 +656,7 @@ QPushButton {
 }
 
 QPushButton:disabled {
-    
+
 }
 </string>
               </property>
@@ -686,7 +686,7 @@ QPushButton {
 }
 
 QPushButton:disabled {
-    
+
 }
 </string>
               </property>

@@ -82,7 +82,7 @@ void FreeBug::cb() {
     // ...
     char* p = (char*)malloc(1000);
     free(p);
-    free(p + 500); // 这里出的bug
+    free(p + 500); // Bug here
     // ...
     int a = 1;
     int b = 2;
@@ -92,7 +92,7 @@ void FreeBug::cb() {
 void FreeBug::call() {
     function<void(void)> cb = bind(&FreeBug::cb, this);
     cb();
-    int s = 1 + 2; // 崩溃堆栈只显示到在这里，定位不到cb里具体哪一行
+    int s = 1 + 2; // The crash stack trace only goes up to this point; it doesn't pinpoint the exact line within the callback.
     cout << s;
 }
 
@@ -101,6 +101,3 @@ void test()
     FreeBug* fb = new FreeBug;
     fb->call();
 }
-
-
-

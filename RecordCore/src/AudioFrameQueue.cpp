@@ -29,7 +29,7 @@ int AudioFrameQueue::initBuf(AVCodecContext* encodeCtx) {
         qCritical() << "av_frame_get_buffer failed";
         return -1;
     }
-    // 一帧16K，分配100帧则1.6M
+    // One frame is 16K; allocating 100 frames results in 1.6M.
     m_aFifoBuf = av_audio_fifo_alloc(encodeCtx->sample_fmt, encodeCtx->channels,
                                      100 * encodeCtx->frame_size);
     if (!m_aFifoBuf) {
@@ -92,7 +92,7 @@ int AudioFrameQueue::writeFrame(AVFrame* oldFrame, const AudioCaptureInfo& info)
 
     if (dst_nb_samples > m_resampleBufSize) {
         if (m_resampleBuf[0]) {
-            // 整个buf都会被释放，不需要每个通道都释放一次
+            // The entire buffer will be freed; there is no need to free it for each channel individually.
             av_freep(&m_resampleBuf[0]);
         }
 
@@ -136,7 +136,7 @@ AVFrame* AudioFrameQueue::readFrame() {
             return nullptr;
         }
 
-        // 从FIFO读取到n个平面（n是通道数，一个通道一个平面）
+        // Read n planes from the FIFO (n is the number of channels; one plane per channel)
         //int tt = av_audio_fifo_size(m_aFifoBuf);
         //qDebug() << "1 av_audio_fifo_size:" << tt;
         int nread = av_audio_fifo_read(m_aFifoBuf, (void**)m_aOutFrame->data, m_aOutFrame->nb_samples);
@@ -158,7 +158,7 @@ int AudioFrameQueue::writeFrame(AVFrame* frame) {
 
     {
         unique_lock<mutex> lk(m_mtxABuf);
-        // TODO: 这里改成frame->nb_samples是否正确？
+        // TODO: Is it correct to change this to frame->nb_samples?
         m_cvABufNotFull.wait(lk, [this, frame] { return av_audio_fifo_space(m_aFifoBuf) >= frame->nb_samples; });
 
         av_audio_fifo_write(m_aFifoBuf, (void**)frame->data, frame->nb_samples);

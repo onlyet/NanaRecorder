@@ -15,7 +15,7 @@ int AudioEncoder::initAAC() {
         qCritical() << "avcodec_alloc_context3 failed";
         return -1;
     }
-    // 为什么音频不需要设置timebase
+    // Why audio does not require setting the timebase
     //m_aEncodeCtx->bit_rate          = m_audioBitrate;
     m_aEncodeCtx->codec_type     = AVMEDIA_TYPE_AUDIO;
     m_aEncodeCtx->sample_fmt     = AV_SAMPLE_FMT_FLTP;
@@ -23,27 +23,27 @@ int AudioEncoder::initAAC() {
     m_aEncodeCtx->sample_rate    = g_record.sampleRate;
     m_aEncodeCtx->channel_layout = av_get_default_channel_layout(m_channel);
     m_aEncodeCtx->channels       = m_channel;
-    //正确设置sps/pps
+    // Correctly configure/set SPS and PPS (Sequence Parameter Set / Picture Parameter Set)
     m_aEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
 #if 0
     av_dict_set(&m_dict, "profile", "high", 0);
-    // 通过--preset的参数调节编码速度和质量的平衡。
+    // Adjust the balance between encoding speed and quality using the --preset parameter.
     av_dict_set(&m_dict, "preset", "superfast", 0);
     av_dict_set(&m_dict, "threads", "0", 0);
     av_dict_set(&m_dict, "crf", "26", 0);
-    // zerolatency: 零延迟，用在需要非常低的延迟的情况下，比如电视电话会议的编码
+    // zerolatency: Zero latency; used in scenarios requiring extremely low latency, such as encoding for video conferencing.
     av_dict_set(&m_dict, "tune", "zerolatency", 0);
 #endif
 
-    //查找音频编码器
+    // Find the audio encoder
     const AVCodec* encoder;
     encoder = avcodec_find_encoder(m_aEncodeCtx->codec_id);
     if (!encoder) {
         qCritical() << "Can not find the encoder, id: " << m_aEncodeCtx->codec_id;
         return -1;
     }
-    //打开音频编码器
+    // Open the audio encoder
     int ret = avcodec_open2(m_aEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
         qCritical() << "Can not open encoder id: " << encoder->id << "error code: " << ret;

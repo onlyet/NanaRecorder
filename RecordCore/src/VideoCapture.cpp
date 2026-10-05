@@ -10,6 +10,7 @@
 
 #include <string>
 #include <mutex>
+#include <cstdlib>
 
 #ifdef WIN32
 //#define USE_DSHOW
@@ -24,7 +25,7 @@
 
 #elif __linux__
 #define VIDEO_DEVICE_FORMAT "x11grab"
-#define VIDEO_DEVICE_NAME ":1"
+// VIDEO_DEVICE_NAME is resolved at runtime on Linux, see getVideoDeviceName()
 #else
 #error Unsupported platform
 #endif
@@ -33,6 +34,19 @@ using namespace std;
 using namespace std::chrono;
 
 namespace onlyet {
+
+const char* getVideoDeviceName() {
+#ifdef WIN32
+#ifdef USE_DSHOW
+    return "video=screen-capture-recorder";
+#else
+    return "desktop";
+#endif
+#else
+    const char* display = std::getenv("DISPLAY");
+    return (display && *display) ? display : ":0.0";
+#endif
+}
 
 int VideoCapture::startCapture() {
     if (m_isRunning) return -1;
@@ -73,9 +87,10 @@ int VideoCapture::initCapture() {
     av_dict_set(&options, "pixel_format", "yuv420p", 0);
 #endif
 
-    if ((ret = avformat_open_input(&m_vFmtCtx, VIDEO_DEVICE_NAME, ifmt, &options)) < 0) {
-        qCritical() << "video avformat_open_input failed:" << FFmpegHelper::err2Str(ret);
-        return -1;
+    const char* devName = getVideoDeviceName();
+    if ((ret = avformat_open_input(&m_vFmtCtx, devName, ifmt, &options)) < 0) {
+      qCritical() << "video avformat_open_input failed:" << FFmpegHelper::err2Str(ret) << "device:" << devName;
+      return -1;
     }
     if (avformat_find_stream_info(m_vFmtCtx, nullptr) < 0) {
         qCritical() << "Couldn't find stream information";
@@ -89,7 +104,7 @@ int VideoCapture::initCapture() {
                 qCritical() << "can not find decoder";
                 return -1;
             }
-            //从视频流中拷贝参数到codecCtx
+            // Copy parameters from the video stream to the codec context
             m_vDecodeCtx = avcodec_alloc_context3(decoder);
             if ((ret = avcodec_parameters_to_context(m_vDecodeCtx, stream->codecpar)) < 0) {
                 qCritical() << "Video avcodec_parameters_to_context failed,error code: " << ret;

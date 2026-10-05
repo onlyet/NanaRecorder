@@ -154,7 +154,7 @@ void NanaRecorder::initUI() {
     ui.recordEdit->setText(dir);
     connect(ui.recordPathBtn, &QPushButton::clicked, [this, dir]() {
         QFileDialog fileDialog;
-        fileDialog.setWindowTitle(QStringLiteral("设置视频保存路径"));
+        fileDialog.setWindowTitle(QStringLiteral("Set video save path"));
         fileDialog.setDirectory(dir);
         fileDialog.setFileMode(QFileDialog::Directory);
         fileDialog.setViewMode(QFileDialog::Detail);

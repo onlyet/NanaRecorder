@@ -27,8 +27,8 @@ enum RecordStatus {
 };
 
 enum class AudioCaptureDevice {
-    Speaker = 0,  // 扬声器
-    Microphone    // 麦克风
+    Speaker = 0,  // Speaker
+    Microphone    // microphone
 };
 
 enum class AudioCaptureType {
@@ -38,7 +38,7 @@ enum class AudioCaptureType {
 };
 
 struct VideoCaptureInfo {
-    int           width;  // 输入宽高
+    int           width;  // Input width and height
     int           height;
     AVPixelFormat format;
 };
@@ -52,7 +52,7 @@ struct AudioCaptureInfo {
 struct RecordConfig {
     friend Singleton<RecordConfig>;
 
-    int inWidth;  // 输入宽高
+    int inWidth;  // Input width and height
     int inHeight;
 
     bool             enableAudio;
@@ -60,14 +60,14 @@ struct RecordConfig {
     int              channel;
     int              sampleRate;
 
-    QString filePath;  // 录制文件保存路径
-    int     outWidth;  // 输出宽高
+    QString filePath;  // Path for saving recorded files
+    int     outWidth;  // Output width and height
     int     outHeight;
     int     fps;
     int     audioBitrate;
 
     RecordStatus            status = Stopped;
-    std::condition_variable cvNotPause;  // 当点击暂停的时候，两个采集线程挂起
+    std::condition_variable cvNotPause;  // When pause is clicked, both acquisition threads are suspended.
     std::mutex              mtxPause;
 };
 

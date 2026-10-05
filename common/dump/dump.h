@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#define DyLoad_ ///< 动态加载dbghelp库
+#define DyLoad_ ///< Dynamically load the dbghelp library
 
 namespace Dump {
 using Callback_Dump = void(*)();

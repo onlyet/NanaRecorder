@@ -29,7 +29,7 @@ void Mux::deinit() {
         avformat_free_context(m_oFmtCtx);
         m_oFmtCtx = nullptr;
     }
-    m_vStream    = nullptr;  // avformat_free_context时释放
+    m_vStream    = nullptr;  // Freed when avformat_free_context is called
     m_aStream    = nullptr;
     m_vEncodeCtx = nullptr;
     m_aEncodeCtx = nullptr;
@@ -38,7 +38,7 @@ void Mux::deinit() {
 int Mux::writeHeader() {
     if (!m_isInit || !m_oFmtCtx) return -1;
 
-    //打开输出文件
+    // Open the output file
     if (!(m_oFmtCtx->oformat->flags & AVFMT_NOFILE)) {
         const char* outFileName = m_filename.c_str();
         if (avio_open(&m_oFmtCtx->pb, outFileName, AVIO_FLAG_WRITE) < 0) {
@@ -46,7 +46,7 @@ int Mux::writeHeader() {
             return -1;
         }
     }
-    //写文件头
+    // Write the file header (e.g., muxer header/container header initialization like avformat_write_header)
     if (avformat_write_header(m_oFmtCtx, nullptr) < 0) {
         qCritical() << "can not write the header of the output file!";
         return -1;
@@ -67,8 +67,8 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime) {
 
     int stream_index = packet->stream_index;
 
-    AVRational src_time_base;  // 编码后的包
-    AVRational dst_time_base;  // mp4输出文件对应流的time_base
+    AVRational src_time_base;  // Encoded packet
+    AVRational dst_time_base;  // time_base of the stream corresponding to the MP4 output file
     if (m_vStream && m_vEncodeCtx && stream_index == m_vIndex) {
         src_time_base = m_vEncodeCtx->time_base;
         dst_time_base = m_vStream->time_base;
@@ -94,7 +94,7 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime) {
     //QTime t = QTime::currentTime();
     {
         lock_guard<mutex> lock(m_WriteFrameMtx);
-        // av_interleaved_write_frame调用后packet的各个字段变为0
+        // After the call to av_interleaved_write_frame, the fields of the packet are set to zero.
 #if 0
         qDebug() << QString("av_interleaved_write_frame, stream_index=%1, pts=%2, dts=%3, duration=%4, size=%5")
                         .arg(stream_index)
@@ -103,7 +103,7 @@ int Mux::writePacket(AVPacket* packet, int64_t captureTime) {
                         .arg(packet->duration)
                         .arg(packet->size);
 #endif
-        // 相同dts会导致av_interleaved_write_frame返回Invalid argument（-22）
+        // The same DTS will cause av_interleaved_write_frame to return an invalid argument (-22).
         ret = av_interleaved_write_frame(m_oFmtCtx, packet);
     }
     //qDebug() << "av_interleaved_write_frame duration:" << t.elapsed() << " time: " << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
@@ -137,7 +137,7 @@ int Mux::addStream(AVCodecContext* encodeCtx) {
         return -1;
     }
 
-    //将codecCtx中的参数传给输出流
+    // Copy parameters from the codec context to the output stream
     int ret = avcodec_parameters_from_context(stream->codecpar, encodeCtx);
     if (ret < 0) {
         qCritical() << "Output avcodec_parameters_from_context,error code:" << ret;

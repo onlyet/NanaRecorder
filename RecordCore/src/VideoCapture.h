@@ -28,7 +28,7 @@ private:
 
 private:
     std::atomic_bool                                       m_isRunning  = false;
-    int                                                    m_vIndex     = -1;  // 输入视频流索引
+    int                                                    m_vIndex     = -1;  // Input video stream index
     AVFormatContext*                                       m_vFmtCtx    = nullptr;
     AVCodecContext*                                        m_vDecodeCtx = nullptr;
     std::thread                                            m_captureThread;

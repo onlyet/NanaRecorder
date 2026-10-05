@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     QString appName = onlyet::util::getAppName(argv[0]);
 
-    //使程序唯一
+    // Make the application run as a single instance (prevent multiple instances from running simultaneously)
     if (!onlyet::util::setProgramUnique(appName)) {
         return 0;
     }
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
 	auto ad = AppData::instance();
 
-    // 创建临时文件夹
+    // Create a temporary folder
     const auto docpath   = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     const auto tmppath   = QString("%1/%2").arg(docpath, appName);
     const auto logpath   = QString("%1/log").arg(tmppath);
@@ -36,16 +36,16 @@ int main(int argc, char *argv[])
     dir.mkpath(logpath);
     dir.mkpath(videopath);
 
-    // 初始化日志
+    // Initialize logging
     LogInit(logpath, a.applicationVersion());
     setLogLevel(QtDebugMsg);
     qDebug() << "sizeof:" << sizeof(long) << sizeof(long long);
 
-    // 初始化dump生成器
+    // Initialize the dump generator
     Dump::Init(dumppath);
 
 #if 0
-	// 初始化配置项
+	// Initialize configuration options
 	APPCFG->init(QString("%1/%2.ini").arg(util::appDirPath(), util::getAppName(argv[0])));
 	USERCFG->init(QString("%1/user.ini").arg(tmppath));
 

@@ -55,8 +55,8 @@ private:
     std::thread                          m_outputAudioThread;
     std::vector<AVPacket*>               m_audioPackets;
     int64_t                              m_startTime{0};
-    std::queue<int64_t>                  m_captureTimeQueue;  // 保存视频编码延迟帧的捕获时间戳
-    std::function<int64_t()>             m_pauseCb;           // 获取暂停持续时间
+    std::queue<int64_t>                  m_captureTimeQueue;  // Store the capture timestamps of video encoding delay frames
+    std::function<int64_t()>             m_pauseCb;           // Get the pause duration
 };
 
 }  // namespace onlyet

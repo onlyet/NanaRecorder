@@ -111,7 +111,7 @@ int AudioCapture::initCapture(AudioCaptureDevice dev) {
                 qCritical() << "can not find decoder";
                 return -1;
             }
-            //从音频流中拷贝参数到codecCtx
+            // Copy parameters from the audio stream to the codec context
             m_aDecodeCtx = avcodec_alloc_context3(decoder);
             if ((ret = avcodec_parameters_to_context(m_aDecodeCtx, stream->codecpar)) < 0) {
                 qCritical() << "Audio avcodec_parameters_to_context failed,error code: " << ret;
@@ -153,12 +153,12 @@ void AudioCapture::audioCaptureThread() {
 
     while (m_isRunning) {
 #if 0
-        /// <summary>
-        /// 暂停后不读音频帧会导致几秒报错：
-        /// real-time buffer [virtual-audio-capturer] [audio input]
-        /// too full or near too full(84 % of size : 3041280 [rtbufsize parameter]) !frame dropped !
-        /// 最终录制出来的视频会在暂停位置卡住
-        /// </summary>
+/// <summary>
+/// Failure to read audio frames after pausing results in error messages for several seconds:
+/// real-time buffer [virtual-audio-capturer] [audio input]
+/// too full or near too full(84 % of size : 3041280 [rtbufsize parameter]) !frame dropped !
+/// The final recorded video will freeze at the point where the recording was paused.
+/// </summary>
         if (g_record.status == RecordStatus::Paused) {
             unique_lock<mutex> lk(g_record.mtxPause);
             g_record.cvNotPause.wait(lk, [this] { return g_record.status != RecordStatus::Paused; });
@@ -173,7 +173,7 @@ void AudioCapture::audioCaptureThread() {
             qCritical() << "Audio av_read_frame < 0";
             continue;
         }
-        // 暂停后读packet但不处理
+        // Read the packet after pausing but do not process it
         if (g_record.status != RecordStatus::Running) {
             av_packet_unref(&pkt);
             this_thread::sleep_for(1ms);

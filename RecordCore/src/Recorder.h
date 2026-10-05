@@ -62,9 +62,9 @@ private:
     AudioCapture*                                     m_microphoneCap   = nullptr;
     AudioFrameQueue*                                  m_audioFrameQueue = nullptr;
     FileOutputer*                                     m_outputer        = nullptr;
-    int64_t                                           m_startTime       = -1;       // 录制开始时间戳（微秒）
-    int64_t                                           m_pauseDuration   = 0;        // 暂停持续时间
-    std::unique_ptr<Timer<std::chrono::system_clock>> m_pauseStopwatch  = nullptr;  // 暂停秒表
+    int64_t                                           m_startTime       = -1;       // Recording start timestamp (microseconds)
+    int64_t                                           m_pauseDuration   = 0;        // Pause duration
+    std::unique_ptr<Timer<std::chrono::system_clock>> m_pauseStopwatch  = nullptr;  // Pause the stopwatch
 
     AmixFilter*     m_amixFilter     = nullptr;
     ResampleFilter* m_resampleFilter = nullptr;

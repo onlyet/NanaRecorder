@@ -34,7 +34,7 @@ private:
     AVFormatContext* m_oFmtCtx    = nullptr;
     AVStream*        m_vStream    = nullptr;
     AVStream*        m_aStream    = nullptr;
-    AVCodecContext*  m_vEncodeCtx = nullptr;  // EncoderÓµÓÐ×ÊÔ´
+    AVCodecContext*  m_vEncodeCtx = nullptr;  // The encoder possesses resources.
     AVCodecContext*  m_aEncodeCtx = nullptr;
     int              m_vIndex     = -1;
     int              m_aIndex     = -1;

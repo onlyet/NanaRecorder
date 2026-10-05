@@ -5,16 +5,16 @@
 #include <QVariant>
 
 enum class AppDataRole {
-    TmpDir,     // 临时数据目录
-    LogDir,     // 日志目录
-    RecordDir,  // 录制视频目录
-    RecordPath  // 录制视频绝对路径
+    TmpDir,     // Temporary data directory
+    LogDir,     // Log directory
+    RecordDir,  // Video recording directory
+    RecordPath  // Absolute path to the recorded video
 };
 
 /**
- * @brief 存放全局属性
- * @note 线程安全
- */
+* @brief Stores global properties
+* @note Thread-safe
+*/
 class AppData
 {
 private:

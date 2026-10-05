@@ -5,7 +5,7 @@
 #include <QVariant>
 #include <QSettings>
 #include <QEventLoop>
-#include <QJsonObject> 
+#include <QJsonObject>
 
 #define APPNAME "XXX"
 #define qstr QStringLiteral
@@ -15,53 +15,53 @@ class QWidget;
 
 namespace onlyet {
 
-/*! @brief 工具集 */
+/*! @brief Toolset */
 namespace util {
-/*! @brief 获取当前格式化时间 */
+/*! @brief Get the current formatted time */
 QString currentDateTimeString(const QString& format = DATETIME_FORMAT_DEFAULT);
 
-/*! @brief 从配置文件中读取指定配置 */
+/*! @brief Read the specified configuration from the configuration file */
 QVariant getSetting(const QString& key, const QVariant& defaultValue = QVariant(), const QString& filename = "");
-/*! @brief 修改配置 */
+/*! @brief Modify configuration */
 void setSetting(const QString& key, const QVariant& value, const QString& filename = "");
 
-/*! @brief 从src字符串中截取介于A和B之间的字符子串 */
+/*! @brief Extract the substring located between A and B from the src string */
 QString getPartBetween(const QString& src, const QString& A, const QString& B);
-/*! @brief 从src字符串中截取介于A和B之间的字符子串，如果不存在B，则返回A到结尾的子串 */
+/*! @brief Extracts the substring between A and B from the source string; if B is not found, returns the substring from A to the end. */
 QString getPartBetweenEx(const QString& src, const QString& A, const QString& B);
 
-/*! @brief 将字节数转化为易读的表示 */
+/*! @brief Convert a byte count into a human-readable format */
 QString parseBytesReadable(qint64 bytes);
-/*! @brief 将秒数转化为易读的表示 */
+/*! @brief Converts a duration in seconds into a human-readable format */
 QString parseSecsReadable(int secs);
 
 /**
-     * @brief 计算字符串md5
-     * @param[in] in    输入字符串. 要求为QByteArray, 调用者自己决定字符编码
-     * @param[in] type  类型, 0-32位md5, 1-16位md5
-     * @return 返回md5
-     * */
+* @brief Calculates the MD5 hash of a string.
+* @param[in] in    Input string. Must be a QByteArray; the caller determines the character encoding.
+* @param[in] type  Type: 0 for 32-character MD5, 1 for 16-character MD5.
+* @return The MD5 hash.
+*/
 QString md5(const QByteArray& in, int type = 0);
 
-/*! @brief 当前线程开启事件循环等待msecs毫秒, 返回QEventLoop执行结果 */
+/*! @brief Starts an event loop in the current thread, waits for msecs milliseconds, and returns the QEventLoop execution result. */
 int esleep(QEventLoop* loop, int msecs);
 
-/*! @brief 获取垂直对齐的图片文字的HTML字符串 */
+/*! @brief Get the HTML string for vertically aligned image and text */
 QString getHtmlIconTextVertical(const QString& icon, const QString& text);
 
-/*! @brief 使程序唯一存在，如果已存在返回false */
+/*! @brief Ensures only one instance of the program exists; returns false if an instance already exists. */
 bool setProgramUnique(const QString& name);
 
-/*! @brief 检查完整文件路径，返回合理的完整文件路径。如果所属路径不存在则创建。isCover表示是否删除已有 */
+/*! @brief Checks the full file path and returns a valid full file path. Creates the directory if it does not exist. 'isCover' indicates whether to overwrite existing files. */
 QString checkFile(const QString& filepath, bool isCover = false);
 
-/*! @brief 循环删除目录. 无法删除正在使用的文件和目录 */
+/*! @brief Recursively delete a directory. Cannot delete files or directories currently in use. */
 bool rmDir(const QString& path);
 
-/*! @brief 将QJsonObject转为字符串 */
+/*! @brief Converts a QJsonObject to a string */
 QString Json2String(const QJsonObject& json);
 
-/*! @brief 将字符串转为QJsonObject */
+/*! @brief Converts a string to a QJsonObject */
 QJsonObject String2Json(const QString& data, QString* err = Q_NULLPTR);
 
 qint64 mSecsSinceEpoch();
@@ -71,10 +71,10 @@ qint64 mSecsSinceEpoch();
 #endif
 
 /**
-     * @brief 确保目录存在，不存在则创建
-     * @param dirPath
-     * @return 创建目录失败才返回false
-     */
+* @brief Ensures the directory exists; creates it if it does not.
+* @param dirPath
+* @return Returns false only if directory creation fails.
+*/
 bool ensureDirExist(const QString& dirPath);
 
 int screenWidth();
@@ -91,54 +91,54 @@ QString  QVariant2QString(const QVariant& map);
 QVariant QString2QVariant(const QString& s);
 
 /**
-     * @brief 判断盘符是否存在
-     * @param drive 盘符
-     * @return
-     */
+* @brief Checks if the drive letter exists
+* @param drive Drive letter
+* @return
+*/
 bool isDriveExist(const QString& drive);
 
 /**
-     * @brief 判断文件是否存在
-     * @param path 文件路径
-     * @return
-     */
+* @brief Checks if the file exists
+* @param path File path
+* @return
+*/
 bool isFileExist(const QString& path);
 
 /**
-     * @brief 判断目录是否存在
-     * @param path 目录路径
-     * @return
-     */
+* @brief Checks if the directory exists
+* @param path Directory path
+* @return
+*/
 bool isDirExist(const QString& path);
 
 QStringList filePathListInDir(const QString& dirPath, QStringList filter = QStringList());
 
 /**
-     * @brief 返回app exe所在目录
-     * @return
-     */
+* @brief Returns the directory containing the application executable.
+* @return
+*/
 QString appDirPath();
 
 /**
-     * @brief 避免QProcess不能执行带空格的路径
-     * @param exePath 带空格的路径
-     * @return 可执行的路径
-     */
+* @brief Prevents QProcess from failing to execute paths containing spaces
+* @param exePath Path containing spaces
+* @return Executable path
+*/
 QString getExecutableExePath(const QString& exePath);
 
 void setRetainSizeWhenHidden(QWidget* w, bool isRetain = true);
 
-//删除满足nameFilter的目录的下一级文件
+// Delete the sub-level files of the directory that satisfies nameFilter.
 bool removeFile(const QString& dirPath, const QString& nameFilter);
 
 /**
-     * @brief 修复某win7环境下QCoreApplication::applicationName()返回空的造成读取不了配置文件的bug
-     * @param argv0 
-     * @return 
-    */
+* @brief Fixes a bug where QCoreApplication::applicationName() returns an empty string in certain Windows 7 environments, preventing the configuration file from being read.
+* @param argv0
+* @return
+*/
 QString getAppName(const QString& argv0);
 
-// 检查磁盘空间是否足够
+// Check if there is sufficient disk space
 bool isDiskSpaceEnough(QString dir = "");
 };  // namespace util
 

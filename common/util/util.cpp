@@ -339,11 +339,11 @@ bool util::isDriveExist(const QString& drive) {
         }
     }
 
-    //qWarning() << qstr("驱动器%1不存在，或者不是硬盘").arg(drive);
-    qWarning() << QString("驱动器%1不存在，或者不是硬盘").arg(drive);
+    //qWarning() << qstr("Drive %1 does not exist or is not a hard drive").arg(drive);
+    qWarning() << QString("Drive %1 does not exist or is not a hard drive").arg(drive);
     return false;
 #else
-    // 暂时不判断
+    // Skip the check for now
     return true;
 #endif  // WIN32
 }
@@ -376,7 +376,7 @@ bool util::isDirExist(const QString& path) {
 }
 
 QString util::getExecutableExePath(const QString& exePath) {
-    // 避免路径带空格启动失败（例如：C:\Program Files (x86)\pcbt）
+    // Prevent startup failure caused by spaces in the path (e.g., C:\Program Files (x86)\pcbt)
     return QString("\"" + exePath + "\"");
 }
 
@@ -430,11 +430,11 @@ bool util::isDiskSpaceEnough(QString dir) {
     float        available = (float)si.bytesAvailable() / 1024 / 1024 / 1024;
     float        total     = (float)si.bytesTotal() / 1024 / 1024 / 1024;
     float        percent   = available / total;
-    qInfo() << /*QStringLiteral*/ QString("目录%1所在磁盘的可用空间为%2%").arg(dir).arg((int)(percent * 100));
+    qInfo() << QString("The available space on the disk containing directory %1 is %2%").arg(dir).arg((int)(percent * 100));
 #if 1
     if (percent <= 0.1) {
         //m_recordEnabled = false;
-        //CMessageBox::info(qstr("%1盘空间不足!\n清理磁盘或修改录制视频保存路径").arg(m_recordPath.left(1)));
+        //CMessageBox::info(qstr("Insufficient disk space on drive %1!\nClean up the disk or change the recording save path.").arg(m_recordPath.left(1)));
         return false;
     }
 #endif

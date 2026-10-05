@@ -1,57 +1,57 @@
 [English version](./README_en.md)
 
-# 基于Qt+FFmpeg的录屏软件NanaRecorder
+# NanaRecorder: A Screen Recording Application Based on Qt and FFmpeg
 
 ## UI
-![QQ截图20230119022010](./screenshot/UI.png)
+![QQ Screenshot 20230119022010](./screenshot/UI.png)
 
-## 录制流程
-![flowchart](./screenshot/flowchart.png)  
+## Recording Workflow
+![flowchart](./screenshot/flowchart.png)
 
-主线程：UI线程，调用Recorder接口  
-采集线程：采集到帧后->格式转换/重采样->写进FIFO  
-编码复用线程：循环从FIFO读取帧->编码->写进文件
+Main Thread: UI thread; calls the Recorder interface.
+Capture Thread: Captures frames -> Format conversion/Resampling -> Writes to FIFO.
+Encoding/Muxing Thread: Loops to read frames from FIFO -> Encodes -> Writes to file.
 
-## 环境依赖
-### windows
-VS：推荐VS2017以后的版本  
-Qt：推荐Qt5.12以后的版本  
-FFmpeg5.1（项目已包含，生成项目后dll会自动拷贝到exe目录）
+## Environment Dependencies
+### Windows
+VS: VS2017 or later recommended.
+Qt: Qt5.12 or later recommended.
+FFmpeg 5.1 (Included in the project; DLLs are automatically copied to the executable directory after building).
 
-我的开发环境
+My development environment:
 - VS2022
-- Qt5.12.9 
-  
-解决方案支持Debug/Release和Win32/x64  
-</br>
-[VS+Qt开发环境配置](./doc/VS%2BQt%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.pdf)
+- Qt5.12.9
 
-### linux
-我的开发环境
+The solution supports Debug/Release and Win32/x64 configurations.
+</br>
+[VS+Qt Development Environment Configuration](./doc/VS%2BQt%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.pdf)
+
+### Linux
+My development environment:
 - Qt6.2.4
 - FFmpeg5.1.2
 
-<font color=red>注意：</font>
-目前linux下录音用到了PulseAudio，ffmpeg默认是不支持PulseAudio的，所以要手动编译ffmpeg，`./configure`时添加`--enable-libpulse`，具体编译参考如下文档  
+<font color=red>Note:</font>
+Audio recording on Linux currently utilizes PulseAudio. Since FFmpeg does not support PulseAudio by default, you must compile FFmpeg manually. Add `--enable-libpulse` during the `./configure` step. Refer to the following document for compilation details:
 [ffmpeg build reference](./doc/ffmpeg_build.md)
 
-需要在CMakeLists.txt里修改Qt和FFmpeg的依赖路径
+You need to modify the dependency paths for Qt and FFmpeg in `CMakeLists.txt`:
 - QT_PATH
-- FFMPEG_ROOT_DIR（你编译的ffmpeg根目录）
+- FFMPEG_ROOT_DIR (The root directory of your compiled FFmpeg)
 
-#### 构建
+#### Build
 ```cpp
 mkdir build && cd build
 cmake ..
 make -j4
 ```
 
-#### 运行app
-1. 直接用Qt Creator运行  
-2. 命令行启动：`../bin/NanaRecorder`  
+#### Run App
+1. Run directly via Qt Creator
+2. Launch via command line: `../bin/NanaRecorder`
 
 ## TODO
-- [ ] 画质高，文件小，码率低  
-- [ ] flush编码器  
-- [X] 支持同时录制扬声器和麦克风  
-- [ ] 支持硬编码
+- [ ] High image quality, small file size, low bitrate
+- [ ] Flush encoder
+- [X] Support simultaneous recording of speaker and microphone
+- [ ] Support hardware encoding

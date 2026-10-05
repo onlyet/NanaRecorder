@@ -1,5 +1,6 @@
 /****************************************************************
- * 生成日志在运行目录的log文件夹里, 单个日志文件最大为10MB, 最多保存10个历史日志
+ * Generated logs are stored in the 'log' folder within the runtime directory;
+ * the maximum size for a single log file is 10 MB, and up to 10 historical log files are retained.
  ****************************************************************/
 
 #ifndef ONLYET_LOG_H
@@ -21,9 +22,9 @@
 #include <sstream>
 #include <thread>
 
-#define LogFileMaxCount 10      // 历史日志文件最大个数
-#define LogMaxBytes (10<<20)    // 单个历史日志文件最大字节数
-#define LogDirName "log"        // 日志文件存放目录
+#define LogFileMaxCount 10      // Maximum number of historical log files
+#define LogMaxBytes (10<<20)    // Maximum size (in bytes) of a single historical log file
+#define LogDirName "log"        // Directory for storing log files
 
 static QString s_LogDir = "";
 static QString s_logName = "";
@@ -45,7 +46,7 @@ static void writeLog(const QString &msg, const QString &fileName = s_logName)
 {
     QFile sLogFile(getLogFileName(fileName));
 
-    // 日志文件上限为10M，最多10个历史日志，1是最新的历史日志，10是最旧的
+    // Log file limit is 10 MB; maximum of 10 historical log files; 1 is the most recent, 10 is the oldest.
     static const qint64 maxSize = LogMaxBytes;
     if (sLogFile.size() > maxSize)
     {

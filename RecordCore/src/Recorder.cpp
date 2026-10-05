@@ -118,20 +118,20 @@ void Recorder::setRecordInfo(const QVariantMap& recordInfo) {
 }
 
 /**
- * 主线程：
- * 初始化FIFO buf
- * 打开编码器
- * 初始化复用器
- * 从格式上下文创建流stream，从编码器上下文拷贝参数到流
- * 
- * 采集线程：采集，缩放，写入FIFO
- * 
- * 编码复用线程：
- * 从FIFO读一帧frame
- * 编码成packet
- * 将packet写入文件
- * 
- * @return 
+* Main thread:
+* Initialize FIFO buffer
+* Open encoder
+* Initialize muxer
+* Create stream from format context; copy parameters from encoder context to stream
+*
+* Capture thread: Capture, scale, and write to FIFO
+*
+* Encoding/Muxing thread:
+* Read a frame from FIFO
+* Encode into a packet
+* Write packet to file
+*
+* @return
 */
 int Recorder::startRecord() {
     if (Running == g_record.status) return -1;
@@ -243,7 +243,7 @@ int Recorder::startCapture() {
     if (g_record.enableAudio) {
         if (m_speakerCap) {
             ret = m_speakerCap->startCapture(AudioCaptureDevice::Speaker);
-            // 找不到音频或打开失败
+            // Audio not found or failed to open
             if (-1 == ret) {
                 g_record.enableAudio = false;
                 return ret;
@@ -251,7 +251,7 @@ int Recorder::startCapture() {
         }
         if (m_microphoneCap) {
             ret = m_microphoneCap->startCapture(AudioCaptureDevice::Microphone);
-            // 找不到音频或打开失败
+            // Audio not found or failed to open
             if (-1 == ret) {
                 g_record.enableAudio = false;
                 return ret;
@@ -272,7 +272,7 @@ void Recorder::stopCapture() {
 void Recorder::writeVideoFrameCb(AVFrame* frame, const VideoCaptureInfo& info) {
     if (Running == g_record.status) {
         int64_t now         = duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count();
-        int64_t captureTime = now - m_startTime - m_pauseDuration;  // pts = 当前时间戳 - 开始时间戳 - 暂停总时间
+        int64_t captureTime = now - m_startTime - m_pauseDuration;  // pts = current timestamp - start timestamp - total pause time
         m_videoFrameQueue->writeFrame(frame, info, captureTime);
     }
 }

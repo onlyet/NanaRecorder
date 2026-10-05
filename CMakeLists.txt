@@ -1,4 +1,4 @@
-# 项目名称
+# Project Name
 project(NaNaRecorder)
 cmake_minimum_required(VERSION 3.5)
 

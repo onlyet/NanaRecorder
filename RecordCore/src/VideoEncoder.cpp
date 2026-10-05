@@ -28,10 +28,10 @@ int VideoEncoder::initH264(int width, int height, int fps) {
     m_vEncodeCtx->rc_max_rate = 800 * 1000;
     m_vEncodeCtx->rc_buffer_size = 500 * 1000;
 #endif
-    //设置图像组层的大小, gop_size越大，文件越小
+    // Set the size of the Group of Pictures (GOP) layer; the larger the gop_size, the smaller the file.
     m_vEncodeCtx->gop_size     = 30;
     m_vEncodeCtx->max_b_frames = 0;
-    //设置h264中相关的参数,不设置avcodec_open2会失败
+    // Set H.264-related parameters; avcodec_open2 will fail if these are not set.
     m_vEncodeCtx->qmin      = 10;  //2
     m_vEncodeCtx->qmax      = 31;  //31
     m_vEncodeCtx->max_qdiff = 4;
@@ -39,26 +39,28 @@ int VideoEncoder::initH264(int width, int height, int fps) {
     m_vEncodeCtx->max_qdiff = 4;    //3
     m_vEncodeCtx->qcompress = 0.6;  //0.5
     m_vEncodeCtx->codec_tag = 0;
-    //正确设置sps/pps
+    // Correctly configure/set SPS and PPS (Sequence Parameter Set / Picture Parameter Set)
     m_vEncodeCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
 #if 1
-    //av_dict_set(&m_dict, "threads", "0", 0); // 会造成编码延迟几帧，avcodec_receive_packet EAGAIN n次后才返回第一帧对应的packet
-    av_dict_set(&m_dict, "preset", "superfast", 0);  // 调节编码速度和质量的平衡。
-    av_dict_set(&m_dict, "tune", "zerolatency", 0);  // 零延迟，用在需要非常低的延迟的情况下，比如电视电话会议的编码
+    // This introduces an encoding latency of a few frames;
+    // the packet corresponding to the first frame is returned only after avcodec_receive_packet returns EAGAIN n times.
+    //av_dict_set(&m_dict, "threads", "0", 0);
+    av_dict_set(&m_dict, "preset", "superfast", 0);  // Adjust the balance between encoding speed and quality。
+    av_dict_set(&m_dict, "tune", "zerolatency", 0);  // Zero latency; used in scenarios requiring extremely low latency, such as encoding for video conferencing.
     //av_dict_set(&m_dict, "profile", "high", 0);
     //av_dict_set(&m_dict, "crf", "16", 0);
     //av_dict_set(&m_dict, "qp", "0", 0);
 #endif
 
-    //查找视频编码器
+    // Find the video encoder
     const AVCodec* encoder;
     encoder = avcodec_find_encoder(m_vEncodeCtx->codec_id);
     if (!encoder) {
         qCritical() << "Can not find the encoder, id: " << m_vEncodeCtx->codec_id;
         return -1;
     }
-    //打开视频编码器
+    // Open the video encoder
     ret = avcodec_open2(m_vEncodeCtx, encoder, &m_dict);
     if (ret < 0) {
         qCritical() << "Can not open encoder id: " << encoder->id << "error code: " << ret;

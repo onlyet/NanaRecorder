@@ -17,7 +17,7 @@
 #include <memory>
 
 #define CAPTURE_SPEAKER_NAME "virtual-audio-capturer"
-#define CAPTURE_MICROPHONE_NAME1 "麦克风"
+#define CAPTURE_MICROPHONE_NAME1 "microphone"
 #define CAPTURE_MICROPHONE_NAME2 "Microphone"
 
 using namespace std;
@@ -87,7 +87,7 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
         guid = CLSID_AudioInputDeviceCategory;
     }
 #else
-    // 目前麦克风和virtual-audio-capturer(系统声音)都是用这个ID
+    // Currently, both the microphone and virtual-audio-capturer (system audio) use this ID.
     guid = CLSID_AudioInputDeviceCategory;
 #endif
 
@@ -126,17 +126,17 @@ std::string FFmpegHelper::getAudioDevice(AudioCaptureDevice type) {
         if (SUCCEEDED(hr)) {
             VARIANT var;
             var.vt = VT_BSTR;
-            hr     = pBag->Read(L"FriendlyName", &var, NULL);  //还有其他属性，像描述信息等等
+            hr     = pBag->Read(L"FriendlyName", &var, NULL);  // Add other properties, such as description metadata, etc.
             if (hr == NOERROR) {
-                //获取设备名称
+                // Get the device name
                 WideCharToMultiByte(CP_ACP, 0, var.bstrVal, -1, sName, 256, "", NULL);
                 SysFreeString(var.bstrVal);
-                // 注意：=前后没有空格，FFmpeg命令行需要对设备名加双引号，API则不用
+                // Note: No spaces around the '=' sign; the FFmpeg command line requires double quotes around the device name, whereas the API does not.
                 string tmpName = string("audio=") + sName;
 
                 for (const auto& dev : audioDevSet) {
                     if (tmpName.find(dev) != string::npos) {
-                        // 包含中文需要转UTF8编码
+                        // UTF-8 encoding is required when including Chinese characters.
                         tmpName = AnsiToUTF8(tmpName.c_str(), tmpName.length());
                         qInfo() << "Audio device:" << QString::fromStdString(tmpName);
                         ret     = tmpName;

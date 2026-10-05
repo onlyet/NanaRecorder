@@ -34,7 +34,7 @@ int VideoFrameQueue::initBuf(int width, int height, AVPixelFormat format) {
     av_image_fill_arrays(m_vOutFrame->data, m_vOutFrame->linesize, m_vOutFrameBuf,
                          format, width, height, 1);
 
-    //申请30帧缓存
+    // Allocate cache for 30 frames
     m_vFrameItemSize = m_vFrameSize + sizeof(int64_t);
     m_vFifoBuf       = av_fifo_alloc(30 * m_vFrameItemSize);
     if (!m_vFifoBuf) {
@@ -91,7 +91,7 @@ int VideoFrameQueue::writeFrame(AVFrame* oldFrame, const VideoCaptureInfo& info,
     }
 
     if (m_needScale && m_swsCtx) {
-        // srcSliceH应该是输入高度，return输出高度
+        // srcSliceH should be the input height; the return value is the output height.
         int h = sws_scale(m_swsCtx, (const uint8_t* const*)oldFrame->data, oldFrame->linesize, 0,
                           m_videoCapInfo.height, m_vInFrame->data, m_vInFrame->linesize);
     }

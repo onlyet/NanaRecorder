@@ -36,7 +36,7 @@ private:
     std::condition_variable m_cvABufNotEmpty;
     AVFrame*                m_aOutFrame = nullptr;
     SwrContext*             m_swrCtx    = nullptr;
-    AudioCaptureInfo        m_audioCapInfo{};  // 解码获取到的音频信息
+    AudioCaptureInfo        m_audioCapInfo{};  // Decode the received audio information
     int64_t                 m_resampleBufSize = 0;
     uint8_t*                m_resampleBuf[MAX_AV_PLANES];
 };

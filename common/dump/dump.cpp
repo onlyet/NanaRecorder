@@ -21,7 +21,7 @@ Dump::Callback_Dump after = nullptr;
 static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
 {
 #ifdef DyLoad_
-    // 定义函数指针
+    // Define function pointer
     typedef BOOL(WINAPI * MiniDumpWriteDumpT)(
         HANDLE,
         DWORD,
@@ -31,7 +31,7 @@ static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
         PMINIDUMP_USER_STREAM_INFORMATION,
         PMINIDUMP_CALLBACK_INFORMATION
         );
-    // 从 "DbgHelp.dll" 库中获取 "MiniDumpWriteDump" 函数
+    // Retrieve the "MiniDumpWriteDump" function from the "DbgHelp.dll" library
     MiniDumpWriteDumpT pfnMiniDumpWriteDump = NULL;
     HMODULE hDbgHelp = LoadLibrary(_T("DbgHelp.dll"));
     if (NULL == hDbgHelp)
@@ -49,7 +49,7 @@ static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
 
     QDir::current().mkpath(dirpath);
 
-    // 创建 dmp 文件
+    // Create a dmp file
     TCHAR szFileName[MAX_PATH] = { 0 };
     const QString path = QString("%1/%2-%3.dmp").arg(dirpath).arg(qApp->applicationName())
                              .arg(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss"));
@@ -65,7 +65,7 @@ static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
 #endif
         return EXCEPTION_CONTINUE_EXECUTION;
     }
-    // 写入 dmp 文件
+    // Write to dump file
     MINIDUMP_EXCEPTION_INFORMATION expParam;
     expParam.ThreadId = GetCurrentThreadId();
     expParam.ExceptionPointers = pExceptionPointers;
@@ -77,14 +77,14 @@ static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
     MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
                       hDumpFile, MiniDumpWithDataSegs, (pExceptionPointers ? &expParam : NULL), NULL, NULL);
 #endif
-    // 释放文件
+    // Release files
     CloseHandle(hDumpFile);
 #ifdef DyLoad_
     FreeLibrary(hDbgHelp);
 #endif
 
 #if  0
-    MessageBox(NULL, TEXT("客户端崩溃了，请联系技术支持人员"), TEXT("崩溃提示"), 0);
+    MessageBox(NULL, TEXT("The client has crashed; please contact technical support."), TEXT("Crash Notification"), 0);
 #endif // _WIN32
 
     qCritical() << "Crash!!! file:" << QString::fromWCharArray(szFileName);
@@ -95,10 +95,10 @@ static int generateMiniDump(PEXCEPTION_POINTERS pExceptionPointers)
 
 static LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 {
-    // 这里做一些异常的过滤或提示
+    // Perform exception filtering or provide notifications here.
     if (IsDebuggerPresent())
     {
-		// 交给调试器处理，调试器显示异常窗口
+		// Hand over to the debugger; the debugger displays the exception window.
         return EXCEPTION_CONTINUE_SEARCH;
     }
     auto ret = generateMiniDump(lpExceptionInfo);
@@ -106,7 +106,7 @@ static LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
     return ret;
 }
 
-// 此函数一旦成功调用，之后对 SetUnhandledExceptionFilter 的调用将无效
+// Once this function is successfully called, subsequent calls to SetUnhandledExceptionFilter will have no effect.
 static void disableSetUnhandledExceptionFilter()
 {
     void* addr = (void*)GetProcAddress(LoadLibrary(L"kernel32.dll"),

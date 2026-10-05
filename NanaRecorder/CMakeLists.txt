@@ -1,4 +1,4 @@
-# 项目名称
+# Project Name
 project(NaNaRecorder)
 cmake_minimum_required(VERSION 3.5)
 
@@ -6,10 +6,10 @@ if (WIN32)
 elseif (UNIX)
 	MESSAGE(STATUS "UNIX")
 
-	# CMAKE_CURRENT_SOURCE_DIR：CMakeLists.txt所在目录
+	# CMAKE_CURRENT_SOURCE_DIR: The directory containing CMakeLists.txt
 	set(CUR_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-	# 链接Qt静态库/动态库
+	# Linking Qt Static/Dynamic Libraries
 	# set(LINK_QT_STATIC TRUE)
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -35,7 +35,7 @@ elseif (UNIX)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 	message(STATUS "Qt version: ${QT_VERSION_MAJOR}")
 
-	# 指定头文件目录
+	# Specify the header file directory
 	include_directories(
 	if(${LINK_QT_STATIC})
 	${QT_PATH}/include
@@ -61,7 +61,7 @@ elseif (UNIX)
 #    file(GLOB common ../common/util/* ../common/dump/*)
 #    source_group("common" FILES ${common})
 
-	# 添加源文件
+	# Add source files
     aux_source_directory(./ SRC_LIST)
     LIST(APPEND SRC_LIST
     ./model/AppData.cpp
@@ -71,7 +71,7 @@ elseif (UNIX)
 
 	set(FFMPEG_ROOT_DIR "/home/andy/ffmpeg_build")
 
-	# 指定库文件目录
+	# Specify the library file directory
 	link_directories(
 	${QT_PATH}/lib
 	${QT_PATH}/plugins/platforms
@@ -87,8 +87,8 @@ elseif (UNIX)
 
     set(FFMPEG_LIBS swscale swresample avutil avformat avdevice avcodec)
 
-	target_link_libraries(${PROJECT_NAME} 
-	-Wl,--start-group 
+	target_link_libraries(${PROJECT_NAME}
+	-Wl,--start-group
     RecordCore ${QT_LIBS} ${FFMPEG_LIBS}
 	-Wl,--end-group)
 endif()

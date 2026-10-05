@@ -1,4 +1,4 @@
-# 项目名称
+# Project Name
 project(RecordCore)
 cmake_minimum_required(VERSION 3.5)
 
@@ -6,10 +6,10 @@ if (WIN32)
 elseif (UNIX)
 	MESSAGE(STATUS "UNIX")
 
-	# CMAKE_CURRENT_SOURCE_DIR：CMakeLists.txt所在目录
+	# CMAKE_CURRENT_SOURCE_DIR：The directory containing CMakeLists.txt
 	set(CUR_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-	# 链接Qt静态库/动态库
+	# Linking Qt Static/Dynamic Libraries
 	# set(LINK_QT_STATIC TRUE)
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -37,7 +37,7 @@ elseif (UNIX)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 	message(STATUS "Qt version: ${QT_VERSION_MAJOR}")
 
-	# 指定头文件目录
+	# Specify the header file directory
 	include_directories(
 	if(${LINK_QT_STATIC})
 	${QT_PATH}/include
@@ -54,13 +54,13 @@ elseif (UNIX)
 	./src
 	)
 
-	# 添加源文件
+	# Add source files
 	aux_source_directory(./src SRC_LIST)
 	LIST(APPEND SRC_LIST
 	../common/util/util.cpp
 	)
 
-	# 指定库文件目录
+	# Specify the library file directory
 	link_directories(
 	${QT_PATH}/lib
 	${QT_PATH}/plugins/platforms
@@ -77,9 +77,9 @@ elseif (UNIX)
     set(QT_LIBS Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 
     set(FFMPEG_LIBS swscale swresample avutil avformat avdevice avcodec)
-	# Bsymbolic参考：https://ffmpeg.org/platform.html#Advanced-linking-configuration
-	target_link_libraries(${PROJECT_NAME} 
-	-Wl,-Bsymbolic,--start-group 
+	# Bsymbolic reference：https://ffmpeg.org/platform.html#Advanced-linking-configuration
+	target_link_libraries(${PROJECT_NAME}
+	-Wl,-Bsymbolic,--start-group
     ${QT_LIBS} ${FFMPEG_LIBS}
 	-Wl,-Bsymbolic,--end-group)
 endif()
